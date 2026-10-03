@@ -1,0 +1,14 @@
+.runtime/
+.env
+*.log
+backend/target/
+frontend/node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+thesis/build/
+.DS_Store
+.idea/
+.vscode/
+tmp/
+dist/
