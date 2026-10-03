@@ -19,6 +19,7 @@ export async function products(params: Record<string, unknown> = {}) { return (a
 export async function transactions(params: Record<string, unknown> = {}) { return (await api.get<Page<Transaction>>('/transactions', { params })).data }
 export async function warnings(params: Record<string, unknown> = {}) { return (await api.get<Page<Warning>>('/warnings', { params })).data }
 export async function dashboard() { return (await api.get<Dashboard>('/dashboard')).data }
+export async function stockSummary() { return (await api.get<Dashboard>('/stock-summary')).data }
 export async function categories() { return (await api.get<Category[]>('/categories')).data }
 export async function suppliers() { return (await api.get<Supplier[]>('/suppliers')).data }
 export async function users() { return (await api.get<User[]>('/users')).data }

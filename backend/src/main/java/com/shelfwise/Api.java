@@ -28,7 +28,8 @@ record UserView(Long id,String username,String displayName,Role role,boolean ena
 }
 record CategoryInput(@NotBlank @Size(max=100) String name,@Size(max=500) String description) {}
 record SupplierInput(@NotBlank @Size(max=120) String name,@Size(max=120) String contactName,@Email @Size(max=120) String email,@Size(max=40) String phone) {}
-record UserInput(@NotBlank @Size(max=80) String username,@NotBlank @Size(max=100) String displayName,@NotBlank @Size(min=12,max=100) String password,@NotNull Role role) {}
+record UserInput(@NotBlank @Size(max=80) String username,@NotBlank @Size(max=100) String displayName,@NotBlank @Size(min=12,max=72) String password,@NotNull Role role) {}
+record LoginInput(@NotBlank @Size(max=80) String username,@NotBlank @Size(max=100) String password) {}
 record SettingInput(@NotBlank @Size(max=120) String businessName,@NotBlank @Pattern(regexp="[A-Z]{3}") String currency) {}
 record ThresholdInput(@NotNull @Min(0) @Max(1000000000) Long safetyStock,@NotNull @Min(0) @Max(1000000000) Long reorderThreshold) {}
 record UserAccessInput(@NotNull Role role,@NotNull Boolean enabled) {}

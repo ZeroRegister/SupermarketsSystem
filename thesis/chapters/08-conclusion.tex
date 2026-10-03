@@ -1,0 +1,18 @@
+\chapter{Conclusion and future work}\label{ch:conclusion}
+\section{Answers to the project questions}
+This project developed Shelfwise as a working inventory and stock-warning web system, accompanied by reproducible source, tests, diagrams, screenshots, and an English thesis. The principal result is an inventory path that records an intention as an attributable movement and links its commit to warning state and cache revision. MySQL holds durable state, while Redis accelerates an optional query path.
+
+For RQ1, the implementation and recorded tests support non-negative quantity and retained history under the selected duplicate and concurrent requests. A locked product row provides a serial balance calculation; actor-scoped keys make ordinary retries one event; the ledger stores before/delta/after, reason, actor, and time. The tests demonstrate both accepted movements and rejected attempts without silently losing their effect on the invariant. They do not prove correctness under every possible failure.
+
+For RQ2, the model and UI distinguish shortage lifecycle from acknowledgement. LOW, OUT, and RESTOCKED episodes reflect the configured stock/policy state. Review records who inspected the episode, and it does not alter quantity or resolve a shortage. Threshold equality, severity change, recovery, archive, and acknowledgement checks support that distinction. The board screenshots make the distinction visible in the running application.
+
+For RQ3, the local cache experiment returns equivalent responses and observes a lower pooled median for the Redis path in the stated small workload. Redis unavailability retains database-derived warnings, and recovery does not require reconstructing authoritative stock. The experiment supports an optional acceleration mechanism with a documented consistency boundary. It does not establish production capacity, an availability percentage, or the necessity of caching for all small stores.
+
+For RQ4, the repository combines pinned build inputs, schema migration, ignored credential examples, executable checks, and versioned evidence. The thesis uses committed source figures and standard LaTeX packages, allowing offline compilation after dependency provisioning. The clean-checkout and CI procedures evaluate the current artifact instead of relying on the original workspace. Institutional identity and formatting remain explicit placeholders pending their actual requirements.
+
+\section{Practical significance and next steps}
+The practical value is a design that a developer or reviewer can follow from a staff action to its durable explanation. A direct quantity overwrite would be simpler to implement, but it would omit the reason and actor. A warning cleared by acknowledgement would look convenient, but it would confuse human review with physical recovery. The chosen design makes both meanings explicit and tests the resulting behavior.
+
+The next work should be guided by evidence from a real store and by the operational/security limitations. Staff task observation, fractional units, expiry traceability, point-of-sale integration, account recovery, backup/restore drills, and larger-load testing are more consequential than adding another framework. Automatic replenishment or forecasting should be evaluated only after the required demand and supply data exists.
+
+Shelfwise is therefore a reproducible foundation for a bounded supermarket inventory workflow. Its implementation demonstrates the selected invariants, and its limitations identify the difference between a verified local demonstrator and an operational retail system. The released artifact enables further testing and adaptation without presenting unmeasured business outcomes as results.

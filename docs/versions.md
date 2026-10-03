@@ -15,8 +15,8 @@ Pinned project baseline on 2026-10-04:
 | MySQL | 8.4.8 | `docker-compose.yml` |
 | Redis | 7.4.9 Alpine | `docker-compose.yml` |
 | TeX Live | 2025 | host TeX installation; no generated files committed |
-| Graphviz | 14.0.1 | editable source and generator in `scripts/` |
+| Graphviz | 16.1.0 | editable source and generator in `scripts/` |
 
-The repository wrapper downloads neither Java nor Maven. It expects local Java 21 and Maven 3.9.9 paths for the authoring machine; for a fresh checkout, install Java 21 and Maven 3.9.9+, then run `mvn` from `backend/`. Node is resolved through standard `nvm` use or system PATH. Docker image tags are explicit. `.runtime/`, `target/`, `node_modules/`, and output intermediates are ignored.
+The repository wrapper downloads neither Java nor Maven. It uses task-local Java/Maven when present, otherwise the normal Java 21 and Maven on PATH; for a fresh checkout, install Java 21 and Maven 3.9.9+, then run `mvn` from `backend/`. Node is resolved through standard `nvm` use or system PATH. Docker image tags are explicit. `.runtime/`, `target/`, `node_modules/`, and output intermediates are ignored.
 
 Validation platform: Apple Silicon macOS, Docker via Colima; local services published only on loopback (MySQL 3307, Redis 6380). TeX Live 2025 with pdfLaTeX/latexmk and Poppler for inspection. These results do not establish production behavior.

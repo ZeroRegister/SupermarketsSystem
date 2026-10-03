@@ -1,0 +1,89 @@
+\documentclass[11pt,a4paper,oneside]{report}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=25mm,headheight=16pt]{geometry}
+\usepackage{setspace,graphicx,booktabs,tabularx,longtable,array,amsmath,amssymb}
+\usepackage{caption,subcaption,float,placeins,pdflscape}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor,fancyhdr,listings}
+\usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}
+\definecolor{ink}{HTML}{24334B}
+\definecolor{accent}{HTML}{536BD5}
+\definecolor{soft}{HTML}{F4F6FA}
+\hypersetup{pdftitle={Development and Optimization of an Inventory and Stock Warning System for Small Supermarkets},pdfauthor={Author Name (Placeholder)},pdfsubject={Reproducible software engineering thesis}}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.2em}
+\setlength{\emergencystretch}{3em}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small Shelfwise}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+\captionsetup{font=small,labelfont=bf,skip=8pt}
+\newcommand{\figurefile}[4][0.58]{\begin{figure}[htbp]\centering\includegraphics[width=\textwidth,height=#1\textheight,keepaspectratio]{figures/#2}\caption{#3}\label{#4}\end{figure}}
+\newcommand{\screenfigure}[3]{\begin{landscape}\begin{figure}[H]\centering\includegraphics[width=\linewidth,height=0.78\textwidth,keepaspectratio]{figures/#1}\caption{#2}\label{#3}\end{figure}\end{landscape}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{soft},frame=single,rulecolor=\color{gray!25},breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,aboveskip=10pt,belowskip=10pt}
+\begin{document}
+\begin{titlepage}
+\centering
+{\small UNIVERSITY NAME (PLACEHOLDER)\par}
+{\small Department / School Name (Placeholder)\par}
+\vspace{2.1cm}
+{\color{accent}\rule{0.23\textwidth}{1.5pt}\par}
+\vspace{0.7cm}
+{\LARGE\bfseries Development and Optimization of an Inventory and Stock Warning System for Small Supermarkets\par}
+\vspace{0.8cm}
+{\large A reproducible software-engineering study\par}
+\vspace{1.9cm}
+{\large Author Name (Placeholder)\par}
+{\normalsize Student Number (Placeholder)\par}
+\vspace{0.6cm}
+{\normalsize Supervisor Name (Placeholder)\par}
+\vfill
+{\normalsize Submitted in partial fulfilment of the requirements\par}
+{\normalsize for Degree Title (Placeholder)\par}
+\vspace{0.5cm}
+{\normalsize October 2026\par}
+\vspace{0.4cm}
+{\footnotesize Institutional metadata and formatting must be checked before submission.\par}
+\end{titlepage}
+\pagenumbering{roman}
+\chapter*{Abstract}\addcontentsline{toc}{chapter}{Abstract}
+Small supermarket inventory work combines frequent quantity changes with a need to explain who recorded a change and why. A stock list alone cannot provide that explanation, and a warning that disappears after review cannot distinguish acknowledgement from replenishment. This project develops Shelfwise, a single-store web system that joins catalog maintenance, an auditable movement ledger, and persistent stock-warning episodes.
+
+The implementation uses Java 21 and Spring Boot for the application service, Vue 3 and TypeScript for the browser workspace, MySQL for durable state, and Redis for an optional warning-query cache. Product quantities change only through receiving, dispatch, signed adjustment, or absolute stock-count transactions. A product row lock, a non-negative balance check, and actor-scoped idempotency keys protect ordinary concurrent and duplicate submissions. Warning acknowledgement records a reviewer independently of the warning lifecycle. A database revision namespaces cached warning pages so committed stock and review changes are reflected in subsequent requests.
+
+The evaluation combines container-backed integration tests, authenticated API smoke checks, browser journeys, a Redis outage experiment, a restart persistence check, and an alternating cache/bypass latency measurement. The recorded integration suite covers 27 cases, including threshold equality, role boundaries, duplicate requests, and concurrent dispatch. All recorded cases passed in the local environment. The browser audit confirmed 14 checks with no JavaScript runtime errors. The latency study provides descriptive evidence on a small demonstration dataset; it does not establish production capacity or a business benefit. Redis failure preserved the database-derived warning results, and an application restart preserved the stock and transaction fingerprint.
+
+The main contribution is a reproducible implementation that makes inventory correctness and warning transitions inspectable from code, database records, tests, and interface evidence. Important limitations include whole-unit stock, a single store and application node, a manually maintained threshold policy, and the absence of a real-store usability trial. The work supports a working demonstrator and a basis for further validation rather than a claim of enterprise readiness.
+
+\noindent\textbf{Keywords:} inventory management; stock warning; audit trail; Spring Boot; Vue; MySQL; Redis; reproducibility.
+\chapter*{Declaration and artifact note}\addcontentsline{toc}{chapter}{Declaration and artifact note}
+This document describes the software and experiments included in the accompanying repository. Author, institution, department, student number, supervisor, and degree fields remain placeholders because they were not supplied. No institutional formatting compliance, supervisor approval, or real-store field trial is asserted. These fields must be replaced and the university's requirements checked before submission.
+
+The evidence uses fictitious demonstration accounts and catalog data. Screenshots were captured from the implemented application rather than reconstructed illustrations. Performance samples, browser-check results, failure-recovery data, and persistence fingerprints are retained under \texttt{docs/evidence}. The application source, migration, dependency lockfile, source diagrams, bibliography, and thesis source are versioned. Generated dependencies, credentials, databases, local runtime folders, and compiler intermediates are excluded.
+
+The original wording and layout of this thesis are supplied under the repository's MIT license. Third-party documentation and research are cited in the bibliography; no third-party thesis template or institution logo is incorporated. The project is a reproducible educational system. Store deployment would require additional security, operational, and domain validation.
+\tableofcontents
+\listoffigures
+\listoftables
+\clearpage\pagenumbering{arabic}
+\include{chapters/01-introduction}
+\include{chapters/02-background}
+\include{chapters/03-requirements}
+\include{chapters/04-design}
+\include{chapters/05-implementation}
+\include{chapters/06-evaluation}
+\include{chapters/07-discussion}
+\include{chapters/08-conclusion}
+\bibliographystyle{plainnat}
+\bibliography{references}
+\appendix
+\include{chapters/09-appendices}
+\end{document}

@@ -1,0 +1,62 @@
+\chapter{Implementation}\label{ch:implementation}
+\section{Project structure and pinned baseline}
+The repository contains separate backend and frontend build roots, a thesis project, public documentation, reproducibility scripts, and CI workflows. The backend uses Java 21, Spring Boot 3.5.16, Spring Web, Validation, Security, Data JPA, Flyway, and Spring Data Redis. The frontend uses Vue 3.5.22, TypeScript, Vite, Vue Router, Pinia, Element Plus, and an ECharts adapter. MySQL 8.4.8 and Redis 7.4.9 are pinned in Compose. The evaluated local Java patch and toolchain are recorded in the version matrix.
+
+The application classes divide responsibility into domain entities, repositories, validated inputs and response records, request controllers, a stock-oriented service, and security configuration. This is a compact implementation rather than a large package hierarchy. The service is the central transaction boundary. The appendix identifies the files needed to follow a stock request, while the public API document describes the routes and roles independently of the browser.
+
+The first migration creates the tables, indexes, foreign keys, checks, settings defaults, and initial revision row. Demonstration accounts and balances are added through a startup seeder only when the user table is empty and demonstration mode is enabled with a supplied password. Additional representative demonstration products are created through a repeatable API seed script. Both routes preserve movement history; neither requires a direct SQL quantity overwrite.
+
+\section{Authentication and access implementation}
+Figure~\ref{fig:login} shows the implemented login screen. The screenshot crops the actual credential form so its labels remain legible at thesis size. The user supplies a username and password, the client obtains a CSRF token, and the login request is authenticated by the server. A successful login changes the session identifier and stores the security context in the servlet session. The browser stores no bearer token in local storage.
+
+\figurefile[0.48]{ui-login.png}{Implemented sign-in screen. The form uses the session/CSRF authentication path; input labels and the sign-in action remain readable in the cropped form.}{fig:login}
+
+Passwords are encoded with BCrypt before persistence and are absent from user response records. The three seed accounts are fictitious. Their password comes from an ignored local environment file rather than a public credential in source control. The seed is disabled by default. The deployed application needs its own account lifecycle, password-reset policy, and additional security controls; those are documented limitations.
+
+Server request matching protects resource groups and unsafe methods. A filter reloads the current user from MySQL and removes access for a disabled account. Role changes replace the session's effective authorities on the next request. Browser guards restrict administrative deep links and warning/report views for roles that cannot use them. Tests send requests directly to the server as well as through browser routes, so a hidden menu is not treated as proof of enforcement.
+
+\section{Inventory workspace and query path}
+The dashboard in Figure~\ref{fig:workspace} presents active product count, positive low-stock count, out-of-stock count, estimated stock value, and recorded movements. The chart counts actual transactions by UTC date. Category composition sums current whole units by category; it does not infer revenue or demand. The priority list shows warning episodes with review status. A clerk's overview uses a server aggregate response without warning-review records.
+
+\screenfigure{ui-dashboard.png}{Operational dashboard cropped to the implemented metrics and charts. Values come from persisted demonstration inventory and movements.}{fig:workspace}
+\screenfigure{ui-inventory.png}{Inventory query screen with product identity, category, quantity, threshold, status and current unit price. The crop retains the operational columns at print-readable scale.}{fig:inventoryscreen}
+
+The inventory endpoint builds a filtered JPA query rather than fetching all products for browser filtering. Search covers product name, SKU, and barcode. Category, health, and archive filters are applied before counting and paging. Sorting uses an allow-list and ID tie-breaker. The UI shows a smaller page size and clear empty-state guidance, with a CSV export of the displayed page. The export does not imply that the whole filtered catalog has been downloaded.
+
+Catalog inputs omit quantity. Administrators can edit names, prices, associations, and thresholds or archive the product. Managers use a threshold-only endpoint and modal. The server takes a product lock when editing these warning-related fields to avoid racing a stock calculation. Category and supplier maintenance includes creation, editing, and deletion, with foreign-key rejection when the record remains referenced.
+
+\section{Audited stock forms}
+Figure~\ref{fig:stockform} shows the stock activity form. The clerk chooses a product, activity type, quantity, and reason. The form explains that the operation records the actor and before/after quantities. Receiving and dispatch use positive quantities. Adjustment is signed, and stocktake is an absolute count. The submission button is disabled while the request is pending, and the client keeps one idempotency key for the open form's retry path.
+
+\figurefile[0.48]{ui-stock-form.png}{Stock activity dialog over the transaction-history screen. The same form supports receive, dispatch, signed adjustment, and absolute count with an attributable reason.}{fig:stockform}
+
+The backend repeats every consequential check. It does not trust a displayed available quantity, a client actor, or a client before/after balance. On success, the response includes the movement ID, actor display name, delta, before/after quantities, and server time. On insufficient stock, it returns a validation error and the transaction rolls back. An exact key replay returns the same movement; changed content returns a conflict.
+
+Movement history lists the product, activity type, signed change, before/after amounts, actor, reason, and timestamp. An accepted record has no delete or edit endpoint. If staff recorded the wrong quantity, a correction creates another explanation rather than overwriting the earlier one. That history supports troubleshooting but is not tamper-proof against a database administrator; this limitation is discussed in Chapter~\ref{ch:discussion}.
+
+\section{Warning board and review}
+Figure~\ref{fig:warningboard} shows open episodes, stock observation, threshold, detection time, and review attribution. Review adds the authenticated manager or administrator and a timestamp. The first reviewer is preserved on repeated acknowledgement. A new lifecycle episode starts unreviewed, so an old review cannot silently acknowledge a newly observed shortage severity.
+
+\screenfigure{ui-warnings.png}{Implemented warning board. Review status is independent of the OPEN/RESOLVED lifecycle; acknowledging an episode does not replenish or resolve it.}{fig:warningboard}
+
+The cached warning response maps entities to a detached response record inside the read transaction. Java time values are serialised as ISO-8601 strings. A cache decode error is treated as a miss rather than making the board unusable. The revision changes on acknowledgement so the next request cannot select the previously cached unreviewed page. The same revision strategy applies to stock and threshold changes.
+
+The periodic expiry task closes eligible RESTOCKED episodes, while the open query excludes expired ones. LOW and OUT have no short expiry, because a shortage does not cease to matter merely because it is old. Filtering is performed in the database before pagination. This fixes a subtle class of dashboard errors where a filtered page has fewer visible rows but still reports an unrelated total.
+
+\section{Reports, administrative data, and presentation}
+Figure~\ref{fig:reports} shows the reporting view. The monetary metric is derived from current quantity and current unit price. Daily activity is a count of ledger events, including corrections and stock counts; it is not a sales-volume series. Category composition describes current unit counts. These definitions keep the UI and evaluation claims aligned with the data actually stored.
+
+\screenfigure{ui-reports.png}{Reports from current balances and recorded transaction timestamps. The value estimate uses current prices, and daily counts include all accepted inventory movement types.}{fig:reports}
+
+Settings store a display name and currency code. Changing the display currency performs no conversion, and the UI states this consequence before saving. Team maintenance creates accounts, pauses/restores access, and assigns a fixed role. The server guards the last enabled administrator. The application does not send invitations or credentials to a third-party messaging service.
+
+The responsive layout in Figure~\ref{fig:mobile} confines the inventory table's wide content to a scrollable container. Navigation condenses on a narrow viewport, and the page itself does not exceed the viewport width in the recorded browser check. Text labels remain present in the table. This is a concrete responsive check, not evidence that every assistive technology or mobile device has been tested.
+
+\figurefile[0.48]{ui-mobile-inventory.png}{Inventory at a 390-pixel browser viewport. The table scrolls within its own surface while the page and navigation remain within the viewport.}{fig:mobile}
+
+\section{Implementation corrections and build trade-offs}
+Verification found errors that a successful source build did not reveal. A stale Vite prebuilt dependency cache produced an empty page after dependency reinstall; a restart with forced dependency optimisation repaired the authoring server. The ECharts adapter required explicit renderer/chart registration before a real chart could mount. Browser runtime-error collection caught that defect. A Hibernate relationship used during replay needed loading inside the transaction, and warning cache serialisation needed registered Java time support.
+
+These corrections explain why the verification sequence includes database and browser execution rather than compile checks alone. The final frontend passes type checks, threshold unit tests, production build, and dependency audit. The build still reports a substantial client bundle because the chosen component library and chart stack are included. This is a documented trade-off, not a claimed optimisation success. Route/component splitting and measuring real-device loading are useful follow-up work.
+
+The project uses local system fonts and committed figure assets, so the operational interface does not depend on a font CDN. Compilation of the multi-file thesis uses standard TeX packages and the committed exports. Diagram regeneration needs Graphviz, and screenshot regeneration needs Playwright and the running application; neither is needed merely to compile the checked-out thesis.

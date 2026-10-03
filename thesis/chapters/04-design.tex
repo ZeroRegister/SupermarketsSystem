@@ -1,0 +1,67 @@
+\chapter{System design}\label{ch:design}
+\section{Architecture and ownership of state}
+Figure~\ref{fig:architecture} shows the runtime architecture. The browser communicates with one Spring Boot application using JSON requests and a server session. The application owns catalog, inventory, warning, access, and reporting modules. MySQL owns durable state. Redis holds a disposable warning-page cache. This arrangement keeps an inventory commit inside one transactional boundary and gives the prototype one deployment unit to reproduce.
+
+\figurefile[0.57]{architecture.png}{Runtime architecture and data ownership. MySQL contains durable state; Redis is an optional read cache and does not participate in balance correctness.}{fig:architecture}
+
+The modular monolith is selected because the project has one store and a small set of related operations. Splitting stock and warnings across independently deployed services would require a policy for publishing and consuming changes, handling retries, and reconciling delayed warning state. That could be appropriate in a larger system, but it would add distributed-state problems without evidence that the current workload needs separate services. The design instead makes module responsibilities explicit in one application.
+
+The frontend does not maintain an authoritative stock copy. It loads server pages, sends an intention, and refreshes after a successful operation. A local form may be stale, so the server repeats the quantity and permission checks. Loading feedback describes the request state; it does not imply that a transaction committed. An error allows the staff member to revise the request or retry without inventing a result.
+
+\section{Deployment design}
+The authoring deployment in Figure~\ref{fig:deployment} places the Java application and Vite development server on the host, with MySQL and Redis in Compose containers. Host ports are bound to loopback. Vite proxies API requests so the browser uses one origin during development. The production guide replaces this development server with built assets and a TLS reverse proxy. Production hardening remains additional work rather than a result of the local experiment.
+
+\figurefile[0.36]{deployment.png}{Local demonstration deployment. The host application connects to loopback-published container ports; a persistent MySQL volume is separate from the disposable Redis cache.}{fig:deployment}
+
+MySQL's named volume survives ordinary service shutdown. Flyway applies versioned migrations on startup, and JPA validates the mapped schema. These mechanisms have different responsibilities: migration describes how the schema changes, while validation checks whether the application model matches the resulting schema. They do not back up the data. Backup and restore are documented operations that must be tested separately for a real deployment.
+
+Servlet sessions are stored in the application process. This avoids making Redis failure a login failure in the selected design, but an application restart logs users out. The system has one node and makes no claim of uninterrupted session availability or active-active operation. A multi-node deployment would need a compatible shared session strategy and a review of the cache revision and database contention costs.
+
+\section{Relational model}
+Figure~\ref{fig:erd} presents the durable entities. Product references a category and optionally a supplier. An inventory transaction references the product and the authenticated actor. A warning episode references its product and optionally a reviewer. User, category, and supplier identities are separate from operational history so a movement can be attributed and classified without duplicating every catalog field into every row.
+
+\figurefile[0.62]{erd.png}{Relational entity model. Solid relationships describe references in durable records; the cache revision is a query-namespace mechanism rather than a product balance.}{fig:erd}
+
+The product table materialises current quantity for fast inventory reads. The ledger retains the explanation of each accepted change. Both are written together. SKU and optional barcode have unique constraints; the actor/idempotency-key pair is unique in the transaction table. Foreign keys prevent deleting a referenced category or supplier and prevent an orphaned transaction or warning record.
+
+Products with history are archived instead of removed. The active flag affects the current list and acceptance of future movements. Warning episodes for an archived product are resolved, and transaction history stays queryable by product ID. Archiving is therefore a lifecycle operation rather than a quantity correction. It does not bring the balance to zero or insert a fabricated dispatch.
+
+The schema includes an optimistic version on the product, but the ordinary stock path uses a pessimistic row lock. The version still helps detect unintended conflicting catalog updates. Quantity, price, and threshold check constraints provide database bounds in addition to request/service validation. The combination addresses both normal HTTP requests and accidental application-level writes that could otherwise bypass a form.
+
+\section{Movement transaction algorithm}
+For a normal receive or dispatch, the service calculates a signed delta $d$ and a candidate balance $q'=q+d$. For a stocktake, the client supplies an observed amount $c$ and the service derives $d=c-q$ while holding the product lock. A valid write satisfies
+\begin{equation}\label{eq:bounds}
+ 0\leq q'\leq 10^9, \qquad q'=q+d.
+\end{equation}
+A zero-delta stocktake is accepted as an audit of an unchanged count. A zero-delta adjustment is rejected because it describes no correction. This distinction preserves a count event without treating an empty adjustment as a meaningful movement.
+
+Figure~\ref{fig:workflow} shows the control path. The service resolves the actor, locks the product, checks any previous key, and calculates the balance. A replay with matching intention returns the saved transaction. A mismatched replay fails with 409. An archived product or invalid balance fails before a new ledger row is committed. An accepted event writes quantity and history, updates the warning episode, and increments the cache revision.
+
+\figurefile[0.68]{stock-workflow.png}{Audited stock movement workflow. Balance, ledger, warning state, and revision are committed together; rejected input does not produce an accepted ledger row.}{fig:workflow}
+
+The service transaction uses READ COMMITTED on the stock path. This choice permits the replay lookup made after acquiring the product lock to see a transaction committed by an earlier identical request. A repeatable snapshot established by an earlier ordinary actor lookup could otherwise hide that newly committed key. The database uniqueness constraint remains a final backstop. The concurrent identical-request test verifies the ordinary same-product path rather than assuming that the annotation alone guarantees the intended result.
+
+Lock ordering starts from the product row and then reaches warning/revision writes. The revision is global to this store, so writes to different products eventually contend on the same revision increment. The design deliberately accepts that cost for simplicity. It does not claim that one shared revision row scales to a large chain or a very high movement rate. Database deadlocks remain possible and must be handled as transaction failures rather than quietly converting into successful stock events~\citep{mysql-deadlocks}.
+
+\section{Warning state and acknowledgement}
+A warning episode records type, lifecycle state, observed quantity, threshold, first-detection time, expiry, and review attribution. Lifecycle uses OPEN or RESOLVED. Acknowledgement uses a nullable reviewer and timestamp. The two dimensions are deliberately independent: an open shortage may be reviewed, and a shortage may resolve through replenishment before review.
+
+Figure~\ref{fig:warninglife} explains the transitions. OUT has priority over LOW. A change from one shortage severity to another closes the former episode and opens the latter. A change within a severity keeps the episode and updates its latest observed quantity. Recovery resolves the shortage and creates RESTOCKED. A recently restocked record expires after 24 hours or resolves sooner if a new shortage occurs. The expiry maintenance task runs periodically, while an open query also excludes an already expired restock record.
+
+\figurefile[0.60]{warning-lifecycle.png}{Warning lifecycle and independent review. Acknowledgement records responsibility without changing inventory; recovery is caused by stock or threshold state.}{fig:warninglife}
+
+The safety-stock value is stored and editable as a lower operational boundary. LOW is generated at the reorder threshold, and products at or below safety stock can be prioritised by inspecting quantity and threshold data. The release does not introduce a fourth warning severity or a forecast-based urgency score. This keeps displayed types consistent with the tested lifecycle.
+
+Changing thresholds can create or resolve a warning even without a physical movement. That is legitimate because the policy changed, but it is not a stock event. The manager threshold endpoint changes only the two threshold fields, preserves quantity, and recomputes the episode. Product identity and price remain administrator responsibilities. These separate inputs prevent a manager's policy edit from becoming an unintended catalog or stock rewrite.
+
+\section{Cache keys, invalidation, and expiry}
+The cache key includes the database revision, warning type, lifecycle filter, page number, and page size. Filtering occurs before pagination so the response total describes the selected set. The stored page contains the same response DTO as the uncached path, including ISO-8601 timestamps. It is a query result, not an entity that may lazily fetch data after the transaction.
+
+The revision increments in the transaction that changes a quantity, threshold, catalog label relevant to warnings, or acknowledgement. A later request reads the revision from MySQL and chooses the corresponding namespace. An older cache entry is not deleted synchronously; its TTL reclaims it. Avoiding a global Redis flush also prevents this application from deleting unrelated cache keys. Redis reads and fills are best effort, with short connection/command timeouts and database fallback.
+
+The cache does not provide linearizability for a request that started before a commit. Such a request may use the earlier revision and return the earlier page. The guarantee is that subsequent reads using the committed new revision do not address a pre-commit namespace. Expiry-dependent restock visibility can be delayed by the short TTL or maintenance interval. These bounds are documented so ``immediately refreshed'' is not confused with an absolute real-time guarantee.
+
+\section{Interface and report design}
+The workspace separates operational actions from administrative maintenance. Inventory search shows stock health as both text and colour. The stock form requires an activity type and reason. The warning board shows a review status rather than a button that pretends to resolve the shortage. Reports display current aggregate values and daily movement counts, with explicit units and UTC date grouping.
+
+Table density is kept moderate, with row identifiers, clear status labels, and a small default page. On narrow screens, navigation condenses and wide tables scroll inside their own container. The UI includes labelled inputs, focus outlines, empty-state guidance, and disabled/request feedback where a write is pending. These decisions aim to prevent ambiguous actions. They do not substitute for measuring real staff task completion or screen-reader behavior in a formal study.

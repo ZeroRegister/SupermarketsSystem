@@ -10,7 +10,11 @@ fi
 export DB_PASSWORD="${DB_PASSWORD:-${MYSQL_PASSWORD:-}}"
 export DEMO_PASSWORD="${DEMO_PASSWORD:-}"
 export DEMO_ENABLED="${DEMO_ENABLED:-false}"
-export JAVA_HOME="${JAVA_HOME:-$ROOT/.runtime/jdk-21.0.12.1+1/Contents/Home}"
-export PATH="$JAVA_HOME/bin:$ROOT/.runtime/apache-maven-3.9.9/bin:$PATH"
+if [[ -z "${JAVA_HOME:-}" && -d "$ROOT/.runtime/jdk-21.0.12.1+1/Contents/Home" ]];then
+ export JAVA_HOME="$ROOT/.runtime/jdk-21.0.12.1+1/Contents/Home"
+elif [[ -z "${JAVA_HOME:-}" && "$(uname)" == Darwin ]];then
+ export JAVA_HOME="$(/usr/libexec/java_home -v 21)"
+fi
+export PATH="${JAVA_HOME:+$JAVA_HOME/bin:}$ROOT/.runtime/apache-maven-3.9.9/bin:$PATH"
 cd "$ROOT/backend"
 exec mvn "$@"

@@ -1,0 +1,65 @@
+\chapter{Requirements and system analysis}\label{ch:requirements}
+\section{Stakeholders and use cases}
+Requirements are organised around responsibility rather than around screens. An administrator maintains the catalog, team accounts, and store settings. A manager reviews the stock position, changes thresholds, and acknowledges warning episodes. A clerk records receipts, dispatches, signed corrections, and physical counts. All three roles need a searchable inventory and a transaction history to understand what is currently available.
+
+Figure~\ref{fig:usecases} shows this allocation. The administrator shares the operational actions while retaining catalog and access administration. The manager's ability to configure thresholds is separated from permission to change product identities or post stock. A clerk's ability to post a movement is separated from permission to acknowledge a shortage. These separations prevent one broad ``can edit inventory'' permission from covering unrelated operations.
+
+\figurefile[0.45]{use-cases.png}{Actors and their responsibility groups. Shared read access supports daily work, while stock entry, warning review, and administration remain distinct server permissions.}{fig:usecases}
+
+The users in this model are not survey participants. Fictitious names represent demonstration accounts. Requirements are derived from the stated project scope and then translated into acceptance cases. A later store trial may reveal additional tasks, such as expiry inspection, order approval, or scanner-based lookup. Those tasks cannot be assumed to be satisfied merely because the current screens look complete.
+
+\section{Functional requirements}
+Catalog maintenance covers SKU and optional barcode uniqueness, name, unit, current price, category, optional supplier, safety stock, and reorder threshold. Quantity is displayed but excluded from catalog input. A product starts at zero, and an opening balance is created through a normal movement. Archiving hides a product from the active list while retaining its history; it does not remove evidence of previous transactions.
+
+The movement input represents an intention. Receiving and dispatch use positive input quantities, with the service applying the sign. Adjustment uses a signed quantity. Stocktake uses an absolute observed quantity that may be zero. A reason is mandatory for every type. The service derives actor and timestamp from the authenticated request and server clock rather than trusting client-provided identity or time.
+
+Warning requirements specify both a boundary and a lifecycle. Zero quantity produces OUT. Positive quantity at or below the reorder threshold produces LOW. Stock above that threshold is healthy. Recovery from an open shortage resolves the shortage and produces a RESTOCKED episode for 24 hours. A different shortage severity resolves the previous episode and opens the new one. Staying within one severity updates the observed quantity and threshold without discarding the first review attribution.
+
+Table~\ref{tab:traceability} connects these requirements to concrete acceptance evidence. The repository's requirements document additionally names the endpoint and entity for each use case. This mapping allows a missing feature to be identified as a missing request, state transition, screen, or test rather than hidden in a general ``inventory works'' statement.
+
+\begin{table}[htbp]\centering\small
+\caption{Core requirements and their executable or observable acceptance evidence.}\label{tab:traceability}
+\begin{tabularx}{\textwidth}{p{0.08\textwidth}p{0.35\textwidth}Y}\toprule
+ID & Requirement & Acceptance check \\\midrule
+R1 & Session sign-in/out and role protection & Anonymous denial; invalid credentials/CSRF boundary; role-specific writes. \\
+R2 & Catalog and reference data & Invalid input, duplicate SKU, threshold hierarchy, referenced-record protection. \\
+R3 & Audited receive/dispatch & Before/delta/after history; insufficient-stock rejection without an inserted movement. \\
+R4 & Adjustment and physical count & Signed correction; absolute count; count-to-zero and unchanged-count audit. \\
+R5 & Inventory query & Empty search; capped pagination; allow-listed stable sorting. \\
+R6 & Warning lifecycle and review & Zero/equality/recovery transitions; acknowledgement does not mutate stock. \\
+R7 & Retry and concurrency safety & Same-key replay; changed-payload conflict; concurrent dispatch and identical request. \\
+R8 & Optional cache and recovery & Cached/uncached response equality; Redis outage; revision after review/change. \\\bottomrule
+\end{tabularx}\end{table}
+
+\section{Permission matrix}
+The permission matrix in Table~\ref{tab:permissions} is enforced by server request matching. Browser route guards mirror it to guide the user toward available views. The server remains authoritative, including when a request is sent without using the UI. User enablement and role are reloaded for each request so a paused account cannot retain access merely because its session was opened earlier.
+
+\begin{table}[htbp]\centering\small
+\caption{Fixed role permissions. A checkmark denotes allowed access; a dash denotes a denied operation.}\label{tab:permissions}
+\begin{tabularx}{\textwidth}{Yccc}\toprule
+Operation & Admin & Manager & Clerk \\\midrule
+Read inventory and transaction history & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+Receive / dispatch / adjust / count & $\checkmark$ & -- & $\checkmark$ \\
+Create / edit / archive products & $\checkmark$ & -- & -- \\
+Change safety/reorder thresholds & $\checkmark$ & $\checkmark$ & -- \\
+Review/acknowledge warning board & $\checkmark$ & $\checkmark$ & -- \\
+Read reports & $\checkmark$ & $\checkmark$ & -- \\
+Maintain categories and suppliers & $\checkmark$ & -- & -- \\
+Manage user access and settings & $\checkmark$ & -- & -- \\\bottomrule
+\end{tabularx}\end{table}
+
+An administrator assigns one of the three fixed roles rather than constructing a new permission expression. The release guards the last enabled administrator from disablement or demotion. This is an availability invariant for administration, not a general approval workflow. The UI prevents accidental self-service access removal, while the server guard also protects direct requests.
+
+\section{Data and validation assumptions}
+Whole-unit stock ranges from zero to one billion. Safety stock and reorder threshold use the same range and satisfy $0\leq s\leq r$. The upper bound prevents arithmetic and presentation surprises; it is not a plausible store target. Price is a non-negative decimal with at most two fractional digits. Floating-point arithmetic is avoided for stored money. Category and supplier IDs must refer to existing records when supplied.
+
+SKU, barcode, and username uniqueness are part of identity control. Product search includes name, SKU, and barcode. A query can select category, stock health, or archived records. Page size is bounded to 100, and supported sorts use an ID tie-breaker so equal names or quantities do not produce an unstable page order. The UI uses a smaller default page for readability, while the API cap prevents a request from returning the entire catalog by accident.
+
+A reason explains an operational event but does not prove it happened physically. The application can validate that the reason is present and bounded, not that the delivery arrived or the count was accurate. Demonstration stock movements are therefore technical test data. A real workflow would need staff training, reconciliation discipline, and possibly supporting documents.
+
+\section{Non-functional acceptance criteria}
+Correctness takes priority over optional acceleration. A failed Redis lookup must retain the authoritative result, and Redis must not be needed to accept a stock transaction. Quantity and ledger state must survive application restart. An unauthorised unsafe request must fail before the service changes data. A duplicate accepted request must remain one ledger event.
+
+Reproducibility requires migrations, dependency locks, environment examples, and documented commands. Secrets remain outside version control. The frontend includes loading, error, and empty states, labels for operational inputs, and a responsive navigation layout. The accessibility checks are an engineering inspection informed by WCAG~\citep{wcag}, not an accessibility certification or a usability experiment.
+
+The system's offline claim is limited to running already-installed dependencies and compiling the committed thesis. A fresh environment needs access to download language packages, container images, or TeX packages unless those have been provisioned elsewhere. The repository does not bundle a Java distribution, MySQL database, or package registry mirror. The deployment guide identifies these external dependencies rather than treating them as missing project files.

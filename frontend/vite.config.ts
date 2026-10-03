@@ -4,5 +4,6 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   server: { port: 5173, proxy: { '/api': 'http://localhost:8080', '/actuator': 'http://localhost:8080' } },
+  build: { rollupOptions: { output: { manualChunks: { 'ui-library': ['element-plus'], 'charts': ['echarts/core', 'echarts/charts', 'echarts/components', 'echarts/renderers'], 'framework': ['vue', 'vue-router', 'pinia'] } } } },
   test: { environment: 'jsdom', include: ['src/**/*.spec.ts'] },
 })

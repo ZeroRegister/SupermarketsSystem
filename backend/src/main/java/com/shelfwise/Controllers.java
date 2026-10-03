@@ -31,6 +31,7 @@ class ApiController {
  @GetMapping("/warnings") PageResult<WarningView> warnings(@RequestParam(defaultValue="")String type,@RequestParam(defaultValue="open")String state,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="20")int size,@RequestParam(defaultValue="true")boolean cache){if(!type.isBlank()&&!Set.of("LOW","OUT","RESTOCKED").contains(type.toUpperCase()))throw new DomainException("VALIDATION","Unknown warning type",400);if(!Set.of("open","resolved","all").contains(state.toLowerCase()))throw new DomainException("VALIDATION","Unknown warning state",400);return service.warningPage(type,state,page,size,cache);}
  @PostMapping("/warnings/{id}/ack") WarningView acknowledge(@PathVariable long id,org.springframework.security.core.Authentication auth){return service.acknowledge(id,auth.getName());}
  @GetMapping("/dashboard") DashboardView dashboard(){return service.dashboard();}
+ @GetMapping("/stock-summary") DashboardView stockSummary(){var d=service.dashboard();return new DashboardView(d.productCount(),d.lowStock(),d.outOfStock(),d.inventoryValue(),d.transactionCount(),d.activityDates(),d.activityCounts(),d.categoryMix(),d.urgentProducts(),List.of());}
  @GetMapping("/reports/summary") Map<String,Object> report(){return service.report();}
  @GetMapping("/categories") List<Map<String,Object>> categories(){return service.categoryList().stream().map(c->Map.<String,Object>of("id",c.id,"name",c.name,"description",c.description==null?"":c.description,"active",c.active)).toList();}
  @PostMapping("/categories") @ResponseStatus(HttpStatus.CREATED) Map<String,Object> category(@Valid @RequestBody CategoryInput in){Category c=service.createCategory(in);return Map.of("id",c.id,"name",c.name);}
@@ -52,4 +53,5 @@ class ApiController {
 class DemoBootstrap implements org.springframework.boot.ApplicationRunner {
  private final InventoryService service;DemoBootstrap(InventoryService service){this.service=service;}
  @Override public void run(org.springframework.boot.ApplicationArguments args){service.seed();}
+ @org.springframework.scheduling.annotation.Scheduled(fixedDelay=30000,initialDelay=30000) void cleanupWarnings(){service.cleanupExpiries();}
 }

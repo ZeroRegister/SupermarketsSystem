@@ -1,0 +1,60 @@
+\chapter{Testing, optimisation, and evaluation}\label{ch:evaluation}
+\section{Evaluation strategy and environment}
+The evaluation combines checks at several boundaries. Source compilation and frontend type checking establish that the artifacts build. Container-backed integration tests exercise the actual MySQL transaction engine and Redis service. The API smoke script follows authentication, role denial, stock replay, invalid balance, warning review, and logout. Browser automation checks rendered views and real actions. Separate experiments stop Redis and restart the application to inspect failure fallback and persistence.
+
+The environment is an Apple Silicon macOS authoring host, Java 21.0.12.1+1, Maven 3.9.9, Node 22.16.0, and MySQL/Redis containers running through Colima. Requests use loopback HTTP. The benchmark uses one authenticated client, a page size of 100, and a small seeded dataset. It includes network, session, permission, revision, query/cache, and JSON processing costs. It is not an isolated Redis microbenchmark.
+
+Testcontainers provides disposable real-service environments for integration checks~\citep{testcontainers}. The selected engine is important because a lightweight substitute would not establish the same locking and uniqueness behavior. Each integration test creates dedicated product data rather than depending on one previously mutated balance. The test database is isolated from the running demonstration store. Tests are executable acceptance evidence, not a claim of exhaustive verification.
+
+\section{Correctness and regression results}
+Table~\ref{tab:testresults} summarises the recorded results. The backend suite contains 27 integration cases and finished with zero failures, errors, or skipped tests. Frontend boundary tests distinguish zero, exact reorder equality, and positive stock above threshold. The browser result records 14 checks with zero JavaScript runtime errors. The source includes the assertions, and the evidence pack names the commands used.
+
+\begin{table}[htbp]\centering\small
+\caption{Recorded verification layers and the behavior each layer checks.}\label{tab:testresults}
+\begin{tabularx}{\textwidth}{p{0.24\textwidth}p{0.15\textwidth}Y}\toprule
+Layer & Recorded result & Coverage and interpretation \\\midrule
+Backend integration & 27 passed & Actual MySQL/Redis; validation, role/CSRF boundaries, ledger, thresholds, replay, concurrency, archive and access guard. \\
+Frontend unit & 3 passed & Zero/equality/healthy status presentation; complements server boundary tests. \\
+API smoke & Passed & Authenticated multi-role journey; exact/mismatched replay, insufficient stock and review. \\
+Browser journey & 14 passed & Rendered screens, receipt submission, acknowledgement, protected deep links, empty search and mobile containment. \\
+Redis outage & Passed & Database warning results retained during service unavailability; recovery restored. \\
+Restart fingerprint & Passed & Same persisted product/transaction rows across an application restart. \\
+Build and audit & Passed & Backend build; frontend types/production build; zero reported npm vulnerabilities at the recorded check. \\\\bottomrule
+\end{tabularx}\end{table}
+
+The concurrent dispatch test creates seven units and launches twelve dispatch intentions. Seven succeed, five fail the stock bound, and the product ends at zero. The concurrent identical-request test launches four copies of one receipt with the same actor and key; all return one movement ID and the quantity changes once. These are representative stress cases for the selected invariant, not a throughput benchmark or a proof over every schedule.
+
+Rejection checks also inspect state after failure. An insufficient dispatch inserts no accepted movement and leaves quantity unchanged. A changed-payload replay conflicts without becoming a second receipt. A count-to-zero is recorded as a negative delta, while a count equal to the current balance still records the staff observation. Archiving prevents new movements and closes open warnings without deleting history.
+
+Role checks cover direct HTTP requests as well as UI navigation. The tests deny a clerk's acknowledgement/user-management requests and a manager's stock write. CSRF is required for unsafe methods. The manager threshold endpoint changes only thresholds. The last enabled administrator cannot be paused or demoted through the service. The browser separately confirms that forbidden administrative deep links redirect to an allowed view.
+
+\section{Cache experiment procedure}
+The benchmark alternates mode order across three rounds. Each mode receives twenty warm-up requests, then 200 sequential measured requests. Pooling rounds produces 600 samples for the cached path and 600 for the MySQL bypass path. The dataset contains 16 active products and 16 open warning episodes, including short-lived replenishment episodes. The cache-enabled and bypass responses are compared for complete JSON equality during the recorded run.
+
+Latency is measured with the client's monotonic high-resolution clock. The script retains every sample, the mode order, environment description, page size, concurrency, warm-up count, and timestamp. Percentiles are selected from the ordered empirical sample rather than fitted to a distribution. The reported numbers can therefore be recalculated from the committed JSON, although a new run on another host will not reproduce exactly the same timing.
+
+The comparison is deliberately modest. Both paths still consult MySQL for session authority and the revision. The cache path can avoid episode/entity loading and mapping, but it adds a Redis request and JSON decoding. With only sixteen episodes, either path is short. A statistically controlled production claim would require a larger and varied dataset, repeated independent trials, load concurrency, and monitoring of resource use. Those conditions are not inferred from this experiment.
+
+\input{chapters/latency-table}
+\figurefile[0.38]{cache-latency.pdf}{Local warning-query latency comparison and empirical distribution from raw recorded samples. The cache path includes the MySQL revision read and normal authenticated HTTP processing.}{fig:latency}
+
+Table~\ref{tab:latency} and Figure~\ref{fig:latency} show lower pooled median latency for the cache-enabled path in this run. The median is approximately 5.33 ms with caching and 6.56 ms with bypass; the respective p95 values are approximately 7.57 ms and 8.11 ms. The difference is observable locally, but it does not justify a store SLA or a recommendation that all small catalogs require Redis. Round-level timings vary, and the first round is slower on both paths than later rounds.
+
+The experiment answers RQ3 as a bounded observation: the implemented cache returns equivalent results and saves some read work in the measured case. It also exposes a trade-off. The revision check preserves a simple consistency rule but limits the amount of database work eliminated by a hit. Removing that check might improve timing while weakening the stated guarantee. The thesis does not treat a faster but unverified path as an optimisation result.
+
+\section{Failure and persistence experiments}
+The Redis experiment first reads the uncached warning result, stops only the project's Redis service, and repeats a cache-enabled request. The returned warning identifiers, quantities, and review attribution match the database baseline. The service is restarted in a finally block, and a later request matches again. The evidence records the observed timings, but a single failure/recovery observation is not a percentile or availability estimate.
+
+The persistence script hashes a sanitised, deterministically ordered projection of product identity/quantity and inventory transaction values. It records the projection before stopping the application and compares it after restart. The hash and row count match. This supports persistence across this process restart; it does not establish recovery from disk loss, an interrupted database commit, or an incorrect migration. Those require separate destructive/fault scenarios and restore drills.
+
+\section{Optimisation and defect evidence}
+Optimisation focused first on correctness of the warning path: filtering before pagination, persistent shortage visibility, ISO time serialisation, and revision changes after acknowledgement. Product identity queries use unique/indexed fields. Daily movement aggregation loads the recent interval rather than issuing a separate full count for each displayed day. The optional cache is then measured against the same API with caching bypassed.
+
+The verification process also corrected implementation defects. Compile checks found missing repository methods and YAML configuration errors. API execution found a lazy relationship problem during replay and a missing environment mapping. Browser execution found stale development dependencies and missing chart registration. Dependencies were moved to compatible pinned versions that passed the recorded audit. These defects are documented because they explain why the final acceptance sequence crosses several boundaries.
+
+The frontend build separates the workspace from the initial route and uses only the required icon collection. The component/chart libraries still account for substantial JavaScript, so no real-device loading benefit is asserted without a separate browser performance experiment. This distinguishes a concrete build change from an unmeasured usability or speed claim.
+
+\section{Evidence reproducibility}
+The evidence pack retains raw latency samples, the generated summary and chart, browser-check JSON, Redis recovery data, persistence fingerprint, stable screenshots, and editable diagram sources. Tests and scripts provide the procedure behind each claim. CI executes the backend suite, frontend type/unit/build/audit checks, and thesis compilation from a clean checkout.
+
+The recorded results answer implementation questions for the selected release. A later schema change, warning policy change, dependency upgrade, or significant UI change requires new checks and, where relevant, new evidence. A passing result is tied to the evaluated artifact, not a permanent property of the repository name. The final audit therefore performs a clean checkout and checks the current source rather than relying only on earlier development runs.

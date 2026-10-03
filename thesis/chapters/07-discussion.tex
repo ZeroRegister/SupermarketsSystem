@@ -1,0 +1,48 @@
+\chapter{Discussion, limitations, and threats to validity}\label{ch:discussion}
+\section{What the evidence supports}
+The results support a runnable single-store demonstrator with an attributable movement history and explicit warning transitions. The tested stock path preserves non-negative balances under the selected duplicate and concurrent requests. The board represents review independently of replenishment, and the optional cache preserves equivalent results in the measured workload and Redis outage. These are concrete engineering outcomes, linked to code, database records, and checks.
+
+The evidence does not establish reduced stockout losses, less staff workload, improved customer satisfaction, or return on investment. No store participants were recruited, and no baseline business process was measured. A warning can be correct relative to the database and still be wrong relative to the physical shelf if staff did not record a sale or counted incorrectly. Inventory data quality depends on the operational workflow as well as the software.
+
+The system's design offers a useful explanation boundary. A receipt can be inspected as a sequence of authenticated request, locked product, balance calculation, ledger entry, warning transition, and revision increment. That boundary makes a defect easier to locate. It does not make the explanation immutable against a privileged database administrator, and it does not prove the truth of a free-text reason. The term ``auditable'' in this thesis refers to attributable retained application history rather than legal evidentiary certification.
+
+\section{Domain limitations}
+Whole-unit stock excludes fractional produce sales, partial packaging, and unit conversion. A product has one current price and one optional supplier association. The model has no batches, expiry dates, shelf locations, reserved quantity, inbound purchase-order quantity, or lead-time estimate. Reports therefore describe recorded available units and current-price estimates. They do not provide food traceability or financial inventory valuation.
+
+Thresholds are manual. The application validates their numerical relationship but cannot determine a suitable safety-stock level from demand or service targets. A manager may choose a threshold that generates too many warnings or too few. The warning board helps inspect the consequences of the policy, while selecting and evaluating a replenishment policy is future work. Integrating a forecast would require historical demand and supply evidence unavailable in this project.
+
+A dispatch is a stock event rather than a sale transaction. There is no payment, receipt printing, tax calculation, promotion, return authorization, or accounting posting. A later point-of-sale integration must define how repeated messages, refunds, cancelled sales, and offline batches affect the same ledger. The present API provides a useful idempotent entry point, but it is not a completed point-of-sale adapter.
+
+\section{Architecture and security limits}
+The application is a single node with in-process servlet sessions. Restarting it retains MySQL state but ends sessions. There is no multi-store partition or tenant isolation, and no multi-node availability experiment. Redis is optional for reads, yet the shared cache revision creates a serialization point for store writes. Product row locks are suitable for the tested workload but could become a bottleneck for very popular products under a higher update rate.
+
+The release includes server role checks, disabled-account checks, session identifier rotation, CSRF-protected writes, encoded passwords, and bounded input. It does not include rate limiting, password-reset email, multi-factor authentication, formal threat modelling, or a penetration test. HTTPS and secure cookie settings are deployment responsibilities described in the guide. A production release should add and evaluate the missing controls before exposing the application outside a trusted internal network.
+
+Exception handling returns actionable business errors for ordinary validation, not a complete operational incident system. Logs, metrics, backups, alerting, deadlock retry policy, and restore procedures would need more work. The MySQL container volume is persistent storage, not a backup. A successful application restart is weaker evidence than a successful restore from an independently stored snapshot.
+
+\section{Internal validity}
+The latency experiment controls endpoint, page size, authentication, sequential request count, and mode order. It does not control every source of runtime variation. JIT compilation, connection pools, background tasks, container scheduling, thermal state, and other host processes can influence timing. Alternating order and warm-up reduce some bias but do not establish independence between samples.
+
+Cached and bypass responses are compared to ensure the experiment has not exchanged correctness for timing. Nevertheless, the workload contains only a small set of open warnings and no concurrent writes during the measurement. It therefore gives little information about high-cardinality pages, frequent revision changes, cache stampedes, or contention. The complete raw sample file allows inspection of the observed distribution without implying a universal speedup.
+
+The backend tests cover representative schedules rather than every interleaving. They use a real MySQL service, which is stronger than assuming an in-memory engine behaves identically, but they still share a bounded test host and a limited request pattern. Database crash recovery and network partition during commit are not simulated. The transaction invariant is an implemented design with supporting tests, not a machine-checked formal proof.
+
+\section{External and construct validity}
+The fictitious dataset lacks seasonal demand, expiry-sensitive products, supplier delays, and real transaction volume. Measurements from loopback HTTP cannot establish behavior on store Wi-Fi, an older workstation, or a cloud deployment. Responsive containment at one mobile width is useful evidence but cannot stand in for device coverage or an accessibility certification.
+
+Usability is inspected through labels, status text, recovery states, and scripted journeys. It is not measured through staff task completion time, learning effort, or error rate. The construct ``warning correctness'' means agreement with the configured database threshold, not optimal ordering decisions. The construct ``inventory value'' means a current-price estimate, not inventory cost. These definitions are kept explicit to prevent a technical measurement from being mistaken for a business outcome.
+
+\section{Prioritised follow-up work}
+Table~\ref{tab:future} orders improvements according to the risk or uncertainty they address. The first tasks concern validating the workflow and making the artifact safe to operate. More advanced policy or scaling work should follow evidence that those features are required, rather than being added merely to broaden the technology list.
+
+\begin{table}[htbp]\centering\small
+\caption{Follow-up work linked to a current limitation and a useful validation method.}\label{tab:future}
+\begin{tabularx}{\textwidth}{p{0.24\textwidth}YY}\toprule
+Next work & Limitation addressed & Validation \\\midrule
+Store workflow trial & No staff/business evidence & Observe tasks; compare errors and completion time with a defined baseline. \\
+Security and restore review & Internal demonstration only & Threat model; rate limits; account recovery; tested off-host backup restore. \\
+Fractional units and batches & Whole units; no expiry traceability & Domain fixtures for conversions, expiry selection, and returns. \\
+Point-of-sale adapter & Manual dispatch entry & Duplicate/cancellation/offline replay scenarios against the same ledger. \\
+Policy evaluation & Manual reorder thresholds & Demand/lead-time dataset, explicit loss/service criterion, held-out evaluation. \\
+Larger-load study & Small sequential benchmark & Several catalog sizes and concurrent readers/writers; resource/lock monitoring. \\\\bottomrule
+\end{tabularx}\end{table}

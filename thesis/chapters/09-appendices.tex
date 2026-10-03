@@ -1,0 +1,73 @@
+\chapter{Reproduction guide and artifact map}
+\section{Fresh environment procedure}
+The fresh environment needs Java 21, Maven 3.9.9 or later, Node 22.16.0, Docker Compose, a running Docker engine, and the documented TeX packages. Network access is needed for initial dependency provisioning unless a local mirror/cache has already been supplied. Once packages and images are present, the application and committed thesis build do not require a hosted application service.
+
+Copy \texttt{.env.example} to an ignored \texttt{.env} and replace its local passwords. Start MySQL/Redis, build/test the service, and run the frontend. The wrapper scripts use the task-local runtime only when it exists; normal installed Java/Maven/Node are supported for another checkout. These commands keep credentials out of the public source:
+\begin{lstlisting}
+cp .env.example .env
+# Edit the three local passwords before starting.
+docker compose up -d --wait
+./scripts/backend.sh test
+./scripts/backend.sh spring-boot:run
+# In another terminal:
+cd frontend
+npm ci
+npm run check
+npm test
+npm run dev
+\end{lstlisting}
+
+Demonstration mode creates accounts only for an empty user table. Existing passwords and balances are not reset on restart. The supplementary seed script uses normal authenticated catalog and stock APIs and preserves existing balances. It is suitable for representative screenshots, not for importing unverified production inventory.
+
+\section{Executable evidence commands}
+The backend suite starts isolated Testcontainers services. On the authoring Colima host, the Docker socket environment points to the existing Colima socket. A normal Docker host can use its standard socket. The API/browser scripts require the running application and the local demonstration password; the scripts read it without writing it into evidence files.
+\begin{lstlisting}
+python3 scripts/seed-demo.py
+python3 scripts/smoke.py
+node scripts/browser-smoke.mjs
+python3 scripts/benchmark.py --iterations 200 --rounds 3
+python3 scripts/plot-evaluation.py
+python3 scripts/fault-recovery.py
+python3 scripts/persistence-snapshot.py record
+# Restart only the application, then:
+python3 scripts/persistence-snapshot.py verify
+./scripts/check-clean.sh
+\end{lstlisting}
+
+The Redis fault script stops only this project's disposable Redis service and restores it in a finally block. The persistence script hashes a sanitised ordered projection and exposes only a digest and row count. A fresh restart comparison must bracket an actual restart and must not include unrelated stock writes between snapshots. These procedures are deliberately explicit so the evidence is not reproduced by merely copying a success message.
+
+\section{API request examples}
+The request sequence first obtains a CSRF token and preserves cookies, then signs in. The same token is sent on stock writes. The following body is an example intention, not a command to set the persisted product quantity directly:
+\begin{lstlisting}
+POST /api/transactions
+{
+  "productId": 7,
+  "type": "STOCK_IN",
+  "quantity": 12,
+  "reason": "Morning delivery",
+  "idempotencyKey": "client-generated-unique-value"
+}
+\end{lstlisting}
+
+An adjustment submits a signed quantity; a stocktake submits an absolute count. A successful response contains the movement identifier and derived before/delta/after quantities. Exact replay returns the same record, and mismatched replay returns a conflict. The full contract includes search, pagination, archive, thresholds, user access, categories, suppliers, settings, warnings, and reporting in \texttt{docs/api.md}.
+
+\section{Warning acknowledgement trace}
+Figure~\ref{fig:ackpath} is an expanded view of the review path. It is useful when inspecting a stale review-status defect: the request must pass permission/CSRF checks, save reviewer attribution, advance the revision, and reload the board under the new key. None of these steps is a stock movement. This is why an acknowledgement does not belong in the stock ledger.
+
+\figurefile[0.55]{acknowledgement.png}{Acknowledgement request path. The cache revision links a saved review to the next board query without changing stock or the warning lifecycle.}{fig:ackpath}
+
+\section{Source and evidence map}
+The transaction algorithm is in \texttt{InventoryService.java}, locking/pagination contracts are in \texttt{Repositories.java}, validated inputs and response records are in \texttt{Api.java}, and role/CSRF handling is in \texttt{SecurityConfig.java}. Flyway's initial migration is under \path{backend/src/main/resources/db/migration}. The integration suite is \texttt{InventoryIntegrationTest.java}.
+
+The browser workspace is \texttt{frontend/src/views/WorkspaceView.vue}, with API, authentication store, and routing modules alongside it. The threshold presentation tests are in \texttt{inventory.spec.ts}. The dependency graph is fixed by \texttt{package-lock.json}. The public docs explain the application without requiring private planning files.
+
+The evidence pack under \texttt{docs/evidence} contains the cache benchmark's raw samples and summary, browser checks, Redis recovery, and persistence result. Screenshots and source diagrams are under \texttt{thesis/figures}. The benchmark chart/table generator reads the committed measurement file. Captions and surrounding chapter text identify the claim each visual supports. The final release PDF is generated from this source and provided as a release asset.
+
+\section{Thesis compilation and submission checks}
+The thesis uses the standard report class with A4 geometry, one-and-a-half body spacing, numeric citations, chapter-based front matter, appendices, and normal figure/table environments. The authored layout is licensed with the project. It does not reproduce an unrelated university's branding. Compile with the following command after installing the documented TeX packages:
+\begin{lstlisting}
+./thesis/build.sh
+python3 scripts/inspect_thesis.py
+\end{lstlisting}
+
+The build runs latexmk/pdfLaTeX and resolves the bibliography and cross-references. The inspection script extracts text, counts pages, checks for unresolved markers, and renders page images. Human visual inspection remains necessary for diagrams, table width, labels, and page composition. Author/institution/degree/supervisor placeholders are intentional and must be replaced before submission, followed by the institution's actual formatting audit.

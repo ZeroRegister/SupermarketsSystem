@@ -1,0 +1,63 @@
+\chapter{Background and related work}\label{ch:background}
+\section{Inventory state and the movement ledger}
+A product's stock balance can be viewed as the result of an opening balance and a sequence of accepted movements. Let $q_0$ be the opening quantity and $d_i$ the signed delta of movement $i$. After $n$ accepted movements, the expected quantity is
+\begin{equation}\label{eq:ledger}
+ q_n=q_0+\sum_{i=1}^{n}d_i.
+\end{equation}
+Equation~\ref{eq:ledger} is an accounting identity for the software state, not a demand model. A receipt adds a positive delta; a dispatch adds a negative delta; a correction can add either. The identity is useful because a displayed quantity can be checked against a ledger of explanations. It is insufficient on its own: rejected movements must not appear as accepted entries, and two concurrent events must not overwrite each other's balance.
+
+Shelfwise records the before and after quantities as well as the delta. Storing all three makes an individual change easy to inspect, but it also creates a consistency requirement: quantity-after must equal quantity-before plus delta. The service derives these values under the same product lock. It does not accept them as three independent values from a client. The client supplies an intention and a reason; the server owns the balance calculation.
+
+Established ERP systems illustrate why a movement history is a useful design reference. ERPNext's stock ledger reports product movements, and its immutable-ledger documentation describes retaining original entries and using reversals when transactions are cancelled~\citep{erpnext-stock,erpnext}. Shelfwise adopts a narrower approach: accepted stock records have no update/delete API, and correction is another recorded movement. It does not implement ERPNext's accounting or valuation behavior. The comparison concerns preservation of an explanation, not feature equivalence.
+
+\section{Threshold warnings and replenishment policies}
+A threshold policy is a transparent starting point when demand and lead-time data are unavailable. Shelfwise assigns each product a safety-stock value and a reorder threshold. The threshold is supplied by a manager rather than estimated by a forecasting algorithm. A warning indicates that stock has reached a configured boundary; it does not calculate an order quantity or predict the date of a stockout.
+
+Odoo's documented reordering rules use minimum/maximum levels and can initiate replenishment through configured buying or manufacturing routes~\citep{odoo}. This project retains only the warning part of that idea. The supplier association helps staff identify a partner, while purchase orders and settlement remain outside scope. That decision removes assumptions about lead time, minimum order quantities, supplier choice, and approval workflows that could not be evaluated with the supplied data.
+
+A manual threshold is easy to explain but easy to misconfigure. A threshold of zero produces no positive LOW region; only a zero quantity generates OUT. An excessively high threshold creates persistent low-stock warnings. The system validates the hierarchy between safety stock and reorder threshold but cannot validate whether a manager's numbers are economically appropriate. That distinction separates software validation from inventory-policy quality.
+
+The warning model adds a temporal interpretation to the boundary. Repeated low-stock reads describe one shortage episode, not an unbounded sequence of identical alerts. A transition to zero represents a more severe episode, and a transition above the reorder threshold represents recovery. Acknowledgement is a human review event that can occur inside an episode. This makes alert history useful even when no automatic replenishment action is available.
+
+\section{Transactions, locking, and duplicate requests}
+The project uses database transactions to group the balance update, ledger insert, warning transition, and cache revision. If a quantity check fails or the movement cannot be saved, the group rolls back. A row lock prevents two accepted changes to the same product from calculating against the same old balance. The MySQL documentation distinguishes ordinary reads from locking reads, and Spring Data JPA exposes lock metadata through its repository abstraction~\citep{mysql-locks,spring-locks}. Those mechanisms support the chosen implementation; they do not remove the need for application checks.
+
+Consider a quantity of one and two concurrent dispatch requests for one unit. The intended outcome is one accepted movement and one rejection. With an unlocked read/overwrite procedure, both requests could read one and both save zero, producing two accepted histories for one unit. With the selected lock, the second request waits, reads the committed zero balance, and fails the non-negative check. The evaluation includes this pattern at a larger request count.
+
+Idempotency addresses a different problem. A client may not know whether a timed-out request committed. If it sends an identical request again with a new key, the server treats it as a new intention. If it reuses the original key, the server returns the original movement. The key is scoped to the authenticated actor and checked against normalized request content. Using the same key for a different product, type, quantity, or reason is rejected as a conflict.
+
+The lock and the key complement one another. A key alone does not protect two different dispatch intentions from overselling. A lock alone does not distinguish a retry from a second receipt. The project uses both and validates their interaction. The actor/key uniqueness constraint also provides a database-level backstop when requests target different product rows with the same key. The user-facing error contract reports a conflict instead of treating such a reuse as a new movement.
+
+\section{Sessions, roles, and browser request protection}
+Role-based access control groups permissions according to responsibilities rather than granting each endpoint independently to each user. The original RBAC models discuss users, roles, permissions, and role assignment~\citep{sandhu1996}. Shelfwise uses a fixed, flat subset: administrator, manager, and clerk. The design has no role hierarchy, separation-of-duty administration, or custom permission editor. A user's role is a bundle with behavior documented in the permission matrix.
+
+Browser sessions allow the server to maintain a sign-in state without storing a bearer token in local storage. Because browsers send cookies automatically, unsafe operations require an additional CSRF token. Spring Security documents servlet CSRF handling and integration with browser clients~\citep{spring-csrf}. The implementation issues a token through a dedicated endpoint and sends it in a request header on writes. Login itself follows the CSRF path, and logout invalidates the session.
+
+Navigation is a usability layer, not the authority boundary. Hiding the warning screen from a clerk prevents a confusing route, but an attacker can still send an HTTP request. The server checks the role independently. It reloads the user's enabled state and role for each request so access changes do not depend on an old session's authority list. The browser tests and server tests exercise both layers.
+
+\section{An optional cache and its consistency cost}
+Redis cache-aside uses a cache lookup before the authoritative read, fills on a miss, and combines expiry with invalidation~\citep{redis-cache}. Figure~\ref{fig:cachepath} shows the project's revision-key variation. MySQL stores the revision used in the key; a state-changing transaction increments it. A page generated under an old revision can still be written by a slow reader, but later requests no longer address that old namespace.
+
+\figurefile[0.62]{cache-path.png}{Revision-keyed cache-aside for warning pages. The MySQL revision is read before the cache lookup; durable writes advance the namespace as part of their transaction.}{fig:cachepath}
+
+This strategy exchanges a small database revision read for a simpler invalidation guarantee. It does not eliminate database access on a hit. It also adds a shared revision row to the write path, and obsolete keys remain until their 30-second TTL expires. These costs are acceptable hypotheses for a single-store demonstrator, but the latency experiment must determine whether the resulting path helps in the selected workload.
+
+A cache hit is useful only if it returns the same semantic result as the authoritative path. The project therefore evaluates response equivalence as well as timing. An unavailable Redis connection must not stop a stock write or remove warning data. Redis stores no authoritative balances or user sessions. The database has enough information to serve the same warning contract without the cache.
+
+\section{Web architecture and implementation context}
+Fielding's architectural work provides a vocabulary for constraints on network-based systems and REST~\citep{fielding2000}. Shelfwise uses resource-oriented JSON routes and HTTP method semantics, but its cookie-session authentication means it is not presented as a fully stateless REST architecture. The description ``REST API'' in the deployment guide refers to that pragmatic route style. This distinction prevents an architectural label from making a stronger claim than the implementation supports.
+
+Spring Boot supplies the backend configuration and web runtime, while Vue's declarative, reactive component model supplies the browser interface~\citep{springboot,vue}. The frameworks do not determine the inventory rules. Those rules remain in the project's service layer and request contracts. Pinning their versions and committing the frontend lockfile makes the selected dependency graph inspectable. Migrations perform the same role for the database schema.
+
+The related-system comparison in Table~\ref{tab:related} clarifies the chosen boundary. The table compares documented mechanisms and project scope, not benchmarked commercial products. It therefore supports design reasoning without suggesting that the prototype is more capable than an ERP system.
+
+\begin{table}[htbp]\centering\small
+\caption{Mechanisms used as design references and the smaller Shelfwise scope.}\label{tab:related}
+\begin{tabularx}{\textwidth}{p{0.19\textwidth}YY}\toprule
+Reference & Relevant mechanism & Shelfwise decision \\\midrule
+ERPNext stock ledger & Movement history and preserved ledger explanations & Append-only accepted movements; corrections use new entries. \\
+Odoo reordering & Configured replenishment boundaries and routes & Configured stock warnings; no purchase-order automation. \\
+MySQL / Spring JPA & Transactional locking-read support & One locked product per movement and checked balance. \\
+Redis cache-aside & Optional response cache with expiry/invalidation & MySQL revision namespaces; fallback on Redis failure. \\
+RBAC / Spring Security & Responsibility bundles and server authorization & Three flat roles; sessions and CSRF-protected writes. \\\bottomrule
+\end{tabularx}\end{table}

@@ -1,0 +1,31 @@
+{
+  "timestamp_utc": "2026-10-03T18:33:55.712Z",
+  "checks": [
+    "administrator dashboard renders authenticated MySQL metrics",
+    "inventory view renders",
+    "warnings view renders",
+    "transactions view renders",
+    "reports view renders",
+    "team view renders",
+    "empty search displays a recovery state",
+    "browser submits a stock receipt with actor, reason and correct before/after delta",
+    "clerk navigation guard redirects warning deep link",
+    "clerk can open audited stock form",
+    "manager acknowledges an open warning through the board",
+    "manager can review warning view",
+    "manager cannot reach team administration",
+    "390px mobile page confines table scrolling to its container"
+  ],
+  "screenshots": [
+    "ui-login.png",
+    "ui-dashboard.png",
+    "ui-inventory.png",
+    "ui-warnings.png",
+    "ui-history.png",
+    "ui-reports.png",
+    "ui-team.png",
+    "ui-stock-form.png",
+    "ui-mobile-inventory.png"
+  ],
+  "consoleErrors": []
+}

@@ -66,8 +66,8 @@ class AuthController {
  private final AuthenticationManager auth; private final UserRepository users;
  AuthController(AuthenticationManager auth,UserRepository users){this.auth=auth;this.users=users;}
  @GetMapping("/csrf") Map<String,String> csrf(org.springframework.security.web.csrf.CsrfToken token){return Map.of("token",token.getToken());}
- @PostMapping("/login") UserView login(@RequestBody Map<String,String> input, jakarta.servlet.http.HttpServletRequest req){
-   var authentication=auth.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(input.getOrDefault("username",""),input.getOrDefault("password","")));
+ @PostMapping("/login") UserView login(@jakarta.validation.Valid @RequestBody LoginInput input, jakarta.servlet.http.HttpServletRequest req){
+   var authentication=auth.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(input.username(),input.password()));
    var context=org.springframework.security.core.context.SecurityContextHolder.createEmptyContext();context.setAuthentication(authentication);org.springframework.security.core.context.SecurityContextHolder.setContext(context);
    req.getSession(true);req.changeSessionId();
    req.getSession(true).setAttribute(org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,context);

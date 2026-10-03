@@ -1,0 +1,43 @@
+\chapter{Introduction and motivation}\label{ch:introduction}
+\section{The operational problem}
+A small supermarket carries products with different replenishment cycles, shelf lives, units, and levels of demand. Staff may receive a delivery in the morning, dispatch products throughout the day, and reconcile a physical count in the evening. Each event changes the stock position used for the next decision. If the application stores only a quantity, it cannot distinguish a delivery from a correction or a sale from damage. The quantity may be correct at a particular moment while its explanation has already been lost.
+
+This project therefore treats inventory as an operational record rather than a single editable number. A useful record answers three questions together: what is available, how the quantity changed, and which items need attention. The record also needs a clear boundary between a shortage and the human response to that shortage. Reviewing an alert does not put a product back on the shelf. Conversely, replenishing a product can solve the shortage even if nobody clicked a review button. Conflating these events makes a warning dashboard look tidy at the expense of its meaning.
+
+The supermarket in this study is a bounded design setting rather than a recruited business. Requirements assume one store, three staff roles, whole-unit quantities, and manual movement entry. Those assumptions keep the inventory invariant and the warning policy inspectable. They do not establish how a particular store works, what its demand distribution is, or which commercial benefit would follow from adoption. The thesis evaluates the implemented software against explicit acceptance criteria; it does not report a field trial.
+
+The problem becomes more difficult when the same action is submitted twice or two staff members dispatch the last available units at once. A browser can retry after a slow response, and staff can act from views that were loaded at different times. A design based on reading a quantity and writing a replacement value could lose one update or accept both dispatches. A design based on a warning cache could show an old acknowledgement after it was saved. These are practical consistency problems, even for a small catalog and a modest number of users.
+
+\section{Aim and research questions}
+The aim is to develop and evaluate a reproducible inventory and stock-warning web system whose stock changes remain auditable and whose warning state is understandable. The resulting application, named Shelfwise, must run from a clean checkout, support the defined roles, and provide enough test and visual evidence to explain its design. The thesis accompanies the working artifact rather than replacing implementation with a proposed architecture.
+
+Table~\ref{tab:questions} expresses the evaluation questions as software-engineering questions. They concern correctness, inspectability, and a measured cache trade-off. Each question has a corresponding artifact. This makes the conclusion falsifiable: a claim about duplicate requests must be supported by a replay test, and a claim about caching must be supported by recorded samples under the same workload.
+
+\begin{table}[htbp]\centering\small
+\caption{Project questions and the evidence used to answer them.}\label{tab:questions}
+\begin{tabularx}{\textwidth}{p{0.10\textwidth}YY}\toprule
+Question & Focus & Evidence \\\midrule
+RQ1 & Can stock changes preserve non-negative balances and an attributable history under duplicate and concurrent requests? & MySQL-backed integration tests; audit records; concurrency scenarios. \\
+RQ2 & Can shortage, replenishment, and acknowledgement be represented as distinct, observable events? & Warning transitions; threshold tests; board screenshots; review checks. \\
+RQ3 & What does an optional Redis warning cache change in this local workload, and does failure preserve the result? & Alternating latency samples; response equivalence; Redis outage/recovery. \\
+RQ4 & Can another developer reproduce the application checks and thesis artifact? & Pinned dependencies; migrations; CI; clean-checkout and PDF checks. \\\bottomrule
+\end{tabularx}\end{table}
+
+RQ1 does not ask for a proof of correctness under every possible interleaving, hardware failure, or administrator action. It asks whether the implemented control path satisfies tested invariants in an explicitly stated environment. RQ2 concerns the data model and observable UI behavior rather than subjective ease of use. RQ3 measures a small local workload; it cannot support a general claim that Redis is necessary for small supermarkets. RQ4 includes documentation and versioned evidence, because an application that works only in its original workspace is not a reproducible result.
+
+\section{Scope and boundaries}
+The application supports administrator catalog and account maintenance, manager warning review and threshold configuration, and clerk stock operations. All authenticated staff can inspect inventory and movement history. Categories group products, suppliers provide optional product associations, and settings contain a store display name and currency. Reports show current stock metrics and recent recorded activity. The warnings cover low stock, out-of-stock products, and recently replenished products.
+
+The release excludes multi-store tenancy, online payment, accounting, procurement settlement, demand forecasting, and automatic purchase-order generation. It also excludes batch/expiry traceability and fractional quantities. These exclusions matter because adding them would change the entity model and the meaning of a movement. A kilogram is used as a whole-unit demonstration label; the system does not accept fractions of a kilogram. The interface and deployment documentation state this whole-unit limitation.
+
+The currency preference changes a display code; it does not perform conversion or maintain exchange rates. Inventory value is the sum of current quantities multiplied by current unit prices. It is a simple estimate and is not an accounting valuation or historical cost series. The dashboard's activity chart counts saved movements by UTC day. It does not reconstruct a history of stock value from prices that may have changed.
+
+\section{Method and contribution}
+Development follows a sequence of requirement definition, invariant design, implementation, integration testing, optimization, evidence capture, and thesis composition. Decisions are recorded before performance claims are written. The test database uses the selected MySQL engine rather than an in-memory substitute, because row locking, uniqueness, and transaction isolation are central to the result. Redis is exercised as an actual service in the test environment and as an unavailable dependency in a fault experiment.
+
+The engineering contribution is the combination of an auditable movement path, persistent warning episodes, a fixed role matrix, and revision-keyed cache invalidation in a runnable demonstrator. None of these mechanisms is presented as a new database algorithm or a new inventory theory. The contribution lies in making the interactions explicit and reproducible, especially the relationship between a stock commit, a warning transition, and a subsequent cached query.
+
+The repository provides the source code and the scripts needed to inspect that contribution. A transaction can be followed from the form to the request contract, from the request to the row-locked service method, and from the service to the ledger and warning records. The corresponding tests exercise accepted and rejected cases. Screenshots show the implemented forms and board rather than a concept mockup. This trace is the basis for the conclusions later in the thesis.
+
+\section{Thesis organisation}
+Chapter~\ref{ch:background} discusses the mechanisms and related systems that inform the project. Chapter~\ref{ch:requirements} defines the actors, requirements, and acceptance boundaries. Chapter~\ref{ch:design} explains the architecture, relational model, movement invariant, and warning/cache interaction. Chapter~\ref{ch:implementation} documents the running application and its principal screens. Chapter~\ref{ch:evaluation} presents the tests, measured latency evidence, and failure/recovery observations. Chapter~\ref{ch:discussion} examines limitations and threats to validity, and Chapter~\ref{ch:conclusion} answers the project questions and identifies the next work.

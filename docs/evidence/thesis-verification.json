@@ -1,0 +1,9 @@
+{
+  "pdf": "dist/shelfwise-thesis.pdf",
+  "pages": 55,
+  "text_extraction_passed": true,
+  "unresolved_reference_markers": 0,
+  "render_directory": ".runtime/thesis-review",
+  "visual_review": "Rendered pages require visual inspection; final audit records the result.",
+  "metadata_fields": "Author, university, department, supervisor, degree and student number remain deliberate placeholders."
+}
