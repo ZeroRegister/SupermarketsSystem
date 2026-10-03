@@ -1,0 +1,14 @@
+digraph Architecture { graph [bgcolor="white",pad=0.25,ranksep=0.72,nodesep=0.48,splines=polyline,labelloc=t,labeljust=l,fontname="Arial",fontsize=18,fontcolor="#24334b"]; node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,fontcolor="#24334b",color="#b9c3d1",penwidth=1.3,margin="0.20,0.14"]; edge [fontname="Arial",fontsize=9,fontcolor="#59677b",color="#8491a4",penwidth=1.15,arrowsize=.7];
+label="Shelfwise runtime architecture"; rankdir=TB;
+client [label="STORE TEAM\nWeb browser",fillcolor="#e8eefb"];
+web [label="VUE 3 + TYPESCRIPT\nResponsive screens · router · role-aware navigation · forms",fillcolor="#e8eefb",width=4.6];
+api [label="SPRING BOOT MODULAR MONOLITH\n\nSession & authorization · CSRF · fixed roles\nCatalog & reports · inventory transactions\nWarning episodes · validation & pagination",fillcolor="#e7f3ed",width=6.4];
+mysql [label="MYSQL 8 · SOURCE OF TRUTH\nFlyway schema · products · users · transaction history\nwarning episodes · settings · cache revision",shape=cylinder,fillcolor="#e7f3ed",width=4.7];
+redis [label="REDIS 7 · OPTIONAL WARNING-PAGE CACHE\n30 s TTL · revision-key namespace\nCache miss/failure falls back to MySQL",fillcolor="#fff3dc",width=4.4];
+{rank=same;mysql;redis}
+client -> web [label="HTTPS"];
+web -> api [label="REST / JSON · session cookie"];
+api -> mysql [label="transactional state · row lock"];
+api -> redis [label="versioned read cache",style=dashed];
+redis -> mysql [label="revision read",style=dashed,dir=both];
+}

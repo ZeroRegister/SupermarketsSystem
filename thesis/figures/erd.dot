@@ -1,0 +1,21 @@
+digraph ERD { graph [bgcolor="white",pad=0.25,ranksep=0.72,nodesep=0.48,splines=polyline,labelloc=t,labeljust=l,fontname="Arial",fontsize=18,fontcolor="#24334b"]; node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,fontcolor="#24334b",color="#b9c3d1",penwidth=1.3,margin="0.20,0.14"]; edge [fontname="Arial",fontsize=9,fontcolor="#59677b",color="#8491a4",penwidth=1.15,arrowsize=.7];
+label="Core relational data model"; rankdir=TB; nodesep=.55; ranksep=.65;
+users [label="USERS\nPK id · UK username\ndisplay_name · password_hash\nrole · enabled · created_at",fillcolor="#f0eafa"];
+products [label="PRODUCTS\nPK id · UK sku · UK barcode\nname · unit · price · quantity\nsafety_stock · reorder_threshold\nFK category_id · FK supplier_id\nactive · version · updated_at",fillcolor="#e7f3ed"];
+categories [label="CATEGORIES\nPK id · UK name\ndescription · active",fillcolor="#e8eefb"];
+suppliers [label="SUPPLIERS\nPK id\nname · contact · email · phone · active",fillcolor="#e8eefb"];
+transactions [label="INVENTORY_TRANSACTIONS\nPK id · FK product_id · FK actor_id\nUK(actor_id, idempotency_key)\ntype · delta · quantity_before\nquantity_after · reason · created_at",fillcolor="#e7f3ed"];
+warnings [label="WARNINGS\nPK id · FK product_id\nFK acknowledged_by (nullable)\ntype · state · observed_quantity\nthreshold · created_at · expires_at\nacknowledged_at",fillcolor="#fff0e9"];
+settings [label="APP_SETTINGS\nPK setting_key · setting_value",fillcolor="#f4f6f9"];
+revision [label="CACHE_REVISION\nPK id · revision\nmonotonic invalidation token",fillcolor="#fff3dc"];
+{rank=same;users;categories;suppliers}
+{rank=same;transactions;warnings}
+{rank=same;settings;revision}
+categories -> products [label="1 to many"];
+suppliers -> products [label="0..1 per product"];
+products -> transactions [label="one audit trail"];
+users -> transactions [label="actor"];
+products -> warnings [label="warning episodes"];
+users -> warnings [label="optional reviewer"];
+settings -> products [style=invis]; revision -> warnings [style=dashed,label="cache keys",constraint=false];
+}

@@ -1,0 +1,20 @@
+digraph WarningLifecycle { graph [bgcolor="white",pad=0.25,ranksep=0.72,nodesep=0.48,splines=polyline,labelloc=t,labeljust=l,fontname="Arial",fontsize=18,fontcolor="#24334b"]; node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,fontcolor="#24334b",color="#b9c3d1",penwidth=1.3,margin="0.20,0.14"]; edge [fontname="Arial",fontsize=9,fontcolor="#59677b",color="#8491a4",penwidth=1.15,arrowsize=.7];
+label="Warning episodes and independent acknowledgement"; rankdir=TB; ranksep=.65; nodesep=.5;
+change [label="Stock transaction or threshold edit\nrecalculate product health",fillcolor="#e8eefb"];
+zero [label="Quantity = 0?",shape=diamond,fillcolor="#fff3dc"];
+out [label="OUT episode\nopen / refresh",fillcolor="#fff0e9"];
+reorder [label="Quantity ≤ reorder threshold?",shape=diamond,fillcolor="#fff3dc"];
+low [label="LOW episode\nopen / refresh",fillcolor="#fff3dc"];
+healthy [label="Above reorder threshold\nresolve shortage; open RESTOCKED\nepisode for 24 hours",fillcolor="#e7f3ed"];
+ack [label="Manager acknowledgement\nreviewer + timestamp\nstock remains unchanged",fillcolor="#f0eafa"];
+expire [label="After 24 hours or renewed shortage\nresolve RESTOCKED episode",fillcolor="#f4f6f9"];
+change -> zero;
+zero -> out [label="yes"];
+zero -> reorder [label="no"];
+reorder -> low [label="yes"];
+reorder -> healthy [label="no"];
+out -> ack [style=dashed,label="optional review"];
+low -> ack [style=dashed,label="optional review"];
+healthy -> expire;
+expire -> change [style=dashed,label="future stock change",constraint=false];
+}

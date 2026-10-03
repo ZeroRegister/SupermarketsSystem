@@ -1,0 +1,7 @@
+digraph Deployment { graph [bgcolor="white",pad=0.25,ranksep=0.72,nodesep=0.48,splines=polyline,labelloc=t,labeljust=l,fontname="Arial",fontsize=18,fontcolor="#24334b"]; node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,fontcolor="#24334b",color="#b9c3d1",penwidth=1.3,margin="0.20,0.14"]; edge [fontname="Arial",fontsize=9,fontcolor="#59677b",color="#8491a4",penwidth=1.15,arrowsize=.7];
+label="Local demonstration deployment"; rankdir=LR;
+browser [label="Browser\nlocalhost:5173",fillcolor="#e8eefb"];
+subgraph cluster_host {label="macOS host";color="#d3dbe6";vite [label="Vite dev server :5173\n/api same-origin proxy",fillcolor="#e8eefb"];java [label="Java 21 + Spring Boot :8080\nServlet session · Flyway startup",fillcolor="#e7f3ed"];}
+subgraph cluster_docker {label="Docker Compose / Colima";color="#d3dbe6";mysql [label="MySQL 8.4.8\nloopback :3307 → :3306\nnamed persistent volume",fillcolor="#e7f3ed"];redis [label="Redis 7.4.9\nloopback :6380 → :6379\ndisposable cache",fillcolor="#fff3dc"];}
+browser->vite [label="HTTP (local)"];vite->java [label="proxy"];java->mysql [label="JDBC"];java->redis [label="Lettuce",style=dashed];
+}

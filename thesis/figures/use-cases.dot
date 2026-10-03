@@ -1,0 +1,6 @@
+digraph UseCases { graph [bgcolor="white",pad=0.25,ranksep=0.72,nodesep=0.48,splines=polyline,labelloc=t,labeljust=l,fontname="Arial",fontsize=18,fontcolor="#24334b"]; node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,fontcolor="#24334b",color="#b9c3d1",penwidth=1.3,margin="0.20,0.14"]; edge [fontname="Arial",fontsize=9,fontcolor="#59677b",color="#8491a4",penwidth=1.15,arrowsize=.7];
+label="Actors and responsibilities"; rankdir=LR;
+admin [label="ADMINISTRATOR",fillcolor="#f0eafa"];manager [label="STORE MANAGER",fillcolor="#e8eefb"];clerk [label="STOCK CLERK",fillcolor="#e7f3ed"];
+common [label="Sign in/out · search inventory · inspect history",fillcolor="#f4f6f9"];catalog [label="Manage products, categories, suppliers\nManage users, roles and settings",fillcolor="#f0eafa"];review [label="Set thresholds · review/acknowledge warnings\nInspect dashboard and reports",fillcolor="#e8eefb"];move [label="Receive · dispatch · adjust · stocktake\nRecord reason and auditable movement",fillcolor="#e7f3ed"];
+admin->catalog;admin->review;admin->move;admin->common;manager->review;manager->common;clerk->move;clerk->common;
+}

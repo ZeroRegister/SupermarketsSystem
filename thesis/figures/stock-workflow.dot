@@ -1,0 +1,15 @@
+digraph StockWorkflow { graph [bgcolor="white",pad=0.25,ranksep=0.72,nodesep=0.48,splines=polyline,labelloc=t,labeljust=l,fontname="Arial",fontsize=18,fontcolor="#24334b"]; node [shape=box,style="rounded,filled",fontname="Arial",fontsize=12,fontcolor="#24334b",color="#b9c3d1",penwidth=1.3,margin="0.20,0.14"]; edge [fontname="Arial",fontsize=9,fontcolor="#59677b",color="#8491a4",penwidth=1.15,arrowsize=.7];
+label="Stock movement: transaction and warning workflow"; rankdir=TB; ranksep=.55; nodesep=.4;
+submit [label="1 · CLERK SUBMITS\nproduct · type · quantity\nreason · idempotency key",fillcolor="#e8eefb"];
+validate [label="2 · VALIDATE\nrole · fields · key replay\nnormalize count vs delta",fillcolor="#f0eafa"];
+lock [label="3 · LOCK PRODUCT\nSELECT … FOR UPDATE\nserialize stock changes",fillcolor="#e7f3ed"];
+boundary [label="4 · CHECK BALANCE\n0 ≤ new quantity\n≤ 1,000,000,000",shape=diamond,fillcolor="#fff3dc"];
+commit [label="5 · COMMIT ATOMICALLY\nquantity + before/delta/after\nactor + reason + time",fillcolor="#e7f3ed"];
+warning [label="6 · UPDATE EPISODE\nseverity / recovery / review\ninside the same transaction",fillcolor="#fff0e9"];
+revision [label="7 · REVISE CACHE KEY\nrevision increment commits\nwith the inventory change",fillcolor="#fff3dc"];
+response [label="8 · READ / RESPOND\nRedis cache or MySQL fallback\nreturn transaction and warnings",fillcolor="#f4f6f9"];
+submit -> validate -> lock -> boundary;
+boundary -> commit [label="valid"];
+boundary -> response [label="below zero / invalid",style=dashed];
+commit -> warning -> revision -> response;
+}
