@@ -1,6 +1,6 @@
 {
   "pdf": "dist/shelfwise-thesis.pdf",
-  "pages": 52,
+  "pages": 50,
   "text_extraction_passed": true,
   "unresolved_reference_markers": 0,
   "render_directory": ".runtime/thesis-review",

@@ -19,7 +19,7 @@ API smoke & Passed & Authenticated multi-role journey; exact/mismatched replay, 
 Browser journey & 14 passed & Rendered screens, receipt submission, acknowledgement, protected deep links, empty search and mobile containment. \\
 Redis outage & Passed & Database warning results retained during service unavailability; recovery restored. \\
 Restart fingerprint & Passed & Same persisted product/transaction rows across an application restart. \\
-Build and audit & Passed & Backend build; frontend types/production build; zero reported npm vulnerabilities at the recorded check. \\\\bottomrule
+Build and audit & Passed & Backend build; frontend types/production build; zero reported npm vulnerabilities at the recorded check. \\\bottomrule
 \end{tabularx}\end{table}
 
 The concurrent dispatch test creates seven units and launches twelve dispatch intentions. Seven succeed, five fail the stock bound, and the product ends at zero. The concurrent identical-request test launches four copies of one receipt with the same actor and key; all return one movement ID and the quantity changes once. These are representative stress cases for the selected invariant, not a throughput benchmark or a proof over every schedule.
