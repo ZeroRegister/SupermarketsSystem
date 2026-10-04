@@ -1,0 +1,7 @@
+{
+  "pdf": "dist/shelfwise-chinese-companion.pdf",
+  "pages": 10,
+  "purpose": "Chinese logical companion for reading and argument review",
+  "shares": "English implementation, tests, evidence and figures",
+  "institutional_fields": "placeholders"
+}
