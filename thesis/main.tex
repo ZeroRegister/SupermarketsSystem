@@ -4,7 +4,7 @@
 \usepackage{lmodern,microtype}
 \usepackage[margin=25mm,headheight=16pt]{geometry}
 \usepackage{setspace,graphicx,booktabs,tabularx,longtable,array,amsmath,amssymb}
-\usepackage{caption,subcaption,float,placeins,pdflscape}
+\usepackage{caption,subcaption,float,placeins}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage{xcolor,fancyhdr,listings}
 \usepackage[hidelinks]{hyperref}
@@ -26,7 +26,9 @@
 \fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
 \captionsetup{font=small,labelfont=bf,skip=8pt}
 \newcommand{\figurefile}[4][0.58]{\begin{figure}[htbp]\centering\includegraphics[width=\textwidth,height=#1\textheight,keepaspectratio]{figures/#2}\caption{#3}\label{#4}\end{figure}}
-\newcommand{\screenfigure}[3]{\begin{landscape}\begin{figure}[H]\centering\includegraphics[width=\linewidth,height=0.78\textwidth,keepaspectratio]{figures/#1}\caption{#2}\label{#3}\end{figure}\end{landscape}}
+% Keep interface screenshots on the normal portrait page grid. The source images
+% may be wide, but the page itself stays portrait and the screenshot keeps its ratio.
+\newcommand{\screenfigure}[3]{\begin{figure}[H]\centering\includegraphics[width=\textwidth,height=0.43\textheight,keepaspectratio]{figures/#1}\caption{#2}\label{#3}\end{figure}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{soft},frame=single,rulecolor=\color{gray!25},breaklines=true,columns=fullflexible,keepspaces=true,showstringspaces=false,aboveskip=10pt,belowskip=10pt}
 \begin{document}
