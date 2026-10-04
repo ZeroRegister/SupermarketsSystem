@@ -8,6 +8,7 @@ frontend/test-results/
 frontend/playwright-report/
 *.tsbuildinfo
 thesis/build/
+thesis/chinese/build/
 .DS_Store
 .idea/
 .vscode/
