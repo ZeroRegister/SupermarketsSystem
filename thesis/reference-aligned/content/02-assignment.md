@@ -1,0 +1,98 @@
+# Requirements and technology selection
+## Assignment and acceptance approach
+The assignment is to implement the inventory workflow identified in Chapter 1 as an inspectable single-store application. A requirement is treated as complete when its intended actor, server operation, data effect and acceptance evidence can be identified. A screen that appears to offer an operation is insufficient if the corresponding server permission or transactional behavior is absent. Conversely, a correct API is insufficient if the interface presents an absolute count as a relative change.
+
+Requirements are grouped into identity, catalogue, stock operations, inventory inspection, warning review, reporting and administration. Correctness requirements cut across these groups. Retry behavior belongs to stock operations, but it also depends on the request key retained by the browser. Cache fallback belongs to warning retrieval, but it depends on durable database ownership. This grouping makes the later traceability table useful as a map across implementation layers.
+@table requirements|Functional requirements and acceptance evidence
+ID | Required behavior | Principal acceptance evidence
+R1 | Sign in and sign out with current role authority | Anonymous denial invalid credentials session and role checks
+R2 | Maintain catalogue categories and suppliers | Uniqueness validation referenced-record conflicts and archival
+R3 | Receive and dispatch stock with an audit record | Before delta after arithmetic and attributed history
+R4 | Apply signed adjustments and absolute counts | Negative correction count-to-zero and unchanged-count cases
+R5 | Search filter and paginate inventory | Empty result stable ordering and page-size boundary
+R6 | Maintain shortage and recovery episodes | Zero equality severity change recovery and expiry scenarios
+R7 | Record managerial acknowledgement independently | Reviewer visibility and unchanged stock quantity
+R8 | Present stock reports and selected-page export | Server aggregates rendered reporting and export scope
+R9 | Manage users roles and store preferences | Administrator boundary next-request access and last-admin guard
+R10 | Resist duplicate and concurrent stock submission | Exact replay changed-payload conflict and concurrent tests
+R11 | Preserve warning results without Redis | Cache bypass comparison and recorded outage equivalence
+## Functional requirements
+### Authentication and role-specific access
+Users must authenticate before reading inventory. The server provides the current account and role through a session-based API. Administrators manage accounts, catalogue records and preferences. Managers review stock health, read reports and update thresholds. Clerks record movements and inspect inventory history. These are fixed role bundles rather than a user-configurable permission hierarchy. The requirement follows the role-to-permission separation described in RBAC literature [@sandhu1996].
+
+The role model in {fig:permissions} identifies these bundles. Every protected operation must be authorized at the server. Navigation guards reduce misleading interface paths, but a caller bypassing the browser must still receive the same access decision. An account disabled after login must not remain usable simply because its old cookie exists. Role changes must also apply on later requests.
+@fig permissions|diagrams/07-permission-model.png|Fixed role bundles enforced by the server and reflected in navigation
+### Catalogue and inventory inspection
+Catalogue administration requires unique SKU values, bounded non-negative prices, valid references and a consistent threshold hierarchy. Product editing must preserve quantity. Product archival must preserve its ledger and reject new stock movements. Category and supplier administration must preserve referenced relationships instead of silently detaching products during deletion.
+
+Inventory inspection requires name, SKU and barcode search, category selection, stock-health filters, stable sorting and bounded page sizes. An empty selection must be presented as an ordinary search result with a way to recover. The search interface in {fig:search-ui} demonstrates the actual text filter. The result-count label and pagination belong to the filtered selection rather than to an unrelated global count.
+@fig search-ui|ui/12-inventory-search.png|Implemented text search within the inventory view
+
+For an API consumer, page numbering is zero-based and page size is capped at one hundred. The interface currently loads twelve products per inventory page. Sort fields are allow-listed and include an ID tie-breaker. These constraints reduce ambiguous results and prevent a request parameter from becoming an unrestricted database expression. They do not promise snapshot pagination while concurrent writes alter the dataset.
+### Stock operation requirements
+Each stock request must identify a product, movement type, quantity, reason and idempotency key. The actor must come from the authenticated principal. The server must derive signed effects and obtain the before balance under the product lock. A failed request must not create an accepted movement or leave a partial quantity change. An unchanged stocktake must still be auditable because the observation itself is meaningful.
+
+An exact replay must return the original transaction identifier without applying another change. Reusing a key with different normalized content must return a conflict. Requests that would make quantity negative or exceed the supported maximum must be rejected. Concurrent dispatches must be serialized at the product boundary so that successful changes cannot collectively oversell the locked balance.
+### Warning and reporting requirements
+A zero balance must be classified as OUT, including when the threshold is also zero. A positive balance equal to the reorder threshold must be LOW. A healthy replenishment must resolve the shortage and create a recovery episode. Continued low stock within the same severity must not erase its reviewer. Changing threshold policy must reevaluate warning state because the interpretation can change without a movement.
+
+Reporting must describe the recorded stock state, not invent business indicators. Inventory value uses current price, the activity trend counts movements by UTC date and category mix uses current quantity totals. Acknowledgement must record who reviewed an episode while leaving stock unchanged. The application must preserve this distinction in labels, API operations and database relationships.
+## Non-functional requirements and quality boundaries
+Correctness has priority over optional acceleration. MySQL must retain products, movements, warnings and settings. Redis must not be required to post stock or retrieve authoritative warning results. The movement path must coordinate balance, audit, warning transitions and invalidation revision within one transaction. Failures in these operations must roll back the accepted change rather than expose a partial result.
+
+The application must be reproducible from explicit dependencies and migrations. Local services are versioned in the repository, and evaluation scripts preserve machine, workload and sample metadata where available. A different host may produce different latency measurements. Reproducibility therefore means that the workload and procedure can be inspected and repeated, not that every recorded number will remain identical.
+
+Responsiveness is assessed through a phone-sized browser viewport and confinement of table scrolling to its container. The interface uses text labels alongside stock colors and gives forms descriptive field names. These design choices address relevant accessibility concerns, but the project does not claim full WCAG conformance. That claim would require a broader manual and automated assessment against the standard [@wcag].
+@table quality|Quality requirements and limits of the current evidence
+Attribute | Required behavior | Current verification boundary
+Consistency | Atomic bounded stock changes | Selected real-database transaction and concurrency cases
+Retry handling | One accepted result per actor key and intention | Exact and conflicting replay plus same-product concurrency
+Authorization | Server permission for each protected operation | Integration checks and browser guard scenarios
+Recoverability | MySQL state remains authoritative without cache | Recorded Redis interruption and application restart
+Usability | Clear stock semantics and recoverable empty states | Interface inspection and responsive browser checks
+Performance | Described latency under a documented workload | Small sequential local warning-query benchmark
+Maintainability | Explicit layers schema and reproducible dependencies | Source structure migrations and runnable scripts
+## Analysis of related inventory systems
+### Reordering rules in Odoo
+Odoo's documented replenishment workflow uses minimum and maximum stock quantities to determine when and how much to replenish [@odoo]. This is relevant because it connects a stock boundary with an operational response rather than merely displaying a low-stock color. The documentation describes a broader inventory and purchasing environment than the one implemented in Shelfwise.
+
+Shelfwise adopts the need for an explicit quantity boundary but stops at review. A shortage episode creates attention for an authorized user; it does not create a purchase order or compute supplier lead time. Its reorder threshold is a manually maintained rule, and its safety stock is an urgency value within that rule. This narrower scope makes the transition and acknowledgement behavior testable without introducing unimplemented purchasing claims.
+### Retained ledger explanations in ERPNext
+ERPNext documents an immutable-ledger approach in which cancellation preserves original entries and records reversing effects rather than simply removing the earlier posting [@erpnext]. The relevant design principle is that an accepted operational history should remain explainable after correction. Its stock ledger also provides inspection of inventory postings in a larger enterprise system [@erpnext-stock].
+
+Shelfwise preserves accepted movement rows and requires a later adjustment or stocktake to correct quantity. It does not implement ERPNext's document cancellation, backdated reposting or accounting integration. The comparison supports a choice about explanatory history, not a claim of feature equivalence. The audit record remains an application-level history; a database administrator is still able to modify the database outside the application.
+### Spreadsheet and broader enterprise alternatives
+A spreadsheet can be appropriate for a very small stock list when one person controls editing. It is easy to inspect and introduces few deployment components. The problem considered here arises when several staff roles need coordinated writes, accepted-change attribution and server-enforced permissions. A shared worksheet would require additional controls to meet those requirements. The comparison is analytical rather than an experimentally measured evaluation of a specific spreadsheet product.
+
+A full enterprise resource planning system can integrate purchasing, warehouse locations, finance and sales. That breadth may be necessary for a different assignment. Shelfwise intentionally concentrates on the internal consistency of one inventory workflow. The smaller boundary reduces integration obligations but also limits operational completeness. The project should be judged against this declared boundary, not against a complete retail platform.
+@table alternatives|Comparison of inventory-management approaches within the project scope
+Approach | Useful characteristics | Gap relative to this assignment
+Shared stock worksheet | Simple deployment and direct visibility | Requires added controls for concurrency roles and attributed changes
+Documented Odoo replenishment | Quantity policies connected to replenishment | Broader purchasing scope than the implemented review-only workflow
+Documented ERPNext ledger | Retained posting and correction explanations | Broader document accounting and reposting mechanisms
+Shelfwise bounded application | Explicit stock transaction warning review and tests | No purchasing checkout forecasting batches or store-user study
+## Technology selection and comparative analysis
+### Backend and persistence
+Java 21 and Spring Boot were selected to combine typed request records, validation, servlet security, JPA repositories, transactions and health endpoints. The project pins Spring Boot 3.5.16; this is an implementation baseline rather than a statement that it is the newest release. The framework's published system requirements provide the context for supported Java and build tooling [@springboot]. The inventory service is still responsible for the business rules; choosing a framework does not establish correctness by itself.
+
+MySQL was selected as the durable relational store. A product-row locking read is an available primitive for coordinating updates, while constraints protect identities and foreign keys [@mysql-locks]. PostgreSQL could support a similar design. The choice here reflects the existing project baseline and the tested MySQL environment, not a comparative database benchmark. Flyway migrations define the schema, and JPA validates its mapping at startup.
+
+Redis is used only for a cached warning-page response. This is a cache-aside responsibility: a miss causes authoritative retrieval and a best-effort cache fill [@redis-cache]. The project adds a database-backed revision namespace to address post-write staleness. This adds work to each read and a shared update to writes, so the design must be evaluated with those costs included rather than assuming that every cache path is faster.
+### Frontend and communication
+Vue 3 supports a component-oriented browser interface, and TypeScript describes the shapes shared by pages and the API client [@vue]. Vue Router owns navigation, Pinia owns authenticated account state, Axios wraps HTTP exchange, Element Plus supplies interface controls and ECharts renders summaries. The deployment is a browser application with responsive styles. React Native, Expo and native device applications are not part of this project.
+
+The API follows resource-oriented JSON routes, but it uses server sessions. Fielding's dissertation places stateless interaction among REST's architectural constraints [@fielding2000]. Shelfwise should therefore be described as a resource-oriented HTTP API rather than as a fully stateless REST implementation. This distinction is useful when considering horizontal deployment: a second application node would need an explicit session strategy.
+### Development and verification tooling
+Docker Compose supplies the pinned MySQL and Redis services for local execution. Maven builds the backend, while Vite provides frontend development and production assets. Testcontainers supplies disposable service instances for backend integration tests [@testcontainers]. Vitest checks presentation boundaries, and Playwright is used for browser journeys and interface capture. Each tool has a particular verification purpose; none replaces an operational user study or a production security assessment.
+@table stack|Implemented technology baseline and responsibility
+Layer | Pinned technology | Responsibility
+Backend | Java 21 and Spring Boot 3.5.16 | HTTP validation security and transaction coordination
+Persistence | Spring Data JPA and Flyway | Entity mapping repository access and schema lifecycle
+Database | MySQL 8.4.8 | Durable records constraints and locking
+Cache | Redis 7.4.9 | Optional thirty-second warning-page cache
+Browser | Vue 3.5.22 and TypeScript 5.9.3 | Reactive interface and typed client data
+UI and charts | Element Plus 2.11.5 and ECharts 6.1.0 | Controls and stock visualizations
+Frontend build | Vite 7.3.6 and project Node 22 baseline | Development proxy and asset build
+Evaluation | JUnit Testcontainers Vitest and Playwright | Layer-specific executable checks
+## Chapter summary
+The requirements define an auditable stock intention, an independent warning review and a clear source of durable truth. Related systems provide examples of replenishment policy and retained ledger explanations, while the technology analysis identifies how this project can implement its narrower scope. Chapter 3 translates these requirements into the architecture and relational constraints that make the acceptance conditions observable.

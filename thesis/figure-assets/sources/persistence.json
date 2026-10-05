@@ -1,0 +1,6 @@
+{
+  "after_application_restart": "same stock and inventory transaction rows",
+  "sha256": "1f4457b4d862bda6fc315626a2c27264577ae6f158faeec485010ddc3b4cad3f",
+  "rows": 34,
+  "verified": true
+}

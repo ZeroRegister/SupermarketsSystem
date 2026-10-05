@@ -1,0 +1,276 @@
+[
+  {
+    "id": "01-code-product-lock",
+    "title": "Pessimistic product row locking",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/Repositories.java",
+    "startLine": 1,
+    "endLine": 19,
+    "sourceSha256": "a08deb517d61b51fc7ddc8df19808de2c16dedd3ad5b0916e435e8095759431f",
+    "excerptSha256": "b2de288cf76e764be5693c352c3a99aec84b31b706320d7dbe025e7f674d44f4",
+    "files": [
+      "code/01-code-product-lock.png",
+      "code/01-code-product-lock.html",
+      "sources/01-code-product-lock.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "02-code-stock-transaction",
+    "title": "Atomic stock movement with audit and replay checks",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+    "startLine": 56,
+    "endLine": 66,
+    "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+    "excerptSha256": "5024e70630b56ae0d42074458450b601bbef3bfd00e25363297f0030d620aa6a",
+    "files": [
+      "code/02-code-stock-transaction.png",
+      "code/02-code-stock-transaction.html",
+      "sources/02-code-stock-transaction.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "03-code-product-filter",
+    "title": "Stock filtering and deterministic pagination",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+    "startLine": 26,
+    "endLine": 41,
+    "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+    "excerptSha256": "82a054cb0586f0071d4cc446bab407e05ce3400b403f3e824de0f56cfcf7ec4a",
+    "files": [
+      "code/03-code-product-filter.png",
+      "code/03-code-product-filter.html",
+      "sources/03-code-product-filter.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "04-code-warning-cache",
+    "title": "Revision-based warning cache and database fallback",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+    "startLine": 70,
+    "endLine": 83,
+    "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+    "excerptSha256": "56618b9a823f4da24384cf688eb4b3eb9b43b7537ef2b36e0d9b32da9b8a3281",
+    "files": [
+      "code/04-code-warning-cache.png",
+      "code/04-code-warning-cache.html",
+      "sources/04-code-warning-cache.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "05-code-warning-lifecycle",
+    "title": "Warning episode transitions and recovery",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+    "startLine": 122,
+    "endLine": 129,
+    "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+    "excerptSha256": "9ecfb27896d007d2033fdbbeda11711bbe6c47397f4aea9027db88b5d00cfbfc",
+    "files": [
+      "code/05-code-warning-lifecycle.png",
+      "code/05-code-warning-lifecycle.html",
+      "sources/05-code-warning-lifecycle.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "06-code-security",
+    "title": "Session security CSRF and endpoint authorization",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+    "startLine": 26,
+    "endLine": 40,
+    "sourceSha256": "2c9f80e52ba339df9956583f7fa958163b4f1318d10fd638fbfa9e7c6e221307",
+    "excerptSha256": "57473a3e153d9a1444ad8ffa7768644c3257f7c1dac45383553271bd07a3690b",
+    "files": [
+      "code/06-code-security.png",
+      "code/06-code-security.html",
+      "sources/06-code-security.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "07-code-session-login",
+    "title": "Session authentication and session ID rotation",
+    "chapter": 4,
+    "type": "code",
+    "source": "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+    "startLine": 69,
+    "endLine": 77,
+    "sourceSha256": "2c9f80e52ba339df9956583f7fa958163b4f1318d10fd638fbfa9e7c6e221307",
+    "excerptSha256": "02c521a1299b94b271c99debfb8712d638858d817362cf66d5899ff78fe3dcdd",
+    "files": [
+      "code/07-code-session-login.png",
+      "code/07-code-session-login.html",
+      "sources/07-code-session-login.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "08-code-api-client",
+    "title": "Typed frontend API and CSRF header interceptor",
+    "chapter": 4,
+    "type": "code",
+    "source": "frontend/src/api.ts",
+    "startLine": 1,
+    "endLine": 20,
+    "sourceSha256": "33624844c1689b75169e76ddca299588617b4fa4d05119be9f9080ba6ec12915",
+    "excerptSha256": "d2ed0efe15a1a605d011d26a4a08f1f8b31961bd5838118f609e95fabf2f3986",
+    "files": [
+      "code/08-code-api-client.png",
+      "code/08-code-api-client.html",
+      "sources/08-code-api-client.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "09-code-navigation",
+    "title": "Authenticated route and role navigation guards",
+    "chapter": 4,
+    "type": "code",
+    "source": "frontend/src/router.ts",
+    "startLine": 1,
+    "endLine": 21,
+    "sourceSha256": "8232f227ac54db4e973a7f5f9112387c2639e432102b924d1923d1fe53c2e599",
+    "excerptSha256": "8232f227ac54db4e973a7f5f9112387c2639e432102b924d1923d1fe53c2e599",
+    "files": [
+      "code/09-code-navigation.png",
+      "code/09-code-navigation.html",
+      "sources/09-code-navigation.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "10-code-schema",
+    "title": "Stock history schema and idempotency constraint",
+    "chapter": 3,
+    "type": "code",
+    "source": "backend/src/main/resources/db/migration/V1__initial_schema.sql",
+    "startLine": 31,
+    "endLine": 51,
+    "sourceSha256": "5f32b7c527da52f90727fbdfb1441f0f9966c4138f26f13fa995b4345a4c687d",
+    "excerptSha256": "12720f8edaa516d21b519d113bd38f8e3bfe334d47e0f6bbcd469fde71ce87e9",
+    "files": [
+      "code/10-code-schema.png",
+      "code/10-code-schema.html",
+      "sources/10-code-schema.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "11-code-deployment",
+    "title": "MySQL and Redis container configuration",
+    "chapter": 4,
+    "type": "code",
+    "source": "docker-compose.yml",
+    "startLine": 1,
+    "endLine": 27,
+    "sourceSha256": "c29ad03eb1887115efa7ed6cc36dea458c07182dcdb9b4c13290a200dab180fd",
+    "excerptSha256": "c29ad03eb1887115efa7ed6cc36dea458c07182dcdb9b4c13290a200dab180fd",
+    "files": [
+      "code/11-code-deployment.png",
+      "code/11-code-deployment.html",
+      "sources/11-code-deployment.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "12-code-concurrency-tests",
+    "title": "Concurrent dispatch and identical-submission tests",
+    "chapter": 5,
+    "type": "code",
+    "source": "backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java",
+    "startLine": 51,
+    "endLine": 52,
+    "sourceSha256": "8d233081327d56d0f79763085f3e2b0c810039a0d97332326d42ebeca6f50d84",
+    "excerptSha256": "2bd949858586b22f2aec8b98cd53fe8392fd434a4af7c6349bcadb613aab3c8a",
+    "files": [
+      "code/12-code-concurrency-tests.png",
+      "code/12-code-concurrency-tests.html",
+      "sources/12-code-concurrency-tests.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "13-code-boundary-tests",
+    "title": "Frontend zero and threshold equality tests",
+    "chapter": 5,
+    "type": "code",
+    "source": "frontend/src/inventory.spec.ts",
+    "startLine": 1,
+    "endLine": 19,
+    "sourceSha256": "3b21131f7408fa4fe1533ba4b69fff1e403ca59e1baa36464a68f32773184f1e",
+    "excerptSha256": "3b21131f7408fa4fe1533ba4b69fff1e403ca59e1baa36464a68f32773184f1e",
+    "files": [
+      "code/13-code-boundary-tests.png",
+      "code/13-code-boundary-tests.html",
+      "sources/13-code-boundary-tests.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "14-code-stock-form",
+    "title": "Stock form request key and submission guard",
+    "chapter": 4,
+    "type": "code",
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "startLine": 65,
+    "endLine": 67,
+    "sourceSha256": "3cb849ca8a7016e951ba50a7bb07577815fbab3c9b573f91c52cfae158d59e85",
+    "excerptSha256": "deaa3b8a984dda2ed7d349948eb5b544bc52cdd9ff991c7e0404fc12a4d3a1a5",
+    "files": [
+      "code/14-code-stock-form.png",
+      "code/14-code-stock-form.html",
+      "sources/14-code-stock-form.txt"
+    ],
+    "note": "Exact source text with display wrapping; original line numbers retained."
+  },
+  {
+    "id": "01-backend-tests",
+    "title": "Backend integration tests \u00b7 current run",
+    "chapter": 5,
+    "type": "test-result",
+    "source": "sources/backend-tests.log",
+    "files": [
+      "evidence/01-backend-tests.png",
+      "evidence/01-backend-tests.html",
+      "sources/01-backend-tests.txt"
+    ]
+  },
+  {
+    "id": "02-frontend-tests",
+    "title": "Frontend threshold tests \u00b7 current run",
+    "chapter": 5,
+    "type": "test-result",
+    "source": "sources/frontend-tests.log",
+    "files": [
+      "evidence/02-frontend-tests.png",
+      "evidence/02-frontend-tests.html",
+      "sources/02-frontend-tests.txt"
+    ]
+  },
+  {
+    "id": "03-browser-verification",
+    "title": "Browser capture and role checks \u00b7 current run",
+    "chapter": 5,
+    "type": "test-result",
+    "source": "sources/ui-verification.json",
+    "files": [
+      "evidence/03-browser-verification.png",
+      "evidence/03-browser-verification.html",
+      "sources/03-browser-verification.txt"
+    ]
+  }
+]

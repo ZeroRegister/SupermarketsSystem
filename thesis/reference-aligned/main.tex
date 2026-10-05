@@ -1,54 +1,148 @@
 \documentclass[12pt,a4paper,oneside]{report}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{lmodern,microtype}
-\usepackage[margin=30mm,headheight=16pt]{geometry}
-\usepackage{setspace,graphicx,booktabs,tabularx,array,amsmath,amssymb}
-\usepackage{caption,float,longtable,xcolor,fancyhdr,listings}
+\usepackage{newtxtext,newtxmath,microtype}
+\usepackage[top=24mm,bottom=24mm,left=27.5mm,right=27.5mm,headheight=16pt]{geometry}
+\usepackage{setspace,graphicx,booktabs,longtable,array,caption,float,xcolor,fancyhdr}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[hidelinks]{hyperref}
-\usepackage{bookmark}
-\graphicspath{{../figures/}}
-\onehalfspacing
-\setlength{\parindent}{1.5em}
-\setlength{\parskip}{0.25em}
+\usepackage{bookmark,placeins,titlesec}
+\titleformat{\chapter}[hang]{\Large\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{0pt}{16pt}
+\titlespacing*{\section}{0pt}{10pt}{6pt}
+\titlespacing*{\subsection}{0pt}{8pt}{4pt}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.9}
+\renewcommand{\textfraction}{0.04}
+\renewcommand{\floatpagefraction}{0.75}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\setlength{\textfloatsep}{6pt}
+\setlength{\floatsep}{6pt}
+\setlength{\intextsep}{6pt}
+\setstretch{1.15}
+\setlength{\parindent}{0.65cm}
+\setlength{\parskip}{2.5pt}
 \setlength{\emergencystretch}{3em}
-\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small\nouppercase{\leftmark}}\fancyhead[R]{\small Shelfwise}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0.3pt}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{2}
+\pagestyle{fancy}\fancyhf{}\fancyhead[C]{\small Shelfwise Inventory and stock warning system}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}
 \fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
 \captionsetup{font=small,labelfont=bf,skip=7pt}
-\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-\newcommand{\fig}[4][0.56]{\begin{figure}[H]\centering\includegraphics[width=\textwidth,height=#1\textheight,keepaspectratio]{#2}\caption{#3}\label{#4}\end{figure}}
-\lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{gray!7},frame=single,breaklines=true,columns=fullflexible,showstringspaces=false}
-\hypersetup{pdftitle={Development of an Inventory and Stock Warning System for Small Supermarkets},pdfauthor={Author Name (Placeholder)}}
+\hypersetup{pdftitle={Development of an Inventory and Stock Warning System for Small Supermarkets},pdfauthor={}}
 \begin{document}
 \begin{titlepage}\centering
-{\large UNIVERSITY NAME (PLACEHOLDER)\par}\vspace{0.4em}{\large Department / School Name (Placeholder)\par}
-\vfill{\Large\bfseries MASTER'S THESIS\par}\vspace{1em}{\LARGE Development of an Inventory and Stock Warning System for Small Supermarkets\par}\vspace{2em}{\large Degree Title (Placeholder)\par}
-\vfill\begin{tabular}{p{0.42\textwidth}p{0.42\textwidth}}Master's degree student & Author Name (Placeholder)\\[1em]Supervisor & Supervisor Name (Placeholder)\\\end{tabular}
-\vfill{\large City (Placeholder) 2026\par}\end{titlepage}
+{\large UNIVERSITY AND DEPARTMENT\par}\vspace{2cm}
+{\Large\bfseries MASTER'S THESIS\par}\vspace{1.7cm}
+{\LARGE Development of an Inventory and Stock Warning System for Small Supermarkets\par}\vspace{2.4cm}
+Student\quad\rule{7cm}{0.4pt}\par\vspace{0.7cm}
+Supervisor\quad\rule{6.7cm}{0.4pt}\par\vspace{0.7cm}
+Degree and specialty\quad\rule{5.5cm}{0.4pt}\par\vspace{0.7cm}
+City\quad\rule{7.5cm}{0.4pt}\par\vfill 2026
+\end{titlepage}
 \pagenumbering{roman}
-\chapter*{WORK OVERVIEW}\addcontentsline{toc}{chapter}{WORK OVERVIEW}
-\section*{Research purpose and objectives}
-The purpose of this work is to design and develop a reproducible web-based inventory and stock-warning system for a small supermarket. The project focuses on three operational questions: how the current stock position is known, how every quantity change can be explained, and how staff can identify products that need attention before a shelf becomes empty.
+{\setstretch{1.0}\small\setlength{\parskip}{0pt}\tableofcontents\listoffigures\listoftables}
+\chapter*{Work overview}
 
-The objectives are to analyse a single-store inventory domain; define a role and permission model; design a relational inventory ledger and warning lifecycle; implement a Spring Boot and Vue 3 application backed by MySQL and Redis; verify duplicate, concurrent, invalid, and failure scenarios; and prepare evidence suitable for a software-engineering thesis.
-\section*{Technical contribution}
-The implemented system combines four mechanisms in one auditable path: a product row lock for concurrent stock changes, actor-scoped idempotency keys for retries, persisted warning episodes that separate stock recovery from acknowledgement, and revision-keyed Redis caching that falls back to MySQL. The project presents these as engineering design decisions and verified behaviors rather than as new algorithms.
-\section*{Submission and artifact requirements}
-The deliverables are the runnable system, schema migration, API and deployment documentation, source diagrams, reproducibility scripts, evidence data, and this English thesis. The author, university, department, degree, supervisor, and student number remain placeholders because they were not supplied. No institutional compliance or real-store trial is claimed.
-\section*{Personal contribution}
-The implementation covers the domain analysis, API and database design, backend and frontend development, security configuration, integration tests, browser checks, performance measurement, failure testing, evidence capture, and thesis preparation. All reported measurements are from the repository's scripts and local validation environment.
-\section*{Structure and scope of the thesis}
-Chapter 1 introduces the supermarket inventory domain and the object of analysis. Chapter 2 defines the assignment, requirements, related systems, and technology choices. Chapter 3 designs the architecture, database, permissions, and security boundaries. Chapter 4 describes implementation, routing, core functions, versioning, and deployment. Chapter 5 reports functional, integration, browser, performance, and recovery tests. The conclusion answers the project questions and states the limitations.
-\tableofcontents\listoffigures\listoftables\clearpage\pagenumbering{arabic}
+\addcontentsline{toc}{chapter}{Work overview}
+
+\FloatBarrier
+
+\section*{Research purpose and objectives}
+
+\addcontentsline{toc}{section}{Research purpose and objectives}
+
+The purpose of this project is to design, implement and evaluate a Web-based inventory and stock-warning system for a small supermarket. The system, named Shelfwise, connects the current product balance to the operations that created it and gives different members of the store team an appropriate view of stock health. Its central problem is the reliability of everyday inventory work: receiving a delivery, dispatching products, correcting a discrepancy, recording a physical count and reviewing a shortage.
+
+
+The objectives are to establish the domain and its operating boundaries; define functional requirements and role permissions; design a relational model for products, movements and warning episodes; implement a responsive browser client and transactional server; and evaluate normal operations, invalid requests, retries, concurrency and selected service failures. A further objective is reproducibility. The database migration, dependency versions, test scripts, figure sources and original evaluation records accompany the implementation so that another reader can inspect how the reported behavior was obtained.
+
+
+\FloatBarrier
+
+\section*{Engineering contribution}
+
+\addcontentsline{toc}{section}{Engineering contribution}
+
+The contribution is an integrated engineering treatment of stock consistency and warning interpretation. Product-level pessimistic locking serializes accepted changes. Actor-scoped idempotency keys distinguish a repeated request from a new operation. A persisted warning lifecycle distinguishes shortage, recovery and acknowledgement. Revision-based cache keys allow warning pages to be accelerated without assigning durable authority to Redis. These mechanisms are established techniques; the work contributes their application, explicit invariants and evaluated interaction within a bounded supermarket workflow.
+
+
+A useful result is the separation of operational facts. A received delivery changes quantity, a physical count records an observation, and acknowledgement records a review. The interface and database preserve these differences instead of treating all three as changes to an editable stock field. The project therefore makes a stock number explainable in terms of actor, reason, time and before-and-after quantities.
+
+
+\FloatBarrier
+
+\section*{Deliverables and implementation scope}
+
+\addcontentsline{toc}{section}{Deliverables and implementation scope}
+
+The deliverables comprise the Vue 3 browser application, Spring Boot service, MySQL schema, optional Redis warning-page cache, deployment configuration, executable tests, captured interfaces and this thesis. The application supports one store, integer quantities, manual thresholds and three fixed roles. The phone-sized interface is the responsive Web application. Native mobile applications, embedded device firmware, checkout, procurement settlement, batch tracking and multi-store isolation are outside the implemented scope.
+
+
+\FloatBarrier
+
+\section*{Development and verification work}
+
+\addcontentsline{toc}{section}{Development and verification work}
+
+The project work comprises domain modeling, requirement analysis, architecture and schema design, backend and frontend implementation, security configuration, local deployment and evidence-based evaluation. The documented tests include 27 backend integration cases, three frontend unit cases, an earlier browser acceptance journey and the later figure-capture verification. Performance and recovery observations are drawn from dated local records. This scope describes the available project work rather than a real-store trial or a production deployment.
+
+
+\FloatBarrier
+
+\section*{Thesis organization}
+
+\addcontentsline{toc}{section}{Thesis organization}
+
+The introduction establishes the problem, objectives and evaluation questions. Chapter 1 analyzes the supermarket inventory domain and its conceptual model. Chapter 2 defines requirements, examines related systems and justifies the technology choices. Chapter 3 develops architecture, database, permissions and consistency mechanisms. Chapter 4 explains implementation through interfaces, source excerpts and deployment paths. Chapter 5 evaluates functionality, concurrency, performance and recovery. The conclusion states the supported outcomes and future work. Appendices provide the API inventory, an acceptance catalog and reproducibility details.
+
+
+\chapter*{Abstract}
+
+\addcontentsline{toc}{chapter}{Abstract}
+
+A small supermarket requires both a current inventory position and an explanation of how that position arose. Directly editing a quantity can obscure errors, while repeating a request after a network interruption can duplicate a stock change. A warning system also becomes misleading when reviewing a shortage is treated as equivalent to replenishing the product. This thesis develops Shelfwise, a single-store inventory and stock-warning application that addresses these concerns through an auditable transaction path and an explicit warning lifecycle.
+
+
+The application combines a Vue 3 and TypeScript browser client with a Spring Boot and Java 21 server. MySQL stores products, users, stock movements, warning episodes and settings. Redis provides an optional warning-page cache. Accepted inventory changes acquire a product row lock, validate an actor-scoped idempotency key, check quantity bounds, write the before-and-after audit record, update warning episodes and advance the cache revision within one database transaction. Three fixed roles divide administration, managerial review and operational stock work. Session authentication, CSRF protection and server-side authorization protect the request path.
+
+
+Evaluation includes 27 passing backend integration cases and three passing frontend threshold tests. Recorded browser journeys exercise rendered views, a stock receipt and managerial acknowledgement. A separate screenshot-capture run confirms role navigation and responsive layout without posting new business data. A historical local benchmark contains 600 measured requests per mode: the Redis-enabled warning query has a median response latency of 5.33 ms, compared with 6.56 ms for the cache-bypass path. These observations describe a small sequential workload, not production capacity. Recorded Redis interruption and application restart checks support cache fallback and ordinary data persistence.
+
+
+The result is a runnable system in which stock changes, shortage transitions and human review remain distinct and inspectable. The study is limited by demonstration data, integer quantities, manual replenishment policies, one application node and the absence of a store-user study. The design provides a basis for later work on point-of-sale integration, fractional units, batch traceability, deployment hardening and operational evaluation.
+
+
+Keywords: inventory management; stock warning; transactional consistency; idempotency; role-based access control; responsive Web application.
+
+
+\chapter*{Introduction}
+
+\addcontentsline{toc}{chapter}{Introduction}
+
+A stock balance is useful only if staff can rely on it when making an operational decision. A supermarket employee checking a shelf needs to know whether the recorded quantity reflects recent deliveries and dispatches, whether a correction has already been applied, and whether a colleague has noticed a shortage. A manager investigating a discrepancy needs a different view of the same facts: which operation changed the quantity, who performed it, what reason was recorded and whether the shortage later recovered. These requirements link data consistency to the explanation presented by the interface.
+
+
+The engineering problem is therefore broader than product creation and retrieval. A client can submit twice, two staff members can dispatch from the same product balance, a warning can remain below its threshold after a partial replenishment, and a cached page can outlive the write that should replace it. Each case can produce a believable interface while the underlying meaning is wrong. Shelfwise is organized around explicit treatment of these cases rather than around a large list of retail features.
+
+
+The study asks four questions. First, how can quantity changes remain bounded, auditable and resistant to duplicate submission? Second, how should shortage and recovery be represented without confusing them with human acknowledgement? Third, how can a browser interface expose role-appropriate operations while the server remains responsible for authorization? Fourth, what evidence supports the behavior of the system under its stated local workload and failure scenarios? These questions determine the design and the acceptance tests discussed in the following chapters.
+
+
+The development approach uses a bounded case study. Requirements are mapped to routes, data structures, user-facing operations and test assertions. Design diagrams are derived from the implemented classes and migration. Interface images are captured from the running application. Code images retain their source locations. Evaluation uses the actual test suites and preserved measurement records. This connection between requirements, implementation and evidence allows the reader to assess an engineering result without assuming business benefits that were not measured.
+
+
+The implementation is a modular monolith. A single Spring Boot process owns stock transactions, while a Vue client presents the workflow. MySQL is authoritative and Redis is disposable. This arrangement keeps the transaction boundary visible and fits the single-store scope. Its limitations are consequential: it does not establish a distributed inventory platform, an accounting ledger or an automatic purchasing system. The later discussion identifies how those extensions would change the entities, policies and evaluation workload.
+
+\clearpage\pagenumbering{arabic}
 \include{chapters/01-object-analysis}
 \include{chapters/02-assignment}
 \include{chapters/03-design}
 \include{chapters/04-implementation}
 \include{chapters/05-testing}
-\chapter*{CONCLUSION}\addcontentsline{toc}{chapter}{CONCLUSION}
-The project produced a working single-store inventory and warning system with an auditable stock movement path. MySQL remains the source of truth, while Redis is an optional read accelerator. Tests support non-negative stock under the selected concurrency cases, exact retry behavior, role boundaries, warning lifecycle transitions, and database fallback during Redis failure. The results do not establish a production SLA, business benefit, or real-store usability outcome. Whole-unit stock, manual thresholds, single-node sessions, and the absence of a field study remain important limits.
-
-The next work should validate the workflow with store staff, add the domain controls required for batches and fractional units, test backup restoration and security hardening, and evaluate a point-of-sale integration. Automatic purchasing and forecasting should be considered only after demand and supplier data are available.
-\bibliographystyle{plainnat}\bibliography{references}
+\include{chapters/06-conclusion}
+\bibliographystyle{unsrtnat}\bibliography{references}
+\setcounter{table}{0}\renewcommand{\thetable}{A.\arabic{table}}
+\include{chapters/07-appendices}
 \end{document}

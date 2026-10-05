@@ -1,13 +1,423 @@
-\chapter{IMPLEMENTATION}
-\section{Development of information system classes}
-The backend contains domain entities, repositories, validated request records, response records, controllers, a central inventory service, and security configuration. Flyway creates the schema and JPA validates it at startup. The service owns the stock transaction boundary. Quantity is not writable through catalog input. The startup demonstration seed runs only for an empty user table and requires an explicit local password.
-\section{Development of software routing and paths}
-The API includes authentication, dashboard, products, categories, suppliers, transactions, warnings, users, settings, and report paths. Product queries support search, category, health, archive, page, size, and allow-listed sort parameters. Transaction requests use a movement type, quantity, reason, and idempotency key. Warning requests accept lifecycle/type filters and a cache bypass parameter for evaluation.
-\section{Implementation of software functions}
-The dashboard reports current product count, low-stock count, out-of-stock count, estimated current-price value, movement count, recent activity, category mix, and priority warnings. The inventory view supports empty states, filters, pagination, CSV export, and product administration. The stock form distinguishes positive receiving/dispatch quantities, signed adjustments, and absolute counts. The warning board shows quantity, threshold, detection time, reviewer, and acknowledgement state.
-\fig[0.45]{ui-dashboard.png}{Implemented dashboard for the current store state.}{fig:aligned-dashboard}
-\fig[0.45]{ui-warnings.png}{Implemented warning board with independent review status.}{fig:aligned-warnings}
-\section{Version control and semantic versioning management}
-The project uses logical commits for bootstrap, design, inventory implementation, frontend implementation, thesis evidence, and layout corrections. The public repository excludes SPEC.md, local environment files, databases, dependencies, and build intermediates. Release tags identify the submission package and the later portrait-page and compact-pagination corrections.
-\section{Information system deploying}
-Docker Compose starts MySQL and Redis. The backend runs with Java 21 and Maven, while the frontend runs with Node 22 and Vite during development. A clean setup copies .env.example, starts containers, runs migration at application startup, and launches the browser client. Production deployment would require TLS, secure cookies, a secrets manager, backups, rate limiting, and a shared session strategy for multiple application nodes.
+\chapter{System implementation}
+
+\FloatBarrier
+
+\section{Project organization and development baseline}
+
+The implemented repository contains backend, frontend, scripts, documentation and thesis materials. The backend is built with Maven and Java 21. The browser application uses the pinned dependencies in its package manifest and lockfile. MySQL and Redis are started through Docker Compose. The thesis figures are maintained with their editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.
+
+
+Backend domain entities, request and response records, repository interfaces, controllers, the inventory service and security configuration are kept in the com.shelfwise package. The organization is compact rather than a separate class file for every domain object. It exposes the main consistency path in one service but would need further decomposition as more workflows are added. The frontend similarly uses a login view and a substantial workspace view with several operational sections.
+
+
+Flyway applies the initial migration, and Hibernate validates the entity mapping at startup. A migration failure prevents normal service startup rather than silently recreating tables. Demonstration seeding is guarded by configuration, password length and the presence of existing user records. It does not overwrite existing accounts when a local environment password changes. This behavior preserves previously created state during ordinary restarts.
+
+
+\FloatBarrier
+
+\section{API routes and interface navigation}
+
+The application exposes JSON resources below /api. Authentication endpoints obtain a CSRF token, create a session, return the current account and log out. Catalogue paths create, edit and archive products. A separate threshold path narrows manager authority. Transactions represent accepted stock operations. Warnings support filtered retrieval and review attribution. Reports, users and preferences have their own permission boundaries.
+
+
+\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
+\caption{API resource groups and their implemented purpose}\label{tab:route-groups}\\
+\toprule
+\textbf{Resource group} & \textbf{Representative path} & \textbf{Responsibility} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Resource group} & \textbf{Representative path} & \textbf{Responsibility} \\
+\midrule\endhead
+\bottomrule\endfoot
+Authentication & \path|/api/auth/login and /api/auth/me| & Establish and inspect the session \\
+Catalogue & \path|/api/products and /api/products/{id}| & Product identity and filtered inventory \\
+Threshold policy & \path|/api/products/{id}/thresholds| & Manager-accessible policy update \\
+Reference data & \path|/api/categories and /api/suppliers| & Product grouping and partner directory \\
+Movement ledger & \path|/api/transactions| & Accepted stock commands and history \\
+Warnings & \path|/api/warnings and /api/warnings/{id}/ack| & Episode retrieval and reviewer attribution \\
+Reporting & \path|/api/dashboard and /api/reports/summary| & Recorded stock summaries \\
+Administration & \path|/api/users and /api/settings| & Accounts access and workspace preferences \\
+\end{longtable}\endgroup
+
+Vue Router separates the login path from the workspace. Within the workspace, a query parameter selects the operational view. Route guards restore the current account and redirect selected unauthorized deep links. The code in Figure~\ref{fig:route-code} shows the actual guard. It is an interface aid: the server still checks every API operation, including a request made without Vue Router.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/09-code-navigation.png}
+\caption{Authenticated navigation and role guards in the frontend source}\label{fig:route-code}
+\end{figure}
+
+The browser API client uses credentials on requests and centralizes CSRF preparation and headers. Its response interceptor triggers session recovery behavior when a protected request is unauthenticated. The source in Figure~\ref{fig:client-code} provides a shared place for these rules, reducing the chance that one form submits an unsafe request differently from another.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/08-code-api-client.png}
+\caption{Typed client functions and the unsafe-request CSRF header}\label{fig:client-code}
+\end{figure}
+
+Application errors distinguish invalid input, lack of authentication, lack of authority, missing records and conflicts. Controllers validate supported warning filters before calling the service. Database uniqueness or referenced-record failures become conflicts. A replay can return the original movement while retaining the transaction endpoint's 201 response annotation; clients should use the returned identifier to recognize equivalence rather than assume every 201 created a new row.
+
+
+\FloatBarrier
+
+\section{Authentication and session implementation}
+
+The desktop login screen in Figure~\ref{fig:login-desktop} collects account credentials without exposing the password in a response. Its left-side stockroom preview is explicitly illustrative interface content. The authenticated dashboard is obtained later from the server. The login screen should not be treated as performance or current-inventory evidence merely because it contains stock-themed graphics.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/01-login-desktop.png}
+\caption{Desktop login interface with an illustrative stockroom preview}\label{fig:login-desktop}
+\end{figure}
+
+The authentication sequence in Figure~\ref{fig:login-sequence} begins with CSRF preparation, submits credentials and delegates authentication to the configured manager. The user repository supplies the enabled account and hash. Successful authentication rotates the session identifier and stores the security context in the servlet session. The persistent user table and the in-process session are distinct stores.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/18-seq-login.png}
+\caption{Authentication interaction with the user repository and servlet session}\label{fig:login-sequence}
+\end{figure}
+
+The code excerpt in Figure~\ref{fig:login-code} contains the corresponding controller operation. User-facing data is returned through a view record. The username and role are not accepted from later movement payloads as actor authority: controllers obtain the principal from the server authentication context. Restarting the sole application process can invalidate its in-memory sessions without removing the durable inventory records.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/07-code-session-login.png}
+\caption{Credential authentication and session ID rotation in the controller}\label{fig:login-code}
+\end{figure}
+
+The security rules in Figure~\ref{fig:security-code} define the implemented endpoint permissions and CSRF handling. They are a clearer basis for assessing authority than whether a sidebar item happens to be visible. For example, managers can patch thresholds but cannot post a movement, while clerks can post a movement but cannot acknowledge a warning.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/06-code-security.png}
+\caption{Implemented security filter configuration and role-specific route rules}\label{fig:security-code}
+\end{figure}
+
+\FloatBarrier
+
+\section{Overview and inventory inspection}
+
+The dashboard in Figure~\ref{fig:dashboard-ui} combines a current-stock summary, movement trend, category mix, priority products and quick links. It is intended to help the manager identify the next inspection task. Counts and value come from server aggregation over active products. The display does not estimate customer demand or independently establish that a replenishment will arrive.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/02-dashboard.png}
+\caption{Administrator overview rendered from the current demonstration database}\label{fig:dashboard-ui}
+\end{figure}
+
+The movement trend uses the recorded seven-day date series. Zero-activity days appear as zero rather than being omitted. The category visualization sums current unit counts. These definitions matter when interpreting the graphic: a spike means more recorded movements, and combining bottles with kilograms does not produce a standardized physical measure. Detailed numerical evaluation is presented separately in Chapter 5.
+
+
+The inventory interface in Figure~\ref{fig:inventory-ui} provides search, category and stock-health filters, quantities, threshold context, unit price and paging. It also shows the role-appropriate product actions. Quantity is presented with its unit and reorder level so that a red or amber badge can be interpreted without relying only on color.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/03-inventory.png}
+\caption{Inventory page with product identity quantity policy context and pagination}\label{fig:inventory-ui}
+\end{figure}
+
+Filtering is implemented as database predicates. The source in Figure~\ref{fig:filter-code} selects active or archived products, combines text and category conditions, and distinguishes OUT, LOW and healthy quantities. Sorting uses an allow-list and ID tie-breaker, while page size is capped. The code explains why the result count belongs to the selected query rather than to a separately filtered browser array.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/03-code-product-filter.png}
+\caption{Server-side inventory predicates and bounded stable pagination}\label{fig:filter-code}
+\end{figure}
+
+\FloatBarrier
+
+\section{Catalogue administration}
+
+The catalogue view in Figure~\ref{fig:catalogue-ui} shares inventory data with an administrative emphasis. The separate view name is a navigation choice rather than a second stock store. Administrators can create and edit identity fields, set references and configure policy. Stock remains outside the catalogue payload.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/04-catalogue.png}
+\caption{Product catalogue view within the same inventory workspace}\label{fig:catalogue-ui}
+\end{figure}
+
+The creation form in Figure~\ref{fig:add-product-ui} collects product identity, unit, price, references and thresholds. It explains that stock changes through a recorded transaction. A newly created product begins with zero quantity; opening stock must be entered through a stock operation so that the accepted balance has an explanation. The screenshot is a captured draft form, not a posted creation result.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/14-add-product.png}
+\caption{Product creation form with no direct quantity editor}\label{fig:add-product-ui}
+\end{figure}
+
+The existing-product form in Figure~\ref{fig:edit-product-ui} displays stored descriptive and policy values. Its save operation checks uniqueness and reference validity. It acquires a product lock before applying changes that can affect warning interpretation. Preserving quantity during editing prevents an administrator from inadvertently erasing the meaning of the ledger while correcting a product name.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/15-edit-product.png}
+\caption{Product edit form populated from an existing catalogue record}\label{fig:edit-product-ui}
+\end{figure}
+
+The category page in Figure~\ref{fig:categories-ui} groups products through named categories and optional descriptions. The related creation form in Figure~\ref{fig:category-form-ui} exposes those fields. Category identifiers are referenced by products; category cards and filtering are views of that relationship. Referenced deletion conflicts preserve consistency instead of detaching records silently.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/05-categories.png}
+\caption{Category administration and links to grouped inventory}\label{fig:categories-ui}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/20-category-form.png}
+\caption{Category creation form captured without submission}\label{fig:category-form-ui}
+\end{figure}
+
+The supplier directory in Figure~\ref{fig:suppliers-ui} provides partner names and available contact details. The form in Figure~\ref{fig:supplier-form-ui} creates descriptive supplier data. Neither interface generates a delivery, purchase order or payment obligation. A product can reference a supplier, but actual received stock is still recorded through the stock activity path.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/06-suppliers.png}
+\caption{Supplier directory with descriptive partner information}\label{fig:suppliers-ui}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/21-supplier-form.png}
+\caption{Supplier creation fields for name and contact information}\label{fig:supplier-form-ui}
+\end{figure}
+
+\FloatBarrier
+
+\section{Audited stock operations}
+
+\FloatBarrier
+
+\subsection{Locking and coordination}
+
+The product repository exposes a pessimistic locking query, shown in Figure~\ref{fig:lock-code}. The service uses it before inspecting the active flag, calculating a result or checking the ordinary same-product retry path. A value previously displayed by the browser is never used as the authoritative before quantity.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/01-code-product-lock.png}
+\caption{Repository query that acquires the product write lock}\label{fig:lock-code}
+\end{figure}
+
+The interaction in Figure~\ref{fig:movement-sequence} connects browser intention, controller authentication, service decisions and MySQL commit. Its return path includes the accepted movement view with attributed quantities. It represents the normal request path and selected replay checks, rather than a claim that every database or network failure is handled by a distributed recovery protocol.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/19-seq-stock.png}
+\caption{Stock intention validation and database commit sequence}\label{fig:movement-sequence}
+\end{figure}
+
+The workflow in Figure~\ref{fig:movement-flow} emphasizes where a request can terminate without applying another change: archival rejection, equivalent replay, conflicting replay or invalid quantity. The accepted path writes the new quantity, audit row, warning changes and revision. This makes the order visible before the reader inspects the compact source.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/21-stock-flow.png}
+\caption{Stock transaction workflow including replay and quantity boundaries}\label{fig:movement-flow}
+\end{figure}
+
+The source in Figure~\ref{fig:movement-code} implements these steps in one transactional method. The reason is trimmed for comparison and storage. Before and after quantities are assigned by the service. Math.addExact detects overflow before the supported bounds are applied. An absolute count uses the locked balance when deriving delta, which makes repeated display values irrelevant to its arithmetic.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/02-code-stock-transaction.png}
+\caption{Actual stock movement method with audit idempotency and warning coordination}\label{fig:movement-code}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Receipt and dispatch forms}
+
+The receipt form in Figure~\ref{fig:receipt-ui} presents a positive quantity and reason. It identifies the selected product and current display quantity as context. Saving the form submits STOCK\_IN, and the server accepts a positive effect only after checking the request and product. The captured figure uses an existing demonstration product and an unsubmitted reason draft.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/16-stock-receipt.png}
+\caption{Receiving form as an unsubmitted demonstration of the stock command}\label{fig:receipt-ui}
+\end{figure}
+
+The dispatch form in Figure~\ref{fig:dispatch-ui} also asks for a positive input amount. The operation type gives it a negative stock effect on the server. This interface avoids asking staff to enter a minus sign for an ordinary dispatch. A displayed balance can become stale; insufficient-stock protection must consequently remain in the locked server operation.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/17-stock-dispatch.png}
+\caption{Dispatch form with positive input and server-derived negative delta}\label{fig:dispatch-ui}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Adjustment and physical count forms}
+
+The adjustment form in Figure~\ref{fig:adjustment-ui} uses a signed change and makes that interpretation explicit. It can represent removal of damaged goods or addition of a known correction. A zero adjustment is rejected because it does not describe a relative change. Its reason explains why the correction differs from routine receiving or dispatch.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/18-stock-adjustment.png}
+\caption{Adjustment form with an explicitly signed quantity change}\label{fig:adjustment-ui}
+\end{figure}
+
+The count form in Figure~\ref{fig:count-ui} instead asks for the observed absolute quantity. If the recorded locked balance is eight and the count is three, the service writes a delta of negative five. A count equal to eight still records an observation with zero delta. The distinction between count and adjustment is preserved by the type field, labels and integration tests.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/19-stocktake.png}
+\caption{Stocktake form using an absolute counted quantity}\label{fig:count-ui}
+\end{figure}
+
+The browser retains a request key for the opened form and guards against a simultaneous second save while a request is pending. The source in Figure~\ref{fig:form-code} shows this client behavior. It reduces accidental repetition but does not replace server idempotency: a lost response or manually repeated HTTP request can bypass a disabled button.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/14-code-stock-form.png}
+\caption{Client request-key retention and stock-form submission guard}\label{fig:form-code}
+\end{figure}
+
+\FloatBarrier
+
+\subsection{Attributed history}
+
+The history page in Figure~\ref{fig:history-ui} connects each accepted operation to product, actor, reason, timestamp and before-and-after balance. Relative adjustments and counts remain distinguishable by their type. This view provides an explanation when the current inventory is questioned, rather than merely recording that some field was edited.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/07-history.png}
+\caption{Movement history preserving actor reason and before-and-after quantities}\label{fig:history-ui}
+\end{figure}
+
+The persistence excerpt in Figure~\ref{fig:schema-code} contains mandatory actor and product references and the composite request-key uniqueness constraint. It also shows the warning table alongside the ledger. The database constraint protects accepted uniqueness even when concurrency bypasses an application-level prior-result check.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/10-code-schema.png}
+\caption{Flyway ledger and warning definitions including the actor-key constraint}\label{fig:schema-code}
+\end{figure}
+
+\FloatBarrier
+
+\section{Warning review and cached retrieval}
+
+The warning board in Figure~\ref{fig:warnings-ui} presents shortage type, current quantity, threshold, detection time and review status. The note below the table explains that acknowledgement does not change stock. This is part of the operational meaning of the interface: a reviewed out-of-stock item remains out of stock until a separate movement changes it.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/08-warnings.png}
+\caption{Warning board showing shortage context and independent reviewer attribution}\label{fig:warnings-ui}
+\end{figure}
+
+The lifecycle code in Figure~\ref{fig:lifecycle-code} examines open episodes, chooses severity, resolves prior types and creates recovery when stock becomes healthy. Continued same-severity shortage updates its context while retaining attribution. Archived products resolve their open episodes and cannot accept future movements. This behavior is checked by selected tests rather than inferred solely from a badge color.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/05-code-warning-lifecycle.png}
+\caption{Warning episode transitions in the implemented inventory service}\label{fig:lifecycle-code}
+\end{figure}
+
+The cache implementation in Figure~\ref{fig:cache-code} incorporates the durable revision into each warning-page key. Exceptions during Redis access lead to database retrieval or a failed optional fill, while SQL filtering occurs before pagination. Redis does not store the servlet session, allocate stock or authenticate users. Its limited role is important when interpreting the recovery and performance results.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/04-code-warning-cache.png}
+\caption{Revision-keyed warning retrieval with database fallback and TTL}\label{fig:cache-code}
+\end{figure}
+
+The manager workspace in Figure~\ref{fig:manager-ui} exposes warning review without administrator account controls. The threshold edit form in Figure~\ref{fig:threshold-ui} disables descriptive product fields for that role. Its narrower PATCH endpoint prevents the manager from changing SKU or price through the threshold operation even if a client attempts to send additional catalogue data.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/24-manager-workspace.png}
+\caption{Manager workspace for warning inspection and review}\label{fig:manager-ui}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/23-manager-thresholds.png}
+\caption{Threshold-only product edit form presented to a manager}\label{fig:threshold-ui}
+\end{figure}
+
+\FloatBarrier
+
+\section{Reports and administration}
+
+The reports view in Figure~\ref{fig:reports-ui} presents the value estimate, active products, low and out-of-stock counts, movements and category mix. Its explanatory labels state that current quantity times current price is an estimate and that movement dates use UTC. These qualifications identify what the graphic represents before a reader attempts to interpret a trend as sales or profit.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/09-reports.png}
+\caption{Implemented reporting view with explicit definitions of its metrics}\label{fig:reports-ui}
+\end{figure}
+
+The staff page in Figure~\ref{fig:team-ui} presents fixed role bundles and account status. Administrative changes become effective on later server requests because access is reloaded. The creation form in Figure~\ref{fig:account-form-ui} collects a display name, username, temporary password and role. Password fields are not returned in the staff list. The last-enabled-administrator control is enforced by service behavior, not by a decorative role card.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/10-team.png}
+\caption{Staff administration with role and enabled-account controls}\label{fig:team-ui}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/22-account-form.png}
+\caption{New staff-account form with role selection}\label{fig:account-form-ui}
+\end{figure}
+
+The store settings page in Figure~\ref{fig:settings-ui} controls the displayed business name and currency. Its currency help text states that no exchange-rate conversion occurs. The current schema stores preferences as key-value entries, so introducing accounting currency or historical conversion would require a different data policy rather than merely adding another option to this select control.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/11-settings.png}
+\caption{Store preferences and the display-only currency setting}\label{fig:settings-ui}
+\end{figure}
+
+The clerk view in Figure~\ref{fig:clerk-ui} provides movement recording and history without warning or staff-management operations. A direct link to a protected view is redirected by the browser guard, while a forbidden API action receives server denial. The distinction allows the user experience and the authority boundary to be assessed independently.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/25-clerk-workspace.png}
+\caption{Clerk stock-activity workspace with role-appropriate controls}\label{fig:clerk-ui}
+\end{figure}
+
+\FloatBarrier
+
+\section{Responsive Web behavior}
+
+Phone-sized access uses the same browser application and backend. The login interface in Figure~\ref{fig:phone-login-ui} adapts to the narrower viewport. It is not a React Native application and does not imply an iOS or Android package. The image records the actual responsive login layout at the captured browser size.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/26-mobile-login.png}
+\caption{Responsive Web sign-in at a phone-sized viewport}\label{fig:phone-login-ui}
+\end{figure}
+
+The inventory image in Figure~\ref{fig:phone-inventory-ui} is a full-page capture of the responsive page, including content that a user reaches by scrolling. Wide table content is confined to its own container. The capture check confirms that the document itself does not overflow the 390-pixel viewport. It does not establish usability on every device, touch target compliance or assistive-technology compatibility.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/27-mobile-inventory.png}
+\caption{Full-page responsive Web inventory capture at 390 CSS pixels}\label{fig:phone-inventory-ui}
+\end{figure}
+
+\FloatBarrier
+
+\section{Version control and local deployment}
+
+The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend currently identifies itself as version 0.1.0-SNAPSHOT and the frontend as 0.1.0. This thesis does not infer a production release process from those identifiers.
+
+
+The topology in Figure~\ref{fig:deployment} shows the implemented development arrangement. Vite serves the browser client on port 5173 and proxies API requests to Spring Boot on port 8080. Docker Compose publishes MySQL on the host's loopback port 3307 and Redis on loopback port 6380. The Vite development server is configured to listen on all interfaces; the loopback restriction shown for database services should not be generalized to every development process.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/24-deployment.png}
+\caption{Implemented development processes and container service ports}\label{fig:deployment}
+\end{figure}
+
+The Compose source in Figure~\ref{fig:compose-code} supplies explicit images, environment-variable requirements, health checks and the MySQL named volume. It does not embed the local passwords into the thesis. Redis persistence is disabled because the cached responses are disposable. MySQL data must be retained and backed up independently of the application process.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/11-code-deployment.png}
+\caption{Container configuration using environment references and durable MySQL storage}\label{fig:compose-code}
+\end{figure}
+
+A production deployment would serve built assets through an appropriate Web server, terminate TLS, enable secure session cookies, keep database services private and define backups and restore drills. Multiple application nodes would also require session affinity or shared session storage. Those operations are future deployment requirements. The tested local development topology should not be presented as a complete hardened production platform.
+
+
+\FloatBarrier
+
+\section{Chapter summary}
+
+The implementation translates the model into controls that preserve the meaning of each operation. Catalogue forms cannot directly assign stock, counts differ from adjustments, review differs from replenishment and Redis differs from durable storage. The interface images demonstrate how the implemented workflow is presented, while the source excerpts expose its critical mechanisms. The following chapter assesses the extent to which executable evidence supports those mechanisms.

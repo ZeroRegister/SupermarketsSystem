@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="26.1.1">
+  <diagram name="Implemented local deployment topology">
+    <mxGraphModel grid="1" gridSize="10" page="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Browser" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="40" width="300" height="70" />
+        </mxCell>
+        <mxCell id="3" value="Vite dev server&#10;localhost:5173" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="230" width="300" height="100" />
+        </mxCell>
+        <mxCell id="4" value="Spring Boot / Java 21&#10;localhost:8080" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="460" width="300" height="100" />
+        </mxCell>
+        <mxCell id="5" value="Docker Compose: MySQL 8.4&#10;localhost:3307 → 3306&#10;mysql-data persistent volume" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=cylinder3;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="530" y="350" width="420" height="120" />
+        </mxCell>
+        <mxCell id="6" value="Docker Compose: Redis 7.4&#10;localhost:6380 → 6379&#10;Optional volatile cache" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=cylinder3;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="530" y="620" width="420" height="120" />
+        </mxCell>
+        <mxCell id="7" value="HTTP" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="8" value="/api proxy" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="3" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="9" value="JDBC / transactions" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" edge="1" parent="1" source="4" target="5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="10" value="cache reads / best effort writes" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=1;exitY=0.75;entryX=0;entryY=0.5;" edge="1" parent="1" source="4" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

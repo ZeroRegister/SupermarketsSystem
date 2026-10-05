@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="26.1.1">
+  <diagram name="Warning management use cases">
+    <mxGraphModel grid="1" gridSize="10" page="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Warning management" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;swimlane;startSize=40;container=1;pointerEvents=0;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="240" y="20" width="620" height="380" />
+        </mxCell>
+        <mxCell id="3" value="Inspect shortage and recovery" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;ellipse;" vertex="1" parent="2">
+          <mxGeometry as="geometry" x="60" y="70" width="500" height="85" />
+        </mxCell>
+        <mxCell id="4" value="Acknowledge warning" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;ellipse;" vertex="1" parent="2">
+          <mxGeometry as="geometry" x="60" y="210" width="500" height="85" />
+        </mxCell>
+        <mxCell id="5" value="Administrator" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="20" y="110" width="130" height="120" />
+        </mxCell>
+        <mxCell id="6" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;edgeStyle=none;endArrow=none;exitX=1;exitY=0.35;exitPerimeter=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="5" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="7" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;edgeStyle=none;endArrow=none;exitX=1;exitY=0.35;exitPerimeter=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="5" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="8" value="Store manager" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="930" y="150" width="130" height="120" />
+        </mxCell>
+        <mxCell id="9" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;edgeStyle=none;endArrow=none;exitX=0;exitY=0.35;exitPerimeter=0;entryX=1;entryY=0.5;" edge="1" parent="1" source="8" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="10" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;edgeStyle=none;endArrow=none;exitX=0;exitY=0.35;exitPerimeter=0;entryX=1;entryY=0.5;" edge="1" parent="1" source="8" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

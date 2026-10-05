@@ -1,0 +1,28 @@
+{
+  "workload": {
+    "products": 16,
+    "open_warning_episodes": 16,
+    "page_size": 100,
+    "concurrency": 1,
+    "iterations_per_mode_per_round": 200,
+    "rounds": 3,
+    "warmup_per_mode": 20,
+    "mode_order": "alternates each round"
+  },
+  "results": {
+    "cached": {
+      "n": 600,
+      "median_ms": 5.328875,
+      "p95_ms": 7.572458,
+      "p99_ms": 8.874666,
+      "mean_ms": 5.66213904
+    },
+    "bypass": {
+      "n": 600,
+      "median_ms": 6.5642705,
+      "p95_ms": 8.105416,
+      "p99_ms": 9.419583,
+      "mean_ms": 6.899606025
+    }
+  }
+}

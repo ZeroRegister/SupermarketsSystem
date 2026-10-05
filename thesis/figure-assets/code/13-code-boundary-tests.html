@@ -1,0 +1,79 @@
+<!doctype html><meta charset="utf-8"><style>pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.syntax .hll { background-color: #ffffcc }
+.syntax { background: #f0f0f0; }
+.syntax .c { color: #60A0B0; font-style: italic } /* Comment */
+.syntax .err { border: 1px solid #F00 } /* Error */
+.syntax .k { color: #007020; font-weight: bold } /* Keyword */
+.syntax .o { color: #666 } /* Operator */
+.syntax .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.syntax .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.syntax .cp { color: #007020 } /* Comment.Preproc */
+.syntax .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.syntax .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.syntax .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.syntax .gd { color: #A00000 } /* Generic.Deleted */
+.syntax .ge { font-style: italic } /* Generic.Emph */
+.syntax .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.syntax .gr { color: #F00 } /* Generic.Error */
+.syntax .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.syntax .gi { color: #00A000 } /* Generic.Inserted */
+.syntax .go { color: #888 } /* Generic.Output */
+.syntax .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.syntax .gs { font-weight: bold } /* Generic.Strong */
+.syntax .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.syntax .gt { color: #04D } /* Generic.Traceback */
+.syntax .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.syntax .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.syntax .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.syntax .kp { color: #007020 } /* Keyword.Pseudo */
+.syntax .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.syntax .kt { color: #902000 } /* Keyword.Type */
+.syntax .m { color: #40A070 } /* Literal.Number */
+.syntax .s { color: #4070A0 } /* Literal.String */
+.syntax .na { color: #4070A0 } /* Name.Attribute */
+.syntax .nb { color: #007020 } /* Name.Builtin */
+.syntax .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.syntax .no { color: #60ADD5 } /* Name.Constant */
+.syntax .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.syntax .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.syntax .ne { color: #007020 } /* Name.Exception */
+.syntax .nf { color: #06287E } /* Name.Function */
+.syntax .nl { color: #002070; font-weight: bold } /* Name.Label */
+.syntax .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.syntax .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.syntax .nv { color: #BB60D5 } /* Name.Variable */
+.syntax .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.syntax .w { color: #BBB } /* Text.Whitespace */
+.syntax .mb { color: #40A070 } /* Literal.Number.Bin */
+.syntax .mf { color: #40A070 } /* Literal.Number.Float */
+.syntax .mh { color: #40A070 } /* Literal.Number.Hex */
+.syntax .mi { color: #40A070 } /* Literal.Number.Integer */
+.syntax .mo { color: #40A070 } /* Literal.Number.Oct */
+.syntax .sa { color: #4070A0 } /* Literal.String.Affix */
+.syntax .sb { color: #4070A0 } /* Literal.String.Backtick */
+.syntax .sc { color: #4070A0 } /* Literal.String.Char */
+.syntax .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.syntax .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.syntax .s2 { color: #4070A0 } /* Literal.String.Double */
+.syntax .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.syntax .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.syntax .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.syntax .sx { color: #C65D09 } /* Literal.String.Other */
+.syntax .sr { color: #235388 } /* Literal.String.Regex */
+.syntax .s1 { color: #4070A0 } /* Literal.String.Single */
+.syntax .ss { color: #517918 } /* Literal.String.Symbol */
+.syntax .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.syntax .fm { color: #06287E } /* Name.Function.Magic */
+.syntax .vc { color: #BB60D5 } /* Name.Variable.Class */
+.syntax .vg { color: #BB60D5 } /* Name.Variable.Global */
+.syntax .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.syntax .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.syntax .il { color: #40A070 } /* Literal.Number.Integer.Long */
+ *{box-sizing:border-box}html,body{margin:0;background:#fff;color:#17202a}body{font-family:Arial,sans-serif;width:1000px}
+ header{padding:20px 24px 18px;border-bottom:1px solid #d7dce1;font-size:18px;background:#f6f7f8}header b{display:block;margin-bottom:8px}header small{font-size:13px;color:#56616c}
+ main{padding:20px 18px 24px}.row{display:flex;align-items:flex-start;min-height:32px}.number{width:50px;flex:none;text-align:right;padding-right:14px;font:16px/32px Menlo,monospace;color:#84909c;user-select:none}pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;flex:1;font:21px/32px Menlo,Consolas,monospace;font-variant-ligatures:none}.row:nth-child(even){background:#fbfcfd}
+ </style><header><b>Frontend zero and threshold equality tests</b><small>frontend/src/inventory.spec.ts · original lines 1–19</small></header><main><div class="row"><span class="number">1</span><pre class="syntax"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">describe</span><span class="p">,</span><span class="w"> </span><span class="nx">expect</span><span class="p">,</span><span class="w"> </span><span class="nx">it</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'vitest'</span></pre></div><div class="row"><span class="number">2</span><pre class="syntax"><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">stockHealth</span><span class="p">,</span><span class="w"> </span><span class="nx">stockStatusLabel</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'./inventory'</span></pre></div><div class="row"><span class="number">3</span><pre class="syntax"></pre></div><div class="row"><span class="number">4</span><pre class="syntax"><span class="nx">describe</span><span class="p">(</span><span class="s1">'inventory threshold boundaries'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span></pre></div><div class="row"><span class="number">5</span><pre class="syntax"><span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'marks zero as out of stock, including a zero threshold'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span></pre></div><div class="row"><span class="number">6</span><pre class="syntax"><span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">stockHealth</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'out'</span><span class="p">)</span></pre></div><div class="row"><span class="number">7</span><pre class="syntax"><span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">stockStatusLabel</span><span class="p">(</span><span class="mf">0</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">)).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'Out of stock'</span><span class="p">)</span></pre></div><div class="row"><span class="number">8</span><pre class="syntax"><span class="w">  </span><span class="p">})</span></pre></div><div class="row"><span class="number">9</span><pre class="syntax"></pre></div><div class="row"><span class="number">10</span><pre class="syntax"><span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'includes equality at the reorder threshold in the low-stock state'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span></pre></div><div class="row"><span class="number">11</span><pre class="syntax"><span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">stockHealth</span><span class="p">(</span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">)).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'low'</span><span class="p">)</span></pre></div><div class="row"><span class="number">12</span><pre class="syntax"><span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">stockStatusLabel</span><span class="p">(</span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">)).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'Low stock'</span><span class="p">)</span></pre></div><div class="row"><span class="number">13</span><pre class="syntax"><span class="w">  </span><span class="p">})</span></pre></div><div class="row"><span class="number">14</span><pre class="syntax"></pre></div><div class="row"><span class="number">15</span><pre class="syntax"><span class="w">  </span><span class="nx">it</span><span class="p">(</span><span class="s1">'keeps positive stock above the threshold healthy'</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span></pre></div><div class="row"><span class="number">16</span><pre class="syntax"><span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">stockHealth</span><span class="p">(</span><span class="mf">5</span><span class="p">,</span><span class="w"> </span><span class="mf">4</span><span class="p">)).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'healthy'</span><span class="p">)</span></pre></div><div class="row"><span class="number">17</span><pre class="syntax"><span class="w">    </span><span class="nx">expect</span><span class="p">(</span><span class="nx">stockHealth</span><span class="p">(</span><span class="mf">1</span><span class="p">,</span><span class="w"> </span><span class="mf">0</span><span class="p">)).</span><span class="nx">toBe</span><span class="p">(</span><span class="s1">'healthy'</span><span class="p">)</span></pre></div><div class="row"><span class="number">18</span><pre class="syntax"><span class="w">  </span><span class="p">})</span></pre></div><div class="row"><span class="number">19</span><pre class="syntax"><span class="p">})</span></pre></div></main>

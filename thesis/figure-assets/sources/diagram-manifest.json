@@ -1,0 +1,356 @@
+[
+  {
+    "id": "01-functional-model",
+    "title": "Overall functional model",
+    "chapter": 1,
+    "type": "diagram",
+    "source": [
+      "docs/requirements.md",
+      "frontend/src/views/WorkspaceView.vue"
+    ],
+    "files": [
+      "diagrams/01-functional-model.drawio",
+      "diagrams/01-functional-model.png",
+      "diagrams/01-functional-model.svg"
+    ]
+  },
+  {
+    "id": "02-uc-catalogue",
+    "title": "Catalogue management use cases",
+    "chapter": 1,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "docs/requirements.md"
+    ],
+    "files": [
+      "diagrams/02-uc-catalogue.drawio",
+      "diagrams/02-uc-catalogue.png",
+      "diagrams/02-uc-catalogue.svg"
+    ]
+  },
+  {
+    "id": "03-uc-stock",
+    "title": "Stock activity use cases",
+    "chapter": 1,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "docs/requirements.md"
+    ],
+    "files": [
+      "diagrams/03-uc-stock.drawio",
+      "diagrams/03-uc-stock.png",
+      "diagrams/03-uc-stock.svg"
+    ]
+  },
+  {
+    "id": "04-uc-warning",
+    "title": "Warning management use cases",
+    "chapter": 1,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "docs/requirements.md"
+    ],
+    "files": [
+      "diagrams/04-uc-warning.drawio",
+      "diagrams/04-uc-warning.png",
+      "diagrams/04-uc-warning.svg"
+    ]
+  },
+  {
+    "id": "05-uc-report",
+    "title": "Inventory reporting use cases",
+    "chapter": 1,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "docs/requirements.md"
+    ],
+    "files": [
+      "diagrams/05-uc-report.drawio",
+      "diagrams/05-uc-report.png",
+      "diagrams/05-uc-report.svg"
+    ]
+  },
+  {
+    "id": "06-uc-access",
+    "title": "Identity and administration use cases",
+    "chapter": 1,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "docs/requirements.md"
+    ],
+    "files": [
+      "diagrams/06-uc-access.drawio",
+      "diagrams/06-uc-access.png",
+      "diagrams/06-uc-access.svg"
+    ]
+  },
+  {
+    "id": "07-permission-model",
+    "title": "Fixed role authorization model",
+    "chapter": 2,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+    ],
+    "files": [
+      "diagrams/07-permission-model.drawio",
+      "diagrams/07-permission-model.png",
+      "diagrams/07-permission-model.svg"
+    ]
+  },
+  {
+    "id": "08-runtime-architecture",
+    "title": "Layered runtime architecture",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "docs/architecture.md",
+      "frontend/package.json",
+      "backend/pom.xml"
+    ],
+    "files": [
+      "diagrams/08-runtime-architecture.drawio",
+      "diagrams/08-runtime-architecture.png",
+      "diagrams/08-runtime-architecture.svg"
+    ]
+  },
+  {
+    "id": "09-frontend-structure",
+    "title": "Frontend module structure",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "frontend/src/router.ts",
+      "frontend/src/views/WorkspaceView.vue",
+      "frontend/src/api.ts"
+    ],
+    "files": [
+      "diagrams/09-frontend-structure.drawio",
+      "diagrams/09-frontend-structure.png",
+      "diagrams/09-frontend-structure.svg"
+    ]
+  },
+  {
+    "id": "10-backend-structure",
+    "title": "Backend module structure",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/Controllers.java",
+      "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "backend/src/main/java/com/shelfwise/Repositories.java"
+    ],
+    "files": [
+      "diagrams/10-backend-structure.drawio",
+      "diagrams/10-backend-structure.png",
+      "diagrams/10-backend-structure.svg"
+    ]
+  },
+  {
+    "id": "11-er-overall",
+    "title": "Overall relational schema",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+    ],
+    "files": [
+      "diagrams/11-er-overall.drawio",
+      "diagrams/11-er-overall.png",
+      "diagrams/11-er-overall.svg"
+    ]
+  },
+  {
+    "id": "12-er-catalogue",
+    "title": "Product category and supplier relationships",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+    ],
+    "files": [
+      "diagrams/12-er-catalogue.drawio",
+      "diagrams/12-er-catalogue.png",
+      "diagrams/12-er-catalogue.svg"
+    ]
+  },
+  {
+    "id": "13-er-movements",
+    "title": "Stock audit relationships",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+    ],
+    "files": [
+      "diagrams/13-er-movements.drawio",
+      "diagrams/13-er-movements.png",
+      "diagrams/13-er-movements.svg"
+    ]
+  },
+  {
+    "id": "14-er-warnings",
+    "title": "Warning episode and reviewer relationships",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+    ],
+    "files": [
+      "diagrams/14-er-warnings.drawio",
+      "diagrams/14-er-warnings.png",
+      "diagrams/14-er-warnings.svg"
+    ]
+  },
+  {
+    "id": "15-er-support",
+    "title": "Settings and cache revision tables",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+    ],
+    "files": [
+      "diagrams/15-er-support.drawio",
+      "diagrams/15-er-support.png",
+      "diagrams/15-er-support.svg"
+    ]
+  },
+  {
+    "id": "16-uml-domain",
+    "title": "Core domain UML class diagram",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/Domain.java"
+    ],
+    "files": [
+      "diagrams/16-uml-domain.drawio",
+      "diagrams/16-uml-domain.png",
+      "diagrams/16-uml-domain.svg"
+    ]
+  },
+  {
+    "id": "17-uml-service",
+    "title": "Service and repository UML dependencies",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "backend/src/main/java/com/shelfwise/Repositories.java"
+    ],
+    "files": [
+      "diagrams/17-uml-service.drawio",
+      "diagrams/17-uml-service.png",
+      "diagrams/17-uml-service.svg"
+    ]
+  },
+  {
+    "id": "18-seq-login",
+    "title": "Session authentication sequence",
+    "chapter": 4,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+    ],
+    "files": [
+      "diagrams/18-seq-login.drawio",
+      "diagrams/18-seq-login.png",
+      "diagrams/18-seq-login.svg"
+    ]
+  },
+  {
+    "id": "19-seq-stock",
+    "title": "Audited stock movement sequence",
+    "chapter": 4,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+    ],
+    "files": [
+      "diagrams/19-seq-stock.drawio",
+      "diagrams/19-seq-stock.png",
+      "diagrams/19-seq-stock.svg"
+    ]
+  },
+  {
+    "id": "20-seq-warning",
+    "title": "Warning page cache sequence",
+    "chapter": 4,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+    ],
+    "files": [
+      "diagrams/20-seq-warning.drawio",
+      "diagrams/20-seq-warning.png",
+      "diagrams/20-seq-warning.svg"
+    ]
+  },
+  {
+    "id": "21-stock-flow",
+    "title": "Stock movement transaction workflow",
+    "chapter": 4,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/InventoryService.java"
+    ],
+    "files": [
+      "diagrams/21-stock-flow.drawio",
+      "diagrams/21-stock-flow.png",
+      "diagrams/21-stock-flow.svg"
+    ]
+  },
+  {
+    "id": "22-warning-state",
+    "title": "Stock warning episode lifecycle",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/InventoryService.java"
+    ],
+    "files": [
+      "diagrams/22-warning-state.drawio",
+      "diagrams/22-warning-state.png",
+      "diagrams/22-warning-state.svg"
+    ]
+  },
+  {
+    "id": "23-security-flow",
+    "title": "Request authentication and authorization",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+    ],
+    "files": [
+      "diagrams/23-security-flow.drawio",
+      "diagrams/23-security-flow.png",
+      "diagrams/23-security-flow.svg"
+    ]
+  },
+  {
+    "id": "24-deployment",
+    "title": "Implemented local deployment topology",
+    "chapter": 4,
+    "type": "diagram",
+    "source": [
+      "docker-compose.yml",
+      "frontend/vite.config.ts",
+      "backend/src/main/resources/application.yml"
+    ],
+    "files": [
+      "diagrams/24-deployment.drawio",
+      "diagrams/24-deployment.png",
+      "diagrams/24-deployment.svg"
+    ]
+  }
+]

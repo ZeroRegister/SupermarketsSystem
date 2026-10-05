@@ -1,0 +1,1523 @@
+{
+  "language": "English",
+  "reference": "docs/_MasterThesiseExample.docx",
+  "scope": "Figure collection only; no thesis manuscript edited",
+  "gitRevision": "3a418739e48b758b451b2d033479ad1f71cf0c00",
+  "figures": [
+    {
+      "id": "01-functional-model",
+      "title": "Overall functional model",
+      "chapter": 1,
+      "type": "diagram",
+      "source": [
+        "docs/requirements.md",
+        "frontend/src/views/WorkspaceView.vue"
+      ],
+      "files": [
+        "diagrams/01-functional-model.drawio",
+        "diagrams/01-functional-model.png",
+        "diagrams/01-functional-model.svg"
+      ],
+      "assetNumber": 1,
+      "pixels": [
+        2750,
+        1076
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "ddce1deb74bf3134d098903259432b349cf161770e9a7ff751a8d7401e6deed7"
+    },
+    {
+      "id": "02-uc-catalogue",
+      "title": "Catalogue management use cases",
+      "chapter": 1,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+        "docs/requirements.md"
+      ],
+      "files": [
+        "diagrams/02-uc-catalogue.drawio",
+        "diagrams/02-uc-catalogue.png",
+        "diagrams/02-uc-catalogue.svg"
+      ],
+      "assetNumber": 2,
+      "pixels": [
+        2146,
+        1666
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "e06a5e367e926c011482152a4ff7cac746b26022a277bc663560f68f6208a836"
+    },
+    {
+      "id": "03-uc-stock",
+      "title": "Stock activity use cases",
+      "chapter": 1,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+        "docs/requirements.md"
+      ],
+      "files": [
+        "diagrams/03-uc-stock.drawio",
+        "diagrams/03-uc-stock.png",
+        "diagrams/03-uc-stock.svg"
+      ],
+      "assetNumber": 3,
+      "pixels": [
+        2146,
+        1666
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "e8ddd46492ceffafe26b5ba1552bdbc913ad9b8ab80a4c70c4db51e2da10edee"
+    },
+    {
+      "id": "04-uc-warning",
+      "title": "Warning management use cases",
+      "chapter": 1,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+        "docs/requirements.md"
+      ],
+      "files": [
+        "diagrams/04-uc-warning.drawio",
+        "diagrams/04-uc-warning.png",
+        "diagrams/04-uc-warning.svg"
+      ],
+      "assetNumber": 4,
+      "pixels": [
+        2146,
+        826
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "dc6be12503ce12359b7833f53716f79ef0d5c90a1e4c9562fc16f5899430849b"
+    },
+    {
+      "id": "05-uc-report",
+      "title": "Inventory reporting use cases",
+      "chapter": 1,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+        "docs/requirements.md"
+      ],
+      "files": [
+        "diagrams/05-uc-report.drawio",
+        "diagrams/05-uc-report.png",
+        "diagrams/05-uc-report.svg"
+      ],
+      "assetNumber": 5,
+      "pixels": [
+        2146,
+        1106
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "6db24eef9cd2ea153d83aa2e5c0d87de99ddb83e29c8b99f7a3599edcc9f9029"
+    },
+    {
+      "id": "06-uc-access",
+      "title": "Identity and administration use cases",
+      "chapter": 1,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+        "docs/requirements.md"
+      ],
+      "files": [
+        "diagrams/06-uc-access.drawio",
+        "diagrams/06-uc-access.png",
+        "diagrams/06-uc-access.svg"
+      ],
+      "assetNumber": 6,
+      "pixels": [
+        2146,
+        1106
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "cc0276adaecc4fa9e23b53132477bd952b1695dbacd4dbc6b7ec58cb544ab394"
+    },
+    {
+      "id": "07-permission-model",
+      "title": "Fixed role authorization model",
+      "chapter": 2,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+      ],
+      "files": [
+        "diagrams/07-permission-model.drawio",
+        "diagrams/07-permission-model.png",
+        "diagrams/07-permission-model.svg"
+      ],
+      "assetNumber": 7,
+      "pixels": [
+        2166,
+        1005
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "0fad54152457cc516363b3d1342155127a1ae8c30a9756380dd3b213833511a0"
+    },
+    {
+      "id": "08-runtime-architecture",
+      "title": "Layered runtime architecture",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "docs/architecture.md",
+        "frontend/package.json",
+        "backend/pom.xml"
+      ],
+      "files": [
+        "diagrams/08-runtime-architecture.drawio",
+        "diagrams/08-runtime-architecture.png",
+        "diagrams/08-runtime-architecture.svg"
+      ],
+      "assetNumber": 8,
+      "pixels": [
+        1186,
+        1346
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "4121c775576b78fbae865633daa66f036aa33142f6b1ff56798a5e3848dba7b6"
+    },
+    {
+      "id": "09-frontend-structure",
+      "title": "Frontend module structure",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "frontend/src/router.ts",
+        "frontend/src/views/WorkspaceView.vue",
+        "frontend/src/api.ts"
+      ],
+      "files": [
+        "diagrams/09-frontend-structure.drawio",
+        "diagrams/09-frontend-structure.png",
+        "diagrams/09-frontend-structure.svg"
+      ],
+      "assetNumber": 9,
+      "pixels": [
+        1186,
+        1346
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "efb6ec9c9c414284ff474b1f7dfbef3efa77b421b2d57e6785b22eef09b393c5"
+    },
+    {
+      "id": "10-backend-structure",
+      "title": "Backend module structure",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/Controllers.java",
+        "backend/src/main/java/com/shelfwise/InventoryService.java",
+        "backend/src/main/java/com/shelfwise/Repositories.java"
+      ],
+      "files": [
+        "diagrams/10-backend-structure.drawio",
+        "diagrams/10-backend-structure.png",
+        "diagrams/10-backend-structure.svg"
+      ],
+      "assetNumber": 10,
+      "pixels": [
+        1186,
+        1346
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "584c10e2a7cfd35e5716e2cd94a4d9b3a88f25c44de686ef1024018358e26369"
+    },
+    {
+      "id": "11-er-overall",
+      "title": "Overall relational schema",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+      ],
+      "files": [
+        "diagrams/11-er-overall.drawio",
+        "diagrams/11-er-overall.png",
+        "diagrams/11-er-overall.svg"
+      ],
+      "assetNumber": 11,
+      "pixels": [
+        2586,
+        2825
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "2b479e12549d5282ef013bf292652b6a528e182165f0321df69d5f3a15bf9c23"
+    },
+    {
+      "id": "12-er-catalogue",
+      "title": "Product category and supplier relationships",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+      ],
+      "files": [
+        "diagrams/12-er-catalogue.drawio",
+        "diagrams/12-er-catalogue.png",
+        "diagrams/12-er-catalogue.svg"
+      ],
+      "assetNumber": 12,
+      "pixels": [
+        2506,
+        1483
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "ce0318c692597fa12eeeef6a4736328f7c0bf6d2176e47f352cea61030696a1c"
+    },
+    {
+      "id": "13-er-movements",
+      "title": "Stock audit relationships",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+      ],
+      "files": [
+        "diagrams/13-er-movements.drawio",
+        "diagrams/13-er-movements.png",
+        "diagrams/13-er-movements.svg"
+      ],
+      "assetNumber": 13,
+      "pixels": [
+        2546,
+        1735
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "3c10f83b4f2ab917be8461da27c1bfd3b770178328548f5c083ba0fcb0512ff9"
+    },
+    {
+      "id": "14-er-warnings",
+      "title": "Warning episode and reviewer relationships",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+      ],
+      "files": [
+        "diagrams/14-er-warnings.drawio",
+        "diagrams/14-er-warnings.png",
+        "diagrams/14-er-warnings.svg"
+      ],
+      "assetNumber": 14,
+      "pixels": [
+        2546,
+        1735
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "390ee0d6430e06b2eb7fad4ec1d5b53480b379976708b72ec9bd2eb7850365a1"
+    },
+    {
+      "id": "15-er-support",
+      "title": "Settings and cache revision tables",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/resources/db/migration/V1__initial_schema.sql"
+      ],
+      "files": [
+        "diagrams/15-er-support.drawio",
+        "diagrams/15-er-support.png",
+        "diagrams/15-er-support.svg"
+      ],
+      "assetNumber": 15,
+      "pixels": [
+        1746,
+        259
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "991b32b41ea8288f32088df54f3cb646adf1c61af7eae427e025abf6da65a0f8"
+    },
+    {
+      "id": "16-uml-domain",
+      "title": "Core domain UML class diagram",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/Domain.java"
+      ],
+      "files": [
+        "diagrams/16-uml-domain.drawio",
+        "diagrams/16-uml-domain.png",
+        "diagrams/16-uml-domain.svg"
+      ],
+      "assetNumber": 16,
+      "pixels": [
+        2006,
+        1286
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "533dcd454da3aa9c978b26d12cc94c0845dc67a7827b0868f66e54905c50f335"
+    },
+    {
+      "id": "17-uml-service",
+      "title": "Service and repository UML dependencies",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/InventoryService.java",
+        "backend/src/main/java/com/shelfwise/Repositories.java"
+      ],
+      "files": [
+        "diagrams/17-uml-service.drawio",
+        "diagrams/17-uml-service.png",
+        "diagrams/17-uml-service.svg"
+      ],
+      "assetNumber": 17,
+      "pixels": [
+        2706,
+        1086
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "decad4f0fa87e877c81c88383d70b2a0d8dd99e6904a4c1dc8f429db3c610015"
+    },
+    {
+      "id": "18-seq-login",
+      "title": "Session authentication sequence",
+      "chapter": 4,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/InventoryService.java",
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+      ],
+      "files": [
+        "diagrams/18-seq-login.drawio",
+        "diagrams/18-seq-login.png",
+        "diagrams/18-seq-login.svg"
+      ],
+      "assetNumber": 18,
+      "pixels": [
+        2926,
+        1858
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "f9bf201253762d5ead556ffcb77804c6738337a21b2787912b71e970b2c6a333"
+    },
+    {
+      "id": "19-seq-stock",
+      "title": "Audited stock movement sequence",
+      "chapter": 4,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/InventoryService.java",
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+      ],
+      "files": [
+        "diagrams/19-seq-stock.drawio",
+        "diagrams/19-seq-stock.png",
+        "diagrams/19-seq-stock.svg"
+      ],
+      "assetNumber": 19,
+      "pixels": [
+        2326,
+        2198
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "223c9fb54cae828e8c32b1ca6e4e8c924f535c5edc34dde58d830818388e2337"
+    },
+    {
+      "id": "20-seq-warning",
+      "title": "Warning page cache sequence",
+      "chapter": 4,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/InventoryService.java",
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+      ],
+      "files": [
+        "diagrams/20-seq-warning.drawio",
+        "diagrams/20-seq-warning.png",
+        "diagrams/20-seq-warning.svg"
+      ],
+      "assetNumber": 20,
+      "pixels": [
+        2326,
+        1858
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "cb1abe5d6e90851eb585b2c55b0a7754eaa7e09cb22e730d8b99ded095607149"
+    },
+    {
+      "id": "21-stock-flow",
+      "title": "Stock movement transaction workflow",
+      "chapter": 4,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/InventoryService.java"
+      ],
+      "files": [
+        "diagrams/21-stock-flow.drawio",
+        "diagrams/21-stock-flow.png",
+        "diagrams/21-stock-flow.svg"
+      ],
+      "assetNumber": 21,
+      "pixels": [
+        1186,
+        1626
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "b66807181186d8df98e45a8adb7d0361a64162c6ecae77e1338c137863571ff2"
+    },
+    {
+      "id": "22-warning-state",
+      "title": "Stock warning episode lifecycle",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/InventoryService.java"
+      ],
+      "files": [
+        "diagrams/22-warning-state.drawio",
+        "diagrams/22-warning-state.png",
+        "diagrams/22-warning-state.svg"
+      ],
+      "assetNumber": 22,
+      "pixels": [
+        2436,
+        1785
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "3a75d3e100ce136bbd4e415f2b6a322ba2126e43c55baf292c88afa6c715e034"
+    },
+    {
+      "id": "23-security-flow",
+      "title": "Request authentication and authorization",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/SecurityConfig.java"
+      ],
+      "files": [
+        "diagrams/23-security-flow.drawio",
+        "diagrams/23-security-flow.png",
+        "diagrams/23-security-flow.svg"
+      ],
+      "assetNumber": 23,
+      "pixels": [
+        1186,
+        1346
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "bd509d6582ea24c6b0ff9b4c27b43a79332cf1bcdebb70e8ef73a9ddfc378cc9"
+    },
+    {
+      "id": "24-deployment",
+      "title": "Implemented local deployment topology",
+      "chapter": 4,
+      "type": "diagram",
+      "source": [
+        "docker-compose.yml",
+        "frontend/vite.config.ts",
+        "backend/src/main/resources/application.yml"
+      ],
+      "files": [
+        "diagrams/24-deployment.drawio",
+        "diagrams/24-deployment.png",
+        "diagrams/24-deployment.svg"
+      ],
+      "assetNumber": 24,
+      "pixels": [
+        1886,
+        1466
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "8b2411305b08efa782bb460510590651be1c79ab7a93db6dfaed76df5d57812f"
+    },
+    {
+      "id": "01-login-desktop",
+      "title": "Desktop sign-in interface",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/01-login-desktop.png"
+      ],
+      "source": "frontend/src/views/LoginView.vue",
+      "url": "http://localhost:5173/login",
+      "note": "Left-hand preview is illustrative UI, not measured inventory.",
+      "capturedAt": "2026-10-05T12:26:29.172Z",
+      "assetNumber": 25,
+      "pixels": [
+        2880,
+        2000
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "7eb3ce007d935a9ef852f12e305a6fc83e6aa5de72dfb0d78b8e4d9b07b4e863"
+    },
+    {
+      "id": "02-dashboard",
+      "title": "Administrator dashboard",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/02-dashboard.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=overview",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:31.310Z",
+      "assetNumber": 26,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "da339dd461941e9d28bacbcd1b48e3ce89c180eec0eb8c1c1fc85247ea05157f"
+    },
+    {
+      "id": "03-inventory",
+      "title": "Inventory search and stock status",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/03-inventory.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=inventory",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:32.174Z",
+      "assetNumber": 27,
+      "pixels": [
+        2880,
+        2476
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "f875f318cae5989a5a38e58577ec1310982bca681d56eb82d4b4f41780482169"
+    },
+    {
+      "id": "04-catalogue",
+      "title": "Product catalogue",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/04-catalogue.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=products",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:33.032Z",
+      "assetNumber": 28,
+      "pixels": [
+        2880,
+        2476
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "aea168f1840eb57e7e20abce6b43f81ee6b703c2cf13ec90b579b81727ecff01"
+    },
+    {
+      "id": "05-categories",
+      "title": "Category management",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/05-categories.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=categories",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:33.737Z",
+      "assetNumber": 29,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "21efe2ce01d8f74568e9ee459775f5b95ff5c7d8defb80f3ac24e3712fe03cb4"
+    },
+    {
+      "id": "06-suppliers",
+      "title": "Supplier directory",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/06-suppliers.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=suppliers",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:34.442Z",
+      "assetNumber": 30,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "e0bcdf203b7abea54ba3b983d215b76fb26cccdddc0c762a46ec8fffc8ee1d8a"
+    },
+    {
+      "id": "07-history",
+      "title": "Attributed stock movement history",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/07-history.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=transactions",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:35.253Z",
+      "assetNumber": 31,
+      "pixels": [
+        2880,
+        2828
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "14aabac8a5f71ce468ecc354eb2d74653e48d0e645826999f0ac36309baf9e55"
+    },
+    {
+      "id": "08-warnings",
+      "title": "Open warning board",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/08-warnings.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=warnings",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:36.052Z",
+      "assetNumber": 32,
+      "pixels": [
+        2880,
+        2340
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "dab3536abfe3b7c00d1f5a48b76892f0087719f7dd919d81dde5df11f47ed7b2"
+    },
+    {
+      "id": "09-reports",
+      "title": "Inventory reporting",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/09-reports.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=reports",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:36.781Z",
+      "assetNumber": 33,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "070dc9c5d9510e1354509aba74b6b359ff1f494990c5faf046b2e4a8a2094bf3"
+    },
+    {
+      "id": "10-team",
+      "title": "Staff and role administration",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/10-team.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=team",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:37.488Z",
+      "assetNumber": 34,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "2fe58c86f9281196d506d7ad1cfd1f18760bc9e7d1e6f54aa8a4dbeb35d2195f"
+    },
+    {
+      "id": "11-settings",
+      "title": "Store settings",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/11-settings.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=settings",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:38.306Z",
+      "assetNumber": 35,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "adb83d0c0ada141297da0528d8f2c385f6f298e9b799893dfe967e7b9d359e0d"
+    },
+    {
+      "id": "12-inventory-search",
+      "title": "Product search by text",
+      "chapter": 2,
+      "type": "ui",
+      "files": [
+        "ui/12-inventory-search.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=inventory",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:39.305Z",
+      "assetNumber": 36,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "285ec7551a3721f777d0d911b4253424a8d91b65d7529d5bcea580563cd1b8af"
+    },
+    {
+      "id": "13-empty-search",
+      "title": "Empty-search recovery state",
+      "chapter": 5,
+      "type": "ui",
+      "files": [
+        "ui/13-empty-search.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=inventory",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:39.636Z",
+      "assetNumber": 37,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "db6bb1d636cc2bda223fb23963721db65781df7120b6eb6203e1de82a30f39d3"
+    },
+    {
+      "id": "14-add-product",
+      "title": "Product creation form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/14-add-product.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=products",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:40.500Z",
+      "assetNumber": 38,
+      "pixels": [
+        1200,
+        1188
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "795e13d98efdf1bd8a26befb8d39e74d22bb24c4dc2b6c7c14dd0228f4100f63"
+    },
+    {
+      "id": "15-edit-product",
+      "title": "Existing product and threshold edit form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/15-edit-product.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=products",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:41.900Z",
+      "assetNumber": 39,
+      "pixels": [
+        1200,
+        1188
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "019843b11063f375b25c783ee3d97ff4f5ff21ddef0f7f04aca58274a1fea709"
+    },
+    {
+      "id": "16-stock-receipt",
+      "title": "Stock receipt form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/16-stock-receipt.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=transactions",
+      "note": "Draft form only; no stock movement was submitted.",
+      "capturedAt": "2026-10-05T12:26:44.899Z",
+      "assetNumber": 40,
+      "pixels": [
+        1080,
+        1036
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "c2cd4d6b409d4de68836a155e1024ed194e0a259ba6ee48907b92a87282da7ff"
+    },
+    {
+      "id": "17-stock-dispatch",
+      "title": "Stock dispatch form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/17-stock-dispatch.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=transactions",
+      "note": "Draft form only; no stock movement was submitted.",
+      "capturedAt": "2026-10-05T12:26:45.413Z",
+      "assetNumber": 41,
+      "pixels": [
+        1080,
+        1036
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "cddd62d05b98945149c5106b1051e0a04ab2a2783c47e0909e1540f965ca57e0"
+    },
+    {
+      "id": "18-stock-adjustment",
+      "title": "Signed stock adjustment form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/18-stock-adjustment.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=transactions",
+      "note": "Draft form only; no stock movement was submitted.",
+      "capturedAt": "2026-10-05T12:26:45.948Z",
+      "assetNumber": 42,
+      "pixels": [
+        1080,
+        1036
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "6e4b53a2fac2b88b9acd22da1adc961608d4511ce646940dcbf77a8e25a90583"
+    },
+    {
+      "id": "19-stocktake",
+      "title": "Absolute stocktake form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/19-stocktake.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=transactions",
+      "note": "Draft form only; no stock movement was submitted.",
+      "capturedAt": "2026-10-05T12:26:46.466Z",
+      "assetNumber": 43,
+      "pixels": [
+        1080,
+        1036
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "7f84618c7f3cbe20179f4903debb271eef056f43702f07781b9af3820886630c"
+    },
+    {
+      "id": "20-category-form",
+      "title": "Category creation form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/20-category-form.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=categories",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:47.992Z",
+      "assetNumber": 44,
+      "pixels": [
+        940,
+        742
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "17be4096d423e36bc611594da8444b1db3a1792f8f500b1002c1f04690f6ec17"
+    },
+    {
+      "id": "21-supplier-form",
+      "title": "Supplier creation form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/21-supplier-form.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=suppliers",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:49.543Z",
+      "assetNumber": 45,
+      "pixels": [
+        1000,
+        902
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "596ed59c83bd9a15962ff18a977f6e176d23b3408f15152932c03ff7f28f286b"
+    },
+    {
+      "id": "22-account-form",
+      "title": "Staff account creation form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/22-account-form.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=team",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:51.094Z",
+      "assetNumber": 46,
+      "pixels": [
+        1000,
+        1028
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "2e2645e5c27afcc5eddc3ffe572a6cd63f8a1ebf910cf20a823de45c9ff7818d"
+    },
+    {
+      "id": "23-manager-thresholds",
+      "title": "Manager threshold-only edit form",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/23-manager-thresholds.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=inventory",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:54.566Z",
+      "assetNumber": 47,
+      "pixels": [
+        1200,
+        1188
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "98450db7da6c8bce8ea82d8f88620713ab7556a61e4ec9f088ffdbabba772453"
+    },
+    {
+      "id": "24-manager-workspace",
+      "title": "Manager warning-review workspace",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/24-manager-workspace.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=warnings",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:56.195Z",
+      "assetNumber": 48,
+      "pixels": [
+        2880,
+        2340
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "673aa12eac1da58408c8a08034a7c5b900be04db557be408d78a300f93ad13f6"
+    },
+    {
+      "id": "25-clerk-workspace",
+      "title": "Clerk stock-activity workspace",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/25-clerk-workspace.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=transactions",
+      "note": "",
+      "capturedAt": "2026-10-05T12:26:58.741Z",
+      "assetNumber": 49,
+      "pixels": [
+        2880,
+        2828
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "689d4afbfc520b3b39fb69e3bd12cb66ff49c341837cc2309a478de33024f5d1"
+    },
+    {
+      "id": "26-mobile-login",
+      "title": "Responsive Web sign-in on a phone",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/26-mobile-login.png"
+      ],
+      "source": "frontend/src/views/LoginView.vue",
+      "url": "http://localhost:5173/login",
+      "note": "Responsive Web interface, not a native mobile application.",
+      "capturedAt": "2026-10-05T12:26:59.964Z",
+      "assetNumber": 50,
+      "pixels": [
+        780,
+        1688
+      ],
+      "layoutHint": "Narrow figure / side-by-side",
+      "pngSha256": "b6103f008a5489adef3db408580bcb4d319f6130c04107b286790137b0ce990f"
+    },
+    {
+      "id": "27-mobile-inventory",
+      "title": "Responsive Web inventory on a phone",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/27-mobile-inventory.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=inventory",
+      "note": "Responsive Web interface, not a native mobile application.",
+      "capturedAt": "2026-10-05T12:27:01.936Z",
+      "assetNumber": 51,
+      "pixels": [
+        780,
+        2888
+      ],
+      "layoutHint": "Narrow figure / side-by-side",
+      "pngSha256": "78fd8622403192fb59772e836546db9f24690e10d3ba3ddccd83532691eebf34"
+    },
+    {
+      "id": "01-code-product-lock",
+      "title": "Pessimistic product row locking",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/Repositories.java",
+      "startLine": 1,
+      "endLine": 19,
+      "sourceSha256": "a08deb517d61b51fc7ddc8df19808de2c16dedd3ad5b0916e435e8095759431f",
+      "excerptSha256": "b2de288cf76e764be5693c352c3a99aec84b31b706320d7dbe025e7f674d44f4",
+      "files": [
+        "code/01-code-product-lock.png",
+        "code/01-code-product-lock.html",
+        "sources/01-code-product-lock.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 52,
+      "pixels": [
+        2000,
+        1930
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "e8234902039edb46122222d99a31aebf2d37b27741ef5544d7e1cd11499b6cf2"
+    },
+    {
+      "id": "02-code-stock-transaction",
+      "title": "Atomic stock movement with audit and replay checks",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "startLine": 56,
+      "endLine": 66,
+      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+      "excerptSha256": "5024e70630b56ae0d42074458450b601bbef3bfd00e25363297f0030d620aa6a",
+      "files": [
+        "code/02-code-stock-transaction.png",
+        "code/02-code-stock-transaction.html",
+        "sources/02-code-stock-transaction.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 53,
+      "pixels": [
+        2000,
+        2634
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "ea1b7e633bbd3f14297bcf5eac3bbadcb7e7bbaa375c69eb9daf05521db2bfc5"
+    },
+    {
+      "id": "03-code-product-filter",
+      "title": "Stock filtering and deterministic pagination",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "startLine": 26,
+      "endLine": 41,
+      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+      "excerptSha256": "82a054cb0586f0071d4cc446bab407e05ce3400b403f3e824de0f56cfcf7ec4a",
+      "files": [
+        "code/03-code-product-filter.png",
+        "code/03-code-product-filter.html",
+        "sources/03-code-product-filter.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 54,
+      "pixels": [
+        2000,
+        2762
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "10e9feb4568455793f1446f08076f5a60d9f766ff72f5d5dc4c92fbd3822c949"
+    },
+    {
+      "id": "04-code-warning-cache",
+      "title": "Revision-based warning cache and database fallback",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "startLine": 70,
+      "endLine": 83,
+      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+      "excerptSha256": "56618b9a823f4da24384cf688eb4b3eb9b43b7537ef2b36e0d9b32da9b8a3281",
+      "files": [
+        "code/04-code-warning-cache.png",
+        "code/04-code-warning-cache.html",
+        "sources/04-code-warning-cache.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 55,
+      "pixels": [
+        2000,
+        2762
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "c3bffc785e4ad5f2d90cc595bb037ba1175c140c0fe9a9d34c1bd260815fe7e8"
+    },
+    {
+      "id": "05-code-warning-lifecycle",
+      "title": "Warning episode transitions and recovery",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
+      "startLine": 122,
+      "endLine": 129,
+      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+      "excerptSha256": "9ecfb27896d007d2033fdbbeda11711bbe6c47397f4aea9027db88b5d00cfbfc",
+      "files": [
+        "code/05-code-warning-lifecycle.png",
+        "code/05-code-warning-lifecycle.html",
+        "sources/05-code-warning-lifecycle.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 56,
+      "pixels": [
+        2000,
+        2058
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "be9991b6afe197dc2f660f1ad77afc084c31b7652e1f384848263d2d80fa6248"
+    },
+    {
+      "id": "06-code-security",
+      "title": "Session security CSRF and endpoint authorization",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "startLine": 26,
+      "endLine": 40,
+      "sourceSha256": "2c9f80e52ba339df9956583f7fa958163b4f1318d10fd638fbfa9e7c6e221307",
+      "excerptSha256": "57473a3e153d9a1444ad8ffa7768644c3257f7c1dac45383553271bd07a3690b",
+      "files": [
+        "code/06-code-security.png",
+        "code/06-code-security.html",
+        "sources/06-code-security.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 57,
+      "pixels": [
+        2000,
+        2442
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "28c1288b2fbd0e782f3f64bdf4935c85339d14bceec888665472d3924289e394"
+    },
+    {
+      "id": "07-code-session-login",
+      "title": "Session authentication and session ID rotation",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/SecurityConfig.java",
+      "startLine": 69,
+      "endLine": 77,
+      "sourceSha256": "2c9f80e52ba339df9956583f7fa958163b4f1318d10fd638fbfa9e7c6e221307",
+      "excerptSha256": "02c521a1299b94b271c99debfb8712d638858d817362cf66d5899ff78fe3dcdd",
+      "files": [
+        "code/07-code-session-login.png",
+        "code/07-code-session-login.html",
+        "sources/07-code-session-login.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 58,
+      "pixels": [
+        2000,
+        1930
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "9dd89fc6bfcd4368cb02be93cb410f667cfd0680697261fad0501432d2e162dc"
+    },
+    {
+      "id": "08-code-api-client",
+      "title": "Typed frontend API and CSRF header interceptor",
+      "chapter": 4,
+      "type": "code",
+      "source": "frontend/src/api.ts",
+      "startLine": 1,
+      "endLine": 20,
+      "sourceSha256": "33624844c1689b75169e76ddca299588617b4fa4d05119be9f9080ba6ec12915",
+      "excerptSha256": "d2ed0efe15a1a605d011d26a4a08f1f8b31961bd5838118f609e95fabf2f3986",
+      "files": [
+        "code/08-code-api-client.png",
+        "code/08-code-api-client.html",
+        "sources/08-code-api-client.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 59,
+      "pixels": [
+        2000,
+        2378
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "fc24a350b02996eb351eb790172cc00f1c07c53341a744e22243503288471694"
+    },
+    {
+      "id": "09-code-navigation",
+      "title": "Authenticated route and role navigation guards",
+      "chapter": 4,
+      "type": "code",
+      "source": "frontend/src/router.ts",
+      "startLine": 1,
+      "endLine": 21,
+      "sourceSha256": "8232f227ac54db4e973a7f5f9112387c2639e432102b924d1923d1fe53c2e599",
+      "excerptSha256": "8232f227ac54db4e973a7f5f9112387c2639e432102b924d1923d1fe53c2e599",
+      "files": [
+        "code/09-code-navigation.png",
+        "code/09-code-navigation.html",
+        "sources/09-code-navigation.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 60,
+      "pixels": [
+        2000,
+        2058
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "326a1b79c0acdfcb26c33da6e1af00686b90583d757ca87b31963674e2bed5aa"
+    },
+    {
+      "id": "10-code-schema",
+      "title": "Stock history schema and idempotency constraint",
+      "chapter": 3,
+      "type": "code",
+      "source": "backend/src/main/resources/db/migration/V1__initial_schema.sql",
+      "startLine": 31,
+      "endLine": 51,
+      "sourceSha256": "5f32b7c527da52f90727fbdfb1441f0f9966c4138f26f13fa995b4345a4c687d",
+      "excerptSha256": "12720f8edaa516d21b519d113bd38f8e3bfe334d47e0f6bbcd469fde71ce87e9",
+      "files": [
+        "code/10-code-schema.png",
+        "code/10-code-schema.html",
+        "sources/10-code-schema.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 61,
+      "pixels": [
+        2000,
+        2314
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "e6b7440e7b4b1a123e72cb82f79379850e3d93039ffc89a10906b9cb24611ec6"
+    },
+    {
+      "id": "11-code-deployment",
+      "title": "MySQL and Redis container configuration",
+      "chapter": 4,
+      "type": "code",
+      "source": "docker-compose.yml",
+      "startLine": 1,
+      "endLine": 27,
+      "sourceSha256": "c29ad03eb1887115efa7ed6cc36dea458c07182dcdb9b4c13290a200dab180fd",
+      "excerptSha256": "c29ad03eb1887115efa7ed6cc36dea458c07182dcdb9b4c13290a200dab180fd",
+      "files": [
+        "code/11-code-deployment.png",
+        "code/11-code-deployment.html",
+        "sources/11-code-deployment.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 62,
+      "pixels": [
+        2000,
+        2122
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "aabbc35d575db960ca9a96a81dc3344b7cb4743677a699c8f2f5b8a04a19df66"
+    },
+    {
+      "id": "12-code-concurrency-tests",
+      "title": "Concurrent dispatch and identical-submission tests",
+      "chapter": 5,
+      "type": "code",
+      "source": "backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java",
+      "startLine": 51,
+      "endLine": 52,
+      "sourceSha256": "8d233081327d56d0f79763085f3e2b0c810039a0d97332326d42ebeca6f50d84",
+      "excerptSha256": "2bd949858586b22f2aec8b98cd53fe8392fd434a4af7c6349bcadb613aab3c8a",
+      "files": [
+        "code/12-code-concurrency-tests.png",
+        "code/12-code-concurrency-tests.html",
+        "sources/12-code-concurrency-tests.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 63,
+      "pixels": [
+        2000,
+        1674
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "88caf03efc85d015f7fdd8e25d089ff4d6e5c8dec7cb78a4b84f51bea0a9f357"
+    },
+    {
+      "id": "13-code-boundary-tests",
+      "title": "Frontend zero and threshold equality tests",
+      "chapter": 5,
+      "type": "code",
+      "source": "frontend/src/inventory.spec.ts",
+      "startLine": 1,
+      "endLine": 19,
+      "sourceSha256": "3b21131f7408fa4fe1533ba4b69fff1e403ca59e1baa36464a68f32773184f1e",
+      "excerptSha256": "3b21131f7408fa4fe1533ba4b69fff1e403ca59e1baa36464a68f32773184f1e",
+      "files": [
+        "code/13-code-boundary-tests.png",
+        "code/13-code-boundary-tests.html",
+        "sources/13-code-boundary-tests.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 64,
+      "pixels": [
+        2000,
+        1546
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "db701b3b625dfb6c60367499c4d269781ccd9bdb397c22c4f28bfbbff3831df4"
+    },
+    {
+      "id": "14-code-stock-form",
+      "title": "Stock form request key and submission guard",
+      "chapter": 4,
+      "type": "code",
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "startLine": 65,
+      "endLine": 67,
+      "sourceSha256": "3cb849ca8a7016e951ba50a7bb07577815fbab3c9b573f91c52cfae158d59e85",
+      "excerptSha256": "deaa3b8a984dda2ed7d349948eb5b544bc52cdd9ff991c7e0404fc12a4d3a1a5",
+      "files": [
+        "code/14-code-stock-form.png",
+        "code/14-code-stock-form.html",
+        "sources/14-code-stock-form.txt"
+      ],
+      "note": "Exact source text with display wrapping; original line numbers retained.",
+      "assetNumber": 65,
+      "pixels": [
+        2000,
+        1546
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "ba695e54765171b879bde6b7ac8996e90bc31289e27998c151bc7b5fae17e4d8"
+    },
+    {
+      "id": "01-backend-tests",
+      "title": "Backend integration tests \u00b7 current run",
+      "chapter": 5,
+      "type": "test-result",
+      "source": "sources/backend-tests.log",
+      "files": [
+        "evidence/01-backend-tests.png",
+        "evidence/01-backend-tests.html",
+        "sources/01-backend-tests.txt"
+      ],
+      "assetNumber": 66,
+      "pixels": [
+        2160,
+        790
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "13342e784474b2ac409482e572f88950a64b83ab86ebeb66152c16b4088bb58a"
+    },
+    {
+      "id": "02-frontend-tests",
+      "title": "Frontend threshold tests \u00b7 current run",
+      "chapter": 5,
+      "type": "test-result",
+      "source": "sources/frontend-tests.log",
+      "files": [
+        "evidence/02-frontend-tests.png",
+        "evidence/02-frontend-tests.html",
+        "sources/02-frontend-tests.txt"
+      ],
+      "assetNumber": 67,
+      "pixels": [
+        2160,
+        622
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "24af84f7c10ee7ed40c468403d0fcaa002a9e17b7ebcc4051372c2eb0a0c6beb"
+    },
+    {
+      "id": "03-browser-verification",
+      "title": "Browser capture and role checks \u00b7 current run",
+      "chapter": 5,
+      "type": "test-result",
+      "source": "sources/ui-verification.json",
+      "files": [
+        "evidence/03-browser-verification.png",
+        "evidence/03-browser-verification.html",
+        "sources/03-browser-verification.txt"
+      ],
+      "assetNumber": 68,
+      "pixels": [
+        2160,
+        958
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "87042571a545705c9a76616fe6db68aa78b1d314a766b3b69a2b68063433d19f"
+    },
+    {
+      "id": "04-latency-summary",
+      "title": "Local warning-query latency summary",
+      "chapter": 5,
+      "type": "benchmark-plot",
+      "source": "docs/evidence/cache-benchmark.json",
+      "files": [
+        "evidence/04-latency-summary.png",
+        "evidence/04-latency-summary.svg",
+        "evidence/04-latency-summary.pdf"
+      ],
+      "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode",
+      "assetNumber": 69,
+      "pixels": [
+        2509,
+        1378
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "0f0b40c96d66ef2a46857c05d9420ec7b56b159e6821afb3295909d62095edfb"
+    },
+    {
+      "id": "05-latency-ecdf",
+      "title": "Empirical warning-query latency distribution",
+      "chapter": 5,
+      "type": "benchmark-plot",
+      "source": "docs/evidence/cache-benchmark.json",
+      "files": [
+        "evidence/05-latency-ecdf.png",
+        "evidence/05-latency-ecdf.svg",
+        "evidence/05-latency-ecdf.pdf"
+      ],
+      "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode",
+      "assetNumber": 70,
+      "pixels": [
+        2506,
+        1378
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "0b5de48b573f3e109adaa012009b0d9524ef3070a7fe06bb7d39637ce299f7fa"
+    },
+    {
+      "id": "06-latency-boxplot",
+      "title": "Warning-query latency variability",
+      "chapter": 5,
+      "type": "benchmark-plot",
+      "source": "docs/evidence/cache-benchmark.json",
+      "files": [
+        "evidence/06-latency-boxplot.png",
+        "evidence/06-latency-boxplot.svg",
+        "evidence/06-latency-boxplot.pdf"
+      ],
+      "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode",
+      "assetNumber": 71,
+      "pixels": [
+        2509,
+        1378
+      ],
+      "layoutHint": "Full width or landscape",
+      "pngSha256": "6b3d3a44620e02151b1315aab09105aa952a3bd68bf9797423fc1d782cd31df1"
+    }
+  ]
+}

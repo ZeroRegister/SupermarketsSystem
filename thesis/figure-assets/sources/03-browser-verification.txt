@@ -1,0 +1,13 @@
+Captured at: 2026-10-05T12:27:01.939Z
+Screenshots: 27
+JavaScript runtime errors: 0
+Submitted durable writes: 0
+
+PASS  admin signs in successfully
+PASS  empty search renders expected state
+PASS  manager signs in successfully
+PASS  manager cannot reach staff administration
+PASS  clerk signs in successfully
+PASS  clerk cannot reach warning board
+PASS  manager signs in successfully
+PASS  390px responsive page has no document overflow

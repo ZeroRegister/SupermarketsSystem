@@ -1,0 +1,9 @@
+ @PostMapping("/login") UserView login(@jakarta.validation.Valid @RequestBody LoginInput input, jakarta.servlet.http.HttpServletRequest req){
+   var authentication=auth.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(input.username(),input.password()));
+   var context=org.springframework.security.core.context.SecurityContextHolder.createEmptyContext();context.setAuthentication(authentication);org.springframework.security.core.context.SecurityContextHolder.setContext(context);
+   req.getSession(true);req.changeSessionId();
+   req.getSession(true).setAttribute(org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,context);
+   return users.findByUsername(authentication.getName()).map(UserView::of).orElseThrow();
+ }
+ @GetMapping("/me") UserView me(org.springframework.security.core.Authentication authentication){return users.findByUsername(authentication.getName()).map(UserView::of).orElseThrow();}
+}

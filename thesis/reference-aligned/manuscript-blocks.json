@@ -1,0 +1,3974 @@
+[
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Work overview",
+    "group": "00-front",
+    "display": "Work overview",
+    "chapter": 0,
+    "bookmark": "head1"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Research purpose and objectives",
+    "group": "00-front",
+    "display": "Research purpose and objectives",
+    "bookmark": "head2"
+  },
+  {
+    "kind": "p",
+    "text": "The purpose of this project is to design, implement and evaluate a Web-based inventory and stock-warning system for a small supermarket. The system, named Shelfwise, connects the current product balance to the operations that created it and gives different members of the store team an appropriate view of stock health. Its central problem is the reliability of everyday inventory work: receiving a delivery, dispatching products, correcting a discrepancy, recording a physical count and reviewing a shortage.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The objectives are to establish the domain and its operating boundaries; define functional requirements and role permissions; design a relational model for products, movements and warning episodes; implement a responsive browser client and transactional server; and evaluate normal operations, invalid requests, retries, concurrency and selected service failures. A further objective is reproducibility. The database migration, dependency versions, test scripts, figure sources and original evaluation records accompany the implementation so that another reader can inspect how the reported behavior was obtained.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Engineering contribution",
+    "group": "00-front",
+    "display": "Engineering contribution",
+    "bookmark": "head3"
+  },
+  {
+    "kind": "p",
+    "text": "The contribution is an integrated engineering treatment of stock consistency and warning interpretation. Product-level pessimistic locking serializes accepted changes. Actor-scoped idempotency keys distinguish a repeated request from a new operation. A persisted warning lifecycle distinguishes shortage, recovery and acknowledgement. Revision-based cache keys allow warning pages to be accelerated without assigning durable authority to Redis. These mechanisms are established techniques; the work contributes their application, explicit invariants and evaluated interaction within a bounded supermarket workflow.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "A useful result is the separation of operational facts. A received delivery changes quantity, a physical count records an observation, and acknowledgement records a review. The interface and database preserve these differences instead of treating all three as changes to an editable stock field. The project therefore makes a stock number explainable in terms of actor, reason, time and before-and-after quantities.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Deliverables and implementation scope",
+    "group": "00-front",
+    "display": "Deliverables and implementation scope",
+    "bookmark": "head4"
+  },
+  {
+    "kind": "p",
+    "text": "The deliverables comprise the Vue 3 browser application, Spring Boot service, MySQL schema, optional Redis warning-page cache, deployment configuration, executable tests, captured interfaces and this thesis. The application supports one store, integer quantities, manual thresholds and three fixed roles. The phone-sized interface is the responsive Web application. Native mobile applications, embedded device firmware, checkout, procurement settlement, batch tracking and multi-store isolation are outside the implemented scope.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Development and verification work",
+    "group": "00-front",
+    "display": "Development and verification work",
+    "bookmark": "head5"
+  },
+  {
+    "kind": "p",
+    "text": "The project work comprises domain modeling, requirement analysis, architecture and schema design, backend and frontend implementation, security configuration, local deployment and evidence-based evaluation. The documented tests include 27 backend integration cases, three frontend unit cases, an earlier browser acceptance journey and the later figure-capture verification. Performance and recovery observations are drawn from dated local records. This scope describes the available project work rather than a real-store trial or a production deployment.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Thesis organization",
+    "group": "00-front",
+    "display": "Thesis organization",
+    "bookmark": "head6"
+  },
+  {
+    "kind": "p",
+    "text": "The introduction establishes the problem, objectives and evaluation questions. Chapter 1 analyzes the supermarket inventory domain and its conceptual model. Chapter 2 defines requirements, examines related systems and justifies the technology choices. Chapter 3 develops architecture, database, permissions and consistency mechanisms. Chapter 4 explains implementation through interfaces, source excerpts and deployment paths. Chapter 5 evaluates functionality, concurrency, performance and recovery. The conclusion states the supported outcomes and future work. Appendices provide the API inventory, an acceptance catalog and reproducibility details.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Abstract",
+    "group": "00-front",
+    "display": "Abstract",
+    "chapter": 0,
+    "bookmark": "head7"
+  },
+  {
+    "kind": "p",
+    "text": "A small supermarket requires both a current inventory position and an explanation of how that position arose. Directly editing a quantity can obscure errors, while repeating a request after a network interruption can duplicate a stock change. A warning system also becomes misleading when reviewing a shortage is treated as equivalent to replenishing the product. This thesis develops Shelfwise, a single-store inventory and stock-warning application that addresses these concerns through an auditable transaction path and an explicit warning lifecycle.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The application combines a Vue 3 and TypeScript browser client with a Spring Boot and Java 21 server. MySQL stores products, users, stock movements, warning episodes and settings. Redis provides an optional warning-page cache. Accepted inventory changes acquire a product row lock, validate an actor-scoped idempotency key, check quantity bounds, write the before-and-after audit record, update warning episodes and advance the cache revision within one database transaction. Three fixed roles divide administration, managerial review and operational stock work. Session authentication, CSRF protection and server-side authorization protect the request path.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "Evaluation includes 27 passing backend integration cases and three passing frontend threshold tests. Recorded browser journeys exercise rendered views, a stock receipt and managerial acknowledgement. A separate screenshot-capture run confirms role navigation and responsive layout without posting new business data. A historical local benchmark contains 600 measured requests per mode: the Redis-enabled warning query has a median response latency of 5.33 ms, compared with 6.56 ms for the cache-bypass path. These observations describe a small sequential workload, not production capacity. Recorded Redis interruption and application restart checks support cache fallback and ordinary data persistence.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The result is a runnable system in which stock changes, shortage transitions and human review remain distinct and inspectable. The study is limited by demonstration data, integer quantities, manual replenishment policies, one application node and the absence of a store-user study. The design provides a basis for later work on point-of-sale integration, fractional units, batch traceability, deployment hardening and operational evaluation.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "Keywords: inventory management; stock warning; transactional consistency; idempotency; role-based access control; responsive Web application.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Introduction",
+    "group": "00-front",
+    "display": "Introduction",
+    "chapter": 0,
+    "bookmark": "head8"
+  },
+  {
+    "kind": "p",
+    "text": "A stock balance is useful only if staff can rely on it when making an operational decision. A supermarket employee checking a shelf needs to know whether the recorded quantity reflects recent deliveries and dispatches, whether a correction has already been applied, and whether a colleague has noticed a shortage. A manager investigating a discrepancy needs a different view of the same facts: which operation changed the quantity, who performed it, what reason was recorded and whether the shortage later recovered. These requirements link data consistency to the explanation presented by the interface.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The engineering problem is therefore broader than product creation and retrieval. A client can submit twice, two staff members can dispatch from the same product balance, a warning can remain below its threshold after a partial replenishment, and a cached page can outlive the write that should replace it. Each case can produce a believable interface while the underlying meaning is wrong. Shelfwise is organized around explicit treatment of these cases rather than around a large list of retail features.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The study asks four questions. First, how can quantity changes remain bounded, auditable and resistant to duplicate submission? Second, how should shortage and recovery be represented without confusing them with human acknowledgement? Third, how can a browser interface expose role-appropriate operations while the server remains responsible for authorization? Fourth, what evidence supports the behavior of the system under its stated local workload and failure scenarios? These questions determine the design and the acceptance tests discussed in the following chapters.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The development approach uses a bounded case study. Requirements are mapped to routes, data structures, user-facing operations and test assertions. Design diagrams are derived from the implemented classes and migration. Interface images are captured from the running application. Code images retain their source locations. Evaluation uses the actual test suites and preserved measurement records. This connection between requirements, implementation and evidence allows the reader to assess an engineering result without assuming business benefits that were not measured.",
+    "group": "00-front"
+  },
+  {
+    "kind": "p",
+    "text": "The implementation is a modular monolith. A single Spring Boot process owns stock transactions, while a Vue client presents the workflow. MySQL is authoritative and Redis is disposable. This arrangement keeps the transaction boundary visible and fits the single-store scope. Its limitations are consequential: it does not establish a distributed inventory platform, an accounting ledger or an automatic purchasing system. The later discussion identifies how those extensions would change the entities, policies and evaluation workload.",
+    "group": "00-front"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Object analysis",
+    "group": "01-object-analysis",
+    "display": "1 Object analysis",
+    "chapter": 1,
+    "bookmark": "head9"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Description of the subject area",
+    "group": "01-object-analysis",
+    "display": "1.1 Description of the subject area",
+    "bookmark": "head10"
+  },
+  {
+    "kind": "p",
+    "text": "A supermarket inventory system records the relationship between identifiable products and quantities available for store operations. Products arrive through deliveries and leave through sales, transfers, damage or other dispatches. Physical counts provide observations that may disagree with the recorded balance. Even when the application does not execute a sale or purchase, it must represent the stock effect of those activities. The subject of this thesis is that inventory workflow within one store.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "The current balance and the movement history serve complementary purposes. A balance answers a short operational question: how much of this product is recorded now? History answers a longer explanatory question: which accepted changes produced that balance? A system that stores only the balance cannot reconstruct an omitted reason or distinguish a double submission from two deliveries. A system that stores only events can explain changes but may require additional work to present fast, filtered inventory pages. Shelfwise stores the balance and its accepted movement records together.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "The application uses product identity, category, supplier, unit and current price as descriptive context. SKU is a required unique identifier, and barcode is optional. The unit label describes how staff interpret a whole-number quantity. A label of kg does not introduce decimal weighing support: the current implementation still stores an integer. This distinction is relevant for fresh produce because a deployable weighing workflow would require fractional units and a defined rounding policy.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "Inventory value is a presentation estimate obtained by multiplying each active product's current quantity by its current unit price. It is not supplier cost, historical cost of goods sold or an accounting valuation. The distinction prevents a convenient dashboard number from being used as evidence of financial correctness. The store currency preference changes the displayed currency code and symbol; it does not convert stored prices.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Operational problems and system boundary",
+    "group": "01-object-analysis",
+    "display": "1.2 Operational problems and system boundary",
+    "bookmark": "head11"
+  },
+  {
+    "kind": "p",
+    "text": "Manual stock work can fail in several different ways. A delivery may be entered twice after a slow response. Two dispatches may each use an old balance. A correction may be applied as a relative change when the staff member intended an absolute count. A manager may acknowledge a warning while the item is still out of stock. These are different problems, and their controls must preserve their meanings rather than translate them all into a generic update operation.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "The system boundary includes product and reference-data administration, searchable inventory, receiving, dispatch, adjustment, stocktake, shortage warnings, review attribution, summary reports and staff access. It excludes payment processing, supplier invoicing, automatic orders, stock allocation to customer reservations, batches, expiry dates and multiple stores. These exclusions are deliberate boundaries of the current implementation. For example, available quantity is not reduced by an unimplemented reservation, and a supplier record is not evidence that a purchase order exists.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "The selected store is a software case study using fictitious demonstration records. The work does not measure shelf availability or employee productivity in an operating supermarket. The practical motivation is the need for traceable inventory work; the evaluation measures software behavior under specified scenarios. This keeps the business context connected to a defensible engineering claim.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "table",
+    "key": "scope",
+    "caption": "Implemented domain and excluded extensions",
+    "rows": [
+      [
+        "Aspect",
+        "Implemented meaning",
+        "Extension outside the current boundary"
+      ],
+      [
+        "Store organization",
+        "One shared store workspace",
+        "Tenant and branch isolation"
+      ],
+      [
+        "Quantity",
+        "Bounded integer balance",
+        "Decimal weights and unit conversion"
+      ],
+      [
+        "Stock operation",
+        "Receive dispatch adjustment stocktake",
+        "Checkout and reserved stock"
+      ],
+      [
+        "Supplier",
+        "Product partner and contact directory",
+        "Orders invoices and settlement"
+      ],
+      [
+        "Warning",
+        "Manual quantity thresholds and episodes",
+        "Demand forecasting and automatic purchasing"
+      ],
+      [
+        "Financial display",
+        "Current price multiplied by quantity",
+        "Accounting cost and profit"
+      ],
+      [
+        "Phone access",
+        "Responsive browser interface",
+        "Native Android or iOS application"
+      ]
+    ],
+    "group": "01-object-analysis",
+    "number": "1.1"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Construction of the conceptual model",
+    "group": "01-object-analysis",
+    "display": "1.3 Construction of the conceptual model",
+    "bookmark": "head12"
+  },
+  {
+    "kind": "p",
+    "text": "The overall model in {fig:functions} divides the system into identity and access, catalogue management, stock activity, warnings and reporting. These modules correspond to different responsibilities but share a product identity. Catalogue work defines what a product is and how it is classified. Stock work changes a bounded quantity. Warning work interprets a policy boundary and records review. Reporting summarizes the accepted facts for inspection.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "functions",
+    "asset": "diagrams/01-functional-model.png",
+    "caption": "Overall functional model of the supermarket inventory system",
+    "group": "01-object-analysis",
+    "number": "1.1"
+  },
+  {
+    "kind": "p",
+    "text": "This division is useful when a requirement crosses several modules. Receiving stock changes a product, creates a movement, may resolve a shortage and changes dashboard totals. Treating these effects as separate responsibilities does not imply separate services. The design chapter shows why they remain coordinated within a single database transaction.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Product catalogue model",
+    "group": "01-object-analysis",
+    "display": "1.3.1 Product catalogue model",
+    "bookmark": "head13"
+  },
+  {
+    "kind": "p",
+    "text": "A product has a SKU, optional barcode, name, unit, current price, category and optional supplier. Its stock policy contains safety stock and reorder threshold. The current quantity is displayed with the product but is not a catalogue input. Staff must use an inventory operation to change it. An archived product retains its identity and history while rejecting future stock movements.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "The use cases in {fig:uc-catalogue} distinguish authority to change identity from authority to change policy. Administrators can manage the catalogue and archive products. Managers can inspect inventory and update thresholds. Clerks can inspect the product information needed to record stock. This model avoids granting catalogue write authority merely because someone performs daily receiving work.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "uc-catalogue",
+    "asset": "diagrams/02-uc-catalogue.png",
+    "caption": "Catalogue management use cases for the three implemented roles",
+    "group": "01-object-analysis",
+    "number": "1.2"
+  },
+  {
+    "kind": "p",
+    "text": "Categories organize the inventory view and category totals. Suppliers provide descriptive partner information and may be associated with products. Neither reference type owns the stock balance. Deleting a referenced category or supplier conflicts with its foreign-key relationship; product archival provides a separate lifecycle for stock-bearing records.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Stock activity model",
+    "group": "01-object-analysis",
+    "display": "1.3.2 Stock activity model",
+    "bookmark": "head14"
+  },
+  {
+    "kind": "p",
+    "text": "Shelfwise exposes four types of movement. Stock received and dispatched use positive input quantities but have opposite signed effects. An adjustment uses a signed non-zero change. A stocktake uses an absolute observed quantity, from which the server derives the change while holding the product lock. The resulting record always preserves the actual before quantity, signed delta and after quantity.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "table",
+    "key": "movements",
+    "caption": "Meaning of stock input and resulting change",
+    "rows": [
+      [
+        "Movement type",
+        "Meaning of entered quantity",
+        "Derived delta",
+        "Operational example"
+      ],
+      [
+        "STOCK_IN",
+        "Positive amount received",
+        "Positive entered amount",
+        "Morning delivery"
+      ],
+      [
+        "STOCK_OUT",
+        "Positive amount dispatched",
+        "Negative entered amount",
+        "Goods leaving the stockroom"
+      ],
+      [
+        "ADJUSTMENT",
+        "Signed correction",
+        "Entered signed amount",
+        "Two damaged units removed"
+      ],
+      [
+        "STOCKTAKE",
+        "Absolute observed amount",
+        "Observed amount minus locked balance",
+        "Weekly physical count"
+      ]
+    ],
+    "group": "01-object-analysis",
+    "number": "1.2"
+  },
+  {
+    "kind": "p",
+    "text": "The stock use cases in {fig:uc-stock} show that administrators and clerks can post these operations. Managers can read movement history but cannot post stock. Reading the ledger is therefore not equivalent to having authority to alter its operational result. The model also makes clear that the client submits an intention, not an authoritative before-and-after balance.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "uc-stock",
+    "asset": "diagrams/03-uc-stock.png",
+    "caption": "Stock operation and history use cases",
+    "group": "01-object-analysis",
+    "number": "1.3"
+  },
+  {
+    "kind": "p",
+    "text": "A reason is mandatory for every accepted movement. Actor identity is derived from authentication. The timestamp is assigned by the server. These fields are not ornamental metadata: they are the minimum explanation available when a quantity is later questioned. A new correction should create another record rather than erase an earlier accepted movement.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Warning and recovery model",
+    "group": "01-object-analysis",
+    "display": "1.3.3 Warning and recovery model",
+    "bookmark": "head15"
+  },
+  {
+    "kind": "p",
+    "text": "A warning is a persisted episode connected to a product. OUT means the balance is zero. LOW means the balance is positive and at or below the reorder threshold. A healthy balance is above that threshold. Safety stock marks urgency within the low-stock interpretation; it does not create a separate warning type. When a shortage becomes healthy, the application resolves the shortage and creates a time-limited RESTOCKED episode.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "Acknowledgement records a reviewer and review time. It neither changes quantity nor resolves the shortage. The distinction is important after partial replenishment: a reviewed product may still be LOW, and the existing episode can retain its reviewer. A transition from LOW to OUT, or from OUT to LOW, creates a new severity episode and resolves the old one.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "uc-warning",
+    "asset": "diagrams/04-uc-warning.png",
+    "caption": "Warning inspection and acknowledgement use cases",
+    "group": "01-object-analysis",
+    "number": "1.4"
+  },
+  {
+    "kind": "p",
+    "text": "The episode model supports both current attention and historical explanation. Open warnings tell the manager what currently needs review. Resolved records show that a shortage or recovery interval ended. The dashboard and warning board are views of these records, not independent sources of stock truth.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Reporting model",
+    "group": "01-object-analysis",
+    "display": "1.3.4 Reporting model",
+    "bookmark": "head16"
+  },
+  {
+    "kind": "p",
+    "text": "Reporting presents active-product counts, shortage counts, the current-price value estimate, movement totals, recent activity and category mix. The seven-day activity chart counts recorded movements by UTC date. It is not a sales chart: receiving, adjustment and stocktake can also contribute entries. The category chart groups current unit counts, which are useful within this demonstration but do not normalize different physical units.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "uc-report",
+    "asset": "diagrams/05-uc-report.png",
+    "caption": "Inventory reporting and current-page export use cases",
+    "group": "01-object-analysis",
+    "number": "1.5"
+  },
+  {
+    "kind": "p",
+    "text": "Inventory CSV export is a client-side export of the currently loaded product page. The distinction between one page and a complete database export matters when a filter matches more than twelve displayed products. The exported fields explain the visible selection; they do not represent a separate scheduled reporting service.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Identity and administration model",
+    "group": "01-object-analysis",
+    "display": "1.3.5 Identity and administration model",
+    "bookmark": "head17"
+  },
+  {
+    "kind": "p",
+    "text": "The application uses the fixed ADMIN, MANAGER and CLERK roles. Users have a username, display name, password hash, role, enabled flag and creation time. Administrators create users and change access. Managers and clerks work within their assigned authority. Role changes and disabling are reloaded on subsequent requests, which limits reliance on old session authority.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "uc-access",
+    "asset": "diagrams/06-uc-access.png",
+    "caption": "Identity and administrative use cases",
+    "group": "01-object-analysis",
+    "number": "1.6"
+  },
+  {
+    "kind": "p",
+    "text": "At least one enabled administrator must remain. The last-administrator guard is an operational control against losing access to staff administration. It is distinct from authentication: a valid session still requires a currently enabled account and a role permitted for the requested action.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Domain invariants and representative scenarios",
+    "group": "01-object-analysis",
+    "display": "1.4 Domain invariants and representative scenarios",
+    "bookmark": "head18"
+  },
+  {
+    "kind": "p",
+    "text": "The stock invariant combines arithmetic, bounds and attribution. The accepted after quantity equals the locked before quantity plus the derived delta. Both the balance and the movement record are written within the transaction. The quantity lies between zero and one billion. Product policy also requires safety stock to be non-negative and no greater than the reorder threshold. An invalid operation must leave the prior stock history unchanged.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "equation",
+    "key": "balance",
+    "text": "q_after = q_before + delta; 0 <= q_after <= 1,000,000,000",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "Consider a product with quantity seven and reorder threshold five. Dispatching two produces quantity five and a LOW episode because equality is included. Dispatching the remaining five changes severity to OUT. Acknowledging that episode records review but leaves quantity zero. Receiving eight later resolves the shortage and creates RESTOCKED. A count of three then derives a negative delta of five from the locked quantity eight; it is not interpreted as adding three.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "A retry requires a different interpretation. If the request with a particular actor and key has already recorded the count of three, sending the same normalized intention must return the earlier record. Sending a count of four with that key conflicts. The concept of one intention per key therefore connects the business operation to the concurrency and retry design developed in Chapter 3.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Chapter summary",
+    "group": "01-object-analysis",
+    "display": "1.5 Chapter summary",
+    "bookmark": "head19"
+  },
+  {
+    "kind": "p",
+    "text": "The analysis identifies three linked objects: the present product balance, the accepted history that explains it and the warning episodes that interpret policy transitions. Human review is a separate fact. The following chapter turns these distinctions into requirements and acceptance conditions, so that the design can be evaluated against explicit behavior rather than against the visual appearance of a dashboard alone.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Requirements and technology selection",
+    "group": "02-assignment",
+    "display": "2 Requirements and technology selection",
+    "chapter": 2,
+    "bookmark": "head20"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Assignment and acceptance approach",
+    "group": "02-assignment",
+    "display": "2.1 Assignment and acceptance approach",
+    "bookmark": "head21"
+  },
+  {
+    "kind": "p",
+    "text": "The assignment is to implement the inventory workflow identified in Chapter 1 as an inspectable single-store application. A requirement is treated as complete when its intended actor, server operation, data effect and acceptance evidence can be identified. A screen that appears to offer an operation is insufficient if the corresponding server permission or transactional behavior is absent. Conversely, a correct API is insufficient if the interface presents an absolute count as a relative change.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Requirements are grouped into identity, catalogue, stock operations, inventory inspection, warning review, reporting and administration. Correctness requirements cut across these groups. Retry behavior belongs to stock operations, but it also depends on the request key retained by the browser. Cache fallback belongs to warning retrieval, but it depends on durable database ownership. This grouping makes the later traceability table useful as a map across implementation layers.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "table",
+    "key": "requirements",
+    "caption": "Functional requirements and acceptance evidence",
+    "rows": [
+      [
+        "ID",
+        "Required behavior",
+        "Principal acceptance evidence"
+      ],
+      [
+        "R1",
+        "Sign in and sign out with current role authority",
+        "Anonymous denial invalid credentials session and role checks"
+      ],
+      [
+        "R2",
+        "Maintain catalogue categories and suppliers",
+        "Uniqueness validation referenced-record conflicts and archival"
+      ],
+      [
+        "R3",
+        "Receive and dispatch stock with an audit record",
+        "Before delta after arithmetic and attributed history"
+      ],
+      [
+        "R4",
+        "Apply signed adjustments and absolute counts",
+        "Negative correction count-to-zero and unchanged-count cases"
+      ],
+      [
+        "R5",
+        "Search filter and paginate inventory",
+        "Empty result stable ordering and page-size boundary"
+      ],
+      [
+        "R6",
+        "Maintain shortage and recovery episodes",
+        "Zero equality severity change recovery and expiry scenarios"
+      ],
+      [
+        "R7",
+        "Record managerial acknowledgement independently",
+        "Reviewer visibility and unchanged stock quantity"
+      ],
+      [
+        "R8",
+        "Present stock reports and selected-page export",
+        "Server aggregates rendered reporting and export scope"
+      ],
+      [
+        "R9",
+        "Manage users roles and store preferences",
+        "Administrator boundary next-request access and last-admin guard"
+      ],
+      [
+        "R10",
+        "Resist duplicate and concurrent stock submission",
+        "Exact replay changed-payload conflict and concurrent tests"
+      ],
+      [
+        "R11",
+        "Preserve warning results without Redis",
+        "Cache bypass comparison and recorded outage equivalence"
+      ]
+    ],
+    "group": "02-assignment",
+    "number": "2.1"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Functional requirements",
+    "group": "02-assignment",
+    "display": "2.2 Functional requirements",
+    "bookmark": "head22"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Authentication and role-specific access",
+    "group": "02-assignment",
+    "display": "2.2.1 Authentication and role-specific access",
+    "bookmark": "head23"
+  },
+  {
+    "kind": "p",
+    "text": "Users must authenticate before reading inventory. The server provides the current account and role through a session-based API. Administrators manage accounts, catalogue records and preferences. Managers review stock health, read reports and update thresholds. Clerks record movements and inspect inventory history. These are fixed role bundles rather than a user-configurable permission hierarchy. The requirement follows the role-to-permission separation described in RBAC literature [@sandhu1996].",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "The role model in {fig:permissions} identifies these bundles. Every protected operation must be authorized at the server. Navigation guards reduce misleading interface paths, but a caller bypassing the browser must still receive the same access decision. An account disabled after login must not remain usable simply because its old cookie exists. Role changes must also apply on later requests.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "fig",
+    "key": "permissions",
+    "asset": "diagrams/07-permission-model.png",
+    "caption": "Fixed role bundles enforced by the server and reflected in navigation",
+    "group": "02-assignment",
+    "number": "2.1"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Catalogue and inventory inspection",
+    "group": "02-assignment",
+    "display": "2.2.2 Catalogue and inventory inspection",
+    "bookmark": "head24"
+  },
+  {
+    "kind": "p",
+    "text": "Catalogue administration requires unique SKU values, bounded non-negative prices, valid references and a consistent threshold hierarchy. Product editing must preserve quantity. Product archival must preserve its ledger and reject new stock movements. Category and supplier administration must preserve referenced relationships instead of silently detaching products during deletion.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Inventory inspection requires name, SKU and barcode search, category selection, stock-health filters, stable sorting and bounded page sizes. An empty selection must be presented as an ordinary search result with a way to recover. The search interface in {fig:search-ui} demonstrates the actual text filter. The result-count label and pagination belong to the filtered selection rather than to an unrelated global count.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "fig",
+    "key": "search-ui",
+    "asset": "ui/12-inventory-search.png",
+    "caption": "Implemented text search within the inventory view",
+    "group": "02-assignment",
+    "number": "2.2"
+  },
+  {
+    "kind": "p",
+    "text": "For an API consumer, page numbering is zero-based and page size is capped at one hundred. The interface currently loads twelve products per inventory page. Sort fields are allow-listed and include an ID tie-breaker. These constraints reduce ambiguous results and prevent a request parameter from becoming an unrestricted database expression. They do not promise snapshot pagination while concurrent writes alter the dataset.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Stock operation requirements",
+    "group": "02-assignment",
+    "display": "2.2.3 Stock operation requirements",
+    "bookmark": "head25"
+  },
+  {
+    "kind": "p",
+    "text": "Each stock request must identify a product, movement type, quantity, reason and idempotency key. The actor must come from the authenticated principal. The server must derive signed effects and obtain the before balance under the product lock. A failed request must not create an accepted movement or leave a partial quantity change. An unchanged stocktake must still be auditable because the observation itself is meaningful.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "An exact replay must return the original transaction identifier without applying another change. Reusing a key with different normalized content must return a conflict. Requests that would make quantity negative or exceed the supported maximum must be rejected. Concurrent dispatches must be serialized at the product boundary so that successful changes cannot collectively oversell the locked balance.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Warning and reporting requirements",
+    "group": "02-assignment",
+    "display": "2.2.4 Warning and reporting requirements",
+    "bookmark": "head26"
+  },
+  {
+    "kind": "p",
+    "text": "A zero balance must be classified as OUT, including when the threshold is also zero. A positive balance equal to the reorder threshold must be LOW. A healthy replenishment must resolve the shortage and create a recovery episode. Continued low stock within the same severity must not erase its reviewer. Changing threshold policy must reevaluate warning state because the interpretation can change without a movement.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Reporting must describe the recorded stock state, not invent business indicators. Inventory value uses current price, the activity trend counts movements by UTC date and category mix uses current quantity totals. Acknowledgement must record who reviewed an episode while leaving stock unchanged. The application must preserve this distinction in labels, API operations and database relationships.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Non-functional requirements and quality boundaries",
+    "group": "02-assignment",
+    "display": "2.3 Non-functional requirements and quality boundaries",
+    "bookmark": "head27"
+  },
+  {
+    "kind": "p",
+    "text": "Correctness has priority over optional acceleration. MySQL must retain products, movements, warnings and settings. Redis must not be required to post stock or retrieve authoritative warning results. The movement path must coordinate balance, audit, warning transitions and invalidation revision within one transaction. Failures in these operations must roll back the accepted change rather than expose a partial result.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "The application must be reproducible from explicit dependencies and migrations. Local services are versioned in the repository, and evaluation scripts preserve machine, workload and sample metadata where available. A different host may produce different latency measurements. Reproducibility therefore means that the workload and procedure can be inspected and repeated, not that every recorded number will remain identical.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Responsiveness is assessed through a phone-sized browser viewport and confinement of table scrolling to its container. The interface uses text labels alongside stock colors and gives forms descriptive field names. These design choices address relevant accessibility concerns, but the project does not claim full WCAG conformance. That claim would require a broader manual and automated assessment against the standard [@wcag].",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "table",
+    "key": "quality",
+    "caption": "Quality requirements and limits of the current evidence",
+    "rows": [
+      [
+        "Attribute",
+        "Required behavior",
+        "Current verification boundary"
+      ],
+      [
+        "Consistency",
+        "Atomic bounded stock changes",
+        "Selected real-database transaction and concurrency cases"
+      ],
+      [
+        "Retry handling",
+        "One accepted result per actor key and intention",
+        "Exact and conflicting replay plus same-product concurrency"
+      ],
+      [
+        "Authorization",
+        "Server permission for each protected operation",
+        "Integration checks and browser guard scenarios"
+      ],
+      [
+        "Recoverability",
+        "MySQL state remains authoritative without cache",
+        "Recorded Redis interruption and application restart"
+      ],
+      [
+        "Usability",
+        "Clear stock semantics and recoverable empty states",
+        "Interface inspection and responsive browser checks"
+      ],
+      [
+        "Performance",
+        "Described latency under a documented workload",
+        "Small sequential local warning-query benchmark"
+      ],
+      [
+        "Maintainability",
+        "Explicit layers schema and reproducible dependencies",
+        "Source structure migrations and runnable scripts"
+      ]
+    ],
+    "group": "02-assignment",
+    "number": "2.2"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Analysis of related inventory systems",
+    "group": "02-assignment",
+    "display": "2.4 Analysis of related inventory systems",
+    "bookmark": "head28"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Reordering rules in Odoo",
+    "group": "02-assignment",
+    "display": "2.4.1 Reordering rules in Odoo",
+    "bookmark": "head29"
+  },
+  {
+    "kind": "p",
+    "text": "Odoo's documented replenishment workflow uses minimum and maximum stock quantities to determine when and how much to replenish [@odoo]. This is relevant because it connects a stock boundary with an operational response rather than merely displaying a low-stock color. The documentation describes a broader inventory and purchasing environment than the one implemented in Shelfwise.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Shelfwise adopts the need for an explicit quantity boundary but stops at review. A shortage episode creates attention for an authorized user; it does not create a purchase order or compute supplier lead time. Its reorder threshold is a manually maintained rule, and its safety stock is an urgency value within that rule. This narrower scope makes the transition and acknowledgement behavior testable without introducing unimplemented purchasing claims.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Retained ledger explanations in ERPNext",
+    "group": "02-assignment",
+    "display": "2.4.2 Retained ledger explanations in ERPNext",
+    "bookmark": "head30"
+  },
+  {
+    "kind": "p",
+    "text": "ERPNext documents an immutable-ledger approach in which cancellation preserves original entries and records reversing effects rather than simply removing the earlier posting [@erpnext]. The relevant design principle is that an accepted operational history should remain explainable after correction. Its stock ledger also provides inspection of inventory postings in a larger enterprise system [@erpnext-stock].",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Shelfwise preserves accepted movement rows and requires a later adjustment or stocktake to correct quantity. It does not implement ERPNext's document cancellation, backdated reposting or accounting integration. The comparison supports a choice about explanatory history, not a claim of feature equivalence. The audit record remains an application-level history; a database administrator is still able to modify the database outside the application.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Spreadsheet and broader enterprise alternatives",
+    "group": "02-assignment",
+    "display": "2.4.3 Spreadsheet and broader enterprise alternatives",
+    "bookmark": "head31"
+  },
+  {
+    "kind": "p",
+    "text": "A spreadsheet can be appropriate for a very small stock list when one person controls editing. It is easy to inspect and introduces few deployment components. The problem considered here arises when several staff roles need coordinated writes, accepted-change attribution and server-enforced permissions. A shared worksheet would require additional controls to meet those requirements. The comparison is analytical rather than an experimentally measured evaluation of a specific spreadsheet product.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "A full enterprise resource planning system can integrate purchasing, warehouse locations, finance and sales. That breadth may be necessary for a different assignment. Shelfwise intentionally concentrates on the internal consistency of one inventory workflow. The smaller boundary reduces integration obligations but also limits operational completeness. The project should be judged against this declared boundary, not against a complete retail platform.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "table",
+    "key": "alternatives",
+    "caption": "Comparison of inventory-management approaches within the project scope",
+    "rows": [
+      [
+        "Approach",
+        "Useful characteristics",
+        "Gap relative to this assignment"
+      ],
+      [
+        "Shared stock worksheet",
+        "Simple deployment and direct visibility",
+        "Requires added controls for concurrency roles and attributed changes"
+      ],
+      [
+        "Documented Odoo replenishment",
+        "Quantity policies connected to replenishment",
+        "Broader purchasing scope than the implemented review-only workflow"
+      ],
+      [
+        "Documented ERPNext ledger",
+        "Retained posting and correction explanations",
+        "Broader document accounting and reposting mechanisms"
+      ],
+      [
+        "Shelfwise bounded application",
+        "Explicit stock transaction warning review and tests",
+        "No purchasing checkout forecasting batches or store-user study"
+      ]
+    ],
+    "group": "02-assignment",
+    "number": "2.3"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Technology selection and comparative analysis",
+    "group": "02-assignment",
+    "display": "2.5 Technology selection and comparative analysis",
+    "bookmark": "head32"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Backend and persistence",
+    "group": "02-assignment",
+    "display": "2.5.1 Backend and persistence",
+    "bookmark": "head33"
+  },
+  {
+    "kind": "p",
+    "text": "Java 21 and Spring Boot were selected to combine typed request records, validation, servlet security, JPA repositories, transactions and health endpoints. The project pins Spring Boot 3.5.16; this is an implementation baseline rather than a statement that it is the newest release. The framework's published system requirements provide the context for supported Java and build tooling [@springboot]. The inventory service is still responsible for the business rules; choosing a framework does not establish correctness by itself.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "MySQL was selected as the durable relational store. A product-row locking read is an available primitive for coordinating updates, while constraints protect identities and foreign keys [@mysql-locks]. PostgreSQL could support a similar design. The choice here reflects the existing project baseline and the tested MySQL environment, not a comparative database benchmark. Flyway migrations define the schema, and JPA validates its mapping at startup.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "Redis is used only for a cached warning-page response. This is a cache-aside responsibility: a miss causes authoritative retrieval and a best-effort cache fill [@redis-cache]. The project adds a database-backed revision namespace to address post-write staleness. This adds work to each read and a shared update to writes, so the design must be evaluated with those costs included rather than assuming that every cache path is faster.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Frontend and communication",
+    "group": "02-assignment",
+    "display": "2.5.2 Frontend and communication",
+    "bookmark": "head34"
+  },
+  {
+    "kind": "p",
+    "text": "Vue 3 supports a component-oriented browser interface, and TypeScript describes the shapes shared by pages and the API client [@vue]. Vue Router owns navigation, Pinia owns authenticated account state, Axios wraps HTTP exchange, Element Plus supplies interface controls and ECharts renders summaries. The deployment is a browser application with responsive styles. React Native, Expo and native device applications are not part of this project.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "p",
+    "text": "The API follows resource-oriented JSON routes, but it uses server sessions. Fielding's dissertation places stateless interaction among REST's architectural constraints [@fielding2000]. Shelfwise should therefore be described as a resource-oriented HTTP API rather than as a fully stateless REST implementation. This distinction is useful when considering horizontal deployment: a second application node would need an explicit session strategy.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Development and verification tooling",
+    "group": "02-assignment",
+    "display": "2.5.3 Development and verification tooling",
+    "bookmark": "head35"
+  },
+  {
+    "kind": "p",
+    "text": "Docker Compose supplies the pinned MySQL and Redis services for local execution. Maven builds the backend, while Vite provides frontend development and production assets. Testcontainers supplies disposable service instances for backend integration tests [@testcontainers]. Vitest checks presentation boundaries, and Playwright is used for browser journeys and interface capture. Each tool has a particular verification purpose; none replaces an operational user study or a production security assessment.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "table",
+    "key": "stack",
+    "caption": "Implemented technology baseline and responsibility",
+    "rows": [
+      [
+        "Layer",
+        "Pinned technology",
+        "Responsibility"
+      ],
+      [
+        "Backend",
+        "Java 21 and Spring Boot 3.5.16",
+        "HTTP validation security and transaction coordination"
+      ],
+      [
+        "Persistence",
+        "Spring Data JPA and Flyway",
+        "Entity mapping repository access and schema lifecycle"
+      ],
+      [
+        "Database",
+        "MySQL 8.4.8",
+        "Durable records constraints and locking"
+      ],
+      [
+        "Cache",
+        "Redis 7.4.9",
+        "Optional thirty-second warning-page cache"
+      ],
+      [
+        "Browser",
+        "Vue 3.5.22 and TypeScript 5.9.3",
+        "Reactive interface and typed client data"
+      ],
+      [
+        "UI and charts",
+        "Element Plus 2.11.5 and ECharts 6.1.0",
+        "Controls and stock visualizations"
+      ],
+      [
+        "Frontend build",
+        "Vite 7.3.6 and project Node 22 baseline",
+        "Development proxy and asset build"
+      ],
+      [
+        "Evaluation",
+        "JUnit Testcontainers Vitest and Playwright",
+        "Layer-specific executable checks"
+      ]
+    ],
+    "group": "02-assignment",
+    "number": "2.4"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Chapter summary",
+    "group": "02-assignment",
+    "display": "2.6 Chapter summary",
+    "bookmark": "head36"
+  },
+  {
+    "kind": "p",
+    "text": "The requirements define an auditable stock intention, an independent warning review and a clear source of durable truth. Related systems provide examples of replenishment policy and retained ledger explanations, while the technology analysis identifies how this project can implement its narrower scope. Chapter 3 translates these requirements into the architecture and relational constraints that make the acceptance conditions observable.",
+    "group": "02-assignment"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "System design",
+    "group": "03-design",
+    "display": "3 System design",
+    "chapter": 3,
+    "bookmark": "head37"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Architecture and ownership of state",
+    "group": "03-design",
+    "display": "3.1 Architecture and ownership of state",
+    "bookmark": "head38"
+  },
+  {
+    "kind": "p",
+    "text": "Shelfwise uses a responsive browser client, one Spring Boot application, MySQL and optional Redis. The browser presents stock information and submits operational intentions. The application authorizes and validates those intentions. MySQL owns durable product balances, movement history, warning episodes, user access and preferences. Redis stores a short-lived serialized warning-page response. This ownership distinction determines both the normal path and the failure path.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "The runtime architecture in {fig:architecture} is layered rather than distributed across business microservices. Controller, service and repository boundaries describe responsibility inside the same process. A stock change can therefore coordinate quantity, history, warning state and cache revision without a cross-service commit protocol. This choice fits the single-store implementation and keeps its acceptance conditions easier to inspect.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "architecture",
+    "asset": "diagrams/08-runtime-architecture.png",
+    "caption": "Runtime layers and the ownership of durable inventory state",
+    "group": "03-design",
+    "number": "3.1"
+  },
+  {
+    "kind": "p",
+    "text": "The browser and database do not share the right to assign a balance. A request can identify an absolute observed count or a relative operation, but the server obtains the existing quantity and computes the accepted result. Similarly, the cached warning page is not allowed to resolve an episode or assign a reviewer. A cache contains a representation of database state; it is not a second business ledger.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "A modular monolith also has limits. One process contains a central service with several responsibilities, and the default servlet session store is local to that process. A wider deployment would need to reconsider service boundaries, session handling, database capacity and operational monitoring. No conclusion about distributed scalability follows merely from separating source files into layers.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Refinement of the browser and server architecture",
+    "group": "03-design",
+    "display": "3.2 Refinement of the browser and server architecture",
+    "bookmark": "head39"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Browser modules and state",
+    "group": "03-design",
+    "display": "3.2.1 Browser modules and state",
+    "bookmark": "head40"
+  },
+  {
+    "kind": "p",
+    "text": "The browser architecture in {fig:frontend} distinguishes the application shell, authenticated navigation, pages and API exchange. LoginView owns the sign-in form. WorkspaceView selects the operational view from a query parameter and contains inventory, catalogue, stock activity, warning, reporting and administration screens. Pinia retains current-user state, while local reactive state owns loaded pages and form drafts.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "frontend",
+    "asset": "diagrams/09-frontend-structure.png",
+    "caption": "Frontend responsibilities and typed HTTP exchange",
+    "group": "03-design",
+    "number": "3.2"
+  },
+  {
+    "kind": "p",
+    "text": "The API client centralizes the base path, credentials and CSRF header. TypeScript types describe response shapes used by components. These types improve development-time inspection but do not validate an arbitrary server response at runtime. The server's input validation and response construction remain separate responsibilities. A failed read is presented as an error; it should not be interpreted as a successful empty inventory selection.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "The chosen page structure keeps the demonstrator compact. WorkspaceView is consequently a substantial component with multiple sections and modal forms. A maintenance extension could split it into view-level components and composables while preserving the API and domain semantics. This would address frontend code organization rather than alter stock correctness.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Server layers and transaction ownership",
+    "group": "03-design",
+    "display": "3.2.2 Server layers and transaction ownership",
+    "bookmark": "head41"
+  },
+  {
+    "kind": "p",
+    "text": "The server refinement in {fig:backend} maps security filters, controllers, the inventory service, repositories and entities. Controllers translate validated HTTP requests into service calls and construct responses. InventoryService coordinates business changes. Repositories implement database selection, pagination and locking. Flyway creates the relational schema, while JPA validates entity mapping rather than silently replacing the migration.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "backend",
+    "asset": "diagrams/10-backend-structure.png",
+    "caption": "Backend request layers and the inventory service boundary",
+    "group": "03-design",
+    "number": "3.3"
+  },
+  {
+    "kind": "p",
+    "text": "The service is intentionally central to the current implementation. It contains catalogue, stock, warning, report and access operations. This concentration makes the coordinated write path visible, although a growing codebase would benefit from separating query and command responsibilities. Any later refactoring must preserve the effective transaction boundary; extracting a warning method into another service is insufficient if the invocation no longer participates in the stock transaction.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Relational database design",
+    "group": "03-design",
+    "display": "3.3 Relational database design",
+    "bookmark": "head42"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Overall relationships",
+    "group": "03-design",
+    "display": "3.3.1 Overall relationships",
+    "bookmark": "head43"
+  },
+  {
+    "kind": "p",
+    "text": "The relational model in {fig:er-overall} comprises eight tables. Products may reference a category and supplier. Inventory transactions require a product and actor. Warnings require a product and optionally reference a reviewer. Settings and cache revision are independent supporting tables. The schema does not contain purchase orders, sales orders, stores or permission-association tables because those objects are not part of the implemented boundary.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "er-overall",
+    "asset": "diagrams/11-er-overall.png",
+    "caption": "Overall schema derived from the initial Flyway migration",
+    "group": "03-design",
+    "number": "3.4"
+  },
+  {
+    "kind": "p",
+    "text": "The reference-data relationships are nullable on the product side. A product can be unclassified or have no supplier; one category or supplier can be associated with many products. Actor relationships for movements are mandatory. Review attribution is nullable because an episode may not yet have been acknowledged. These distinctions are reflected by foreign keys and by the relationship notation in the figures.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Users and access data",
+    "group": "03-design",
+    "display": "3.3.2 Users and access data",
+    "bookmark": "head44"
+  },
+  {
+    "kind": "p",
+    "text": "The users table stores identity and a fixed role name. Username is unique. The password field contains a hash and is excluded from user response records. The enabled flag supports account suspension without deleting historical actor relationships. Creation time provides administrative context rather than an authentication event log.",
+    "group": "03-design"
+  },
+  {
+    "kind": "table",
+    "key": "schema-users",
+    "caption": "Implemented users table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "username",
+        "VARCHAR(80)",
+        "No",
+        "Unique",
+        "Sign-in identity"
+      ],
+      [
+        "display_name",
+        "VARCHAR(100)",
+        "No",
+        "Column mapping",
+        "Human-readable staff name"
+      ],
+      [
+        "password_hash",
+        "VARCHAR(100)",
+        "No",
+        "Column mapping",
+        "Stored password hash"
+      ],
+      [
+        "role",
+        "VARCHAR(20)",
+        "No",
+        "Column mapping",
+        "Fixed ADMIN MANAGER or CLERK value"
+      ],
+      [
+        "enabled",
+        "BOOLEAN",
+        "No",
+        "Column mapping",
+        "Current access flag"
+      ],
+      [
+        "created_at",
+        "TIMESTAMP(6)",
+        "No",
+        "Column mapping",
+        "Server creation timestamp"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.1"
+  },
+  {
+    "kind": "p",
+    "text": "The fixed-role design avoids introducing a configurable permission editor that the application does not implement. It also reduces the number of authorization combinations that need to be tested. Its limitation is flexibility: a store cannot define a fourth role or assign one isolated capability without changing and validating the program's permission rules.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Catalogue and reference tables",
+    "group": "03-design",
+    "display": "3.3.3 Catalogue and reference tables",
+    "bookmark": "head45"
+  },
+  {
+    "kind": "p",
+    "text": "The local catalogue relationship in {fig:er-catalogue} connects products to categories and suppliers. Category name is unique, whereas supplier name is descriptive and not constrained as a unique identifier. Deleting a referenced record is rejected by the relationship constraint. The program converts integrity conflicts into an application error that the interface can display.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "er-catalogue",
+    "asset": "diagrams/12-er-catalogue.png",
+    "caption": "Product relationships with category and supplier data",
+    "group": "03-design",
+    "number": "3.5"
+  },
+  {
+    "kind": "table",
+    "key": "schema-categories",
+    "caption": "Implemented categories table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "name",
+        "VARCHAR(100)",
+        "No",
+        "Unique",
+        "Descriptive name"
+      ],
+      [
+        "description",
+        "VARCHAR(500)",
+        "Yes",
+        "Column mapping",
+        "Optional descriptive text"
+      ],
+      [
+        "active",
+        "BOOLEAN",
+        "No",
+        "Column mapping",
+        "Available catalogue or reference record"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.2"
+  },
+  {
+    "kind": "table",
+    "key": "schema-suppliers",
+    "caption": "Implemented suppliers table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "name",
+        "VARCHAR(120)",
+        "No",
+        "Column mapping",
+        "Descriptive name"
+      ],
+      [
+        "contact_name",
+        "VARCHAR(120)",
+        "Yes",
+        "Column mapping",
+        "Supplier contact person"
+      ],
+      [
+        "email",
+        "VARCHAR(120)",
+        "Yes",
+        "Column mapping",
+        "Supplier contact address"
+      ],
+      [
+        "phone",
+        "VARCHAR(40)",
+        "Yes",
+        "Column mapping",
+        "Supplier telephone text"
+      ],
+      [
+        "active",
+        "BOOLEAN",
+        "No",
+        "Column mapping",
+        "Available catalogue or reference record"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.3"
+  },
+  {
+    "kind": "table",
+    "key": "schema-products",
+    "caption": "Implemented products table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "sku",
+        "VARCHAR(64)",
+        "No",
+        "Unique",
+        "Unique required product identity"
+      ],
+      [
+        "barcode",
+        "VARCHAR(64)",
+        "Yes",
+        "Unique",
+        "Optional unique scanned identity"
+      ],
+      [
+        "name",
+        "VARCHAR(180)",
+        "No",
+        "Column mapping",
+        "Descriptive name"
+      ],
+      [
+        "unit",
+        "VARCHAR(40)",
+        "No",
+        "Column mapping",
+        "Label for integer quantity"
+      ],
+      [
+        "price",
+        "DECIMAL(12,2)",
+        "No",
+        "Check constraint",
+        "Current unit price not historical cost"
+      ],
+      [
+        "quantity",
+        "BIGINT",
+        "No",
+        "Check constraint",
+        "Bounded current product balance"
+      ],
+      [
+        "safety_stock",
+        "BIGINT",
+        "No",
+        "Check constraint",
+        "Urgency policy within the reorder level"
+      ],
+      [
+        "reorder_threshold",
+        "BIGINT",
+        "No",
+        "Check constraint",
+        "Positive low-stock boundary including equality"
+      ],
+      [
+        "category_id",
+        "BIGINT",
+        "Yes",
+        "Foreign key",
+        "Optional category reference"
+      ],
+      [
+        "supplier_id",
+        "BIGINT",
+        "Yes",
+        "Foreign key",
+        "Optional supplier reference"
+      ],
+      [
+        "active",
+        "BOOLEAN",
+        "No",
+        "Column mapping",
+        "Available catalogue or reference record"
+      ],
+      [
+        "version",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "JPA entity version"
+      ],
+      [
+        "updated_at",
+        "TIMESTAMP(6)",
+        "No",
+        "Column mapping",
+        "Latest product update time"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.4"
+  },
+  {
+    "kind": "p",
+    "text": "Product quantity and price have database bounds, and the threshold check requires a non-negative safety stock no greater than the reorder threshold. SKU and barcode uniqueness protect inventory identity. The version column participates in the JPA entity mapping; the stock operation additionally uses an explicit pessimistic lock. Catalogue input does not expose quantity, so normal product editing cannot bypass the movement ledger.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "Archival changes the active flag rather than deleting a product. Historical movements and warnings can still refer to the same identifier. This is useful when a product is discontinued: explanation of earlier stock must remain available even though the catalogue no longer accepts new operations for it.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Inventory movement ledger",
+    "group": "03-design",
+    "display": "3.3.4 Inventory movement ledger",
+    "bookmark": "head46"
+  },
+  {
+    "kind": "p",
+    "text": "The movement relationships in {fig:er-movements} connect the operational change to both product and actor. Each accepted row stores type, signed delta, before and after quantities, a mandatory reason, request key and server timestamp. The composite unique constraint on actor and idempotency key is independent of the product. Its purpose is to prevent one authenticated actor's key from identifying multiple accepted intentions.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "er-movements",
+    "asset": "diagrams/13-er-movements.png",
+    "caption": "Mandatory product and actor relationships in movement history",
+    "group": "03-design",
+    "number": "3.6"
+  },
+  {
+    "kind": "table",
+    "key": "schema-inventory_transactions",
+    "caption": "Implemented inventory_transactions table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "product_id",
+        "BIGINT",
+        "No",
+        "Foreign key",
+        "Stock-bearing product reference"
+      ],
+      [
+        "actor_id",
+        "BIGINT",
+        "No",
+        "Foreign key, Composite unique",
+        "Authenticated movement actor"
+      ],
+      [
+        "type",
+        "VARCHAR(20)",
+        "No",
+        "Column mapping",
+        "Movement or warning enum name"
+      ],
+      [
+        "delta",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "Accepted signed stock effect"
+      ],
+      [
+        "quantity_before",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "Locked balance before the operation"
+      ],
+      [
+        "quantity_after",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "Accepted balance after the operation"
+      ],
+      [
+        "reason",
+        "VARCHAR(300)",
+        "No",
+        "Column mapping",
+        "Required explanation of the stock intention"
+      ],
+      [
+        "idempotency_key",
+        "VARCHAR(80)",
+        "No",
+        "Composite unique",
+        "Actor-scoped request intention key"
+      ],
+      [
+        "created_at",
+        "TIMESTAMP(6)",
+        "No",
+        "Column mapping",
+        "Server creation timestamp"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.5"
+  },
+  {
+    "kind": "p",
+    "text": "The ledger is retained by application behavior: there is no edit or delete endpoint for accepted movements. This is not a cryptographic tamper-evidence mechanism. Database administrators, backup tools and direct SQL have a different authority boundary. A production audit requirement would need to specify retention, access controls and possibly append-only or signed storage beyond this application-level history.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Warning episodes and review attribution",
+    "group": "03-design",
+    "display": "3.3.5 Warning episodes and review attribution",
+    "bookmark": "head47"
+  },
+  {
+    "kind": "p",
+    "text": "The warning model in {fig:er-warnings} stores severity, lifecycle state, observed quantity, threshold and timestamps. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "er-warnings",
+    "asset": "diagrams/14-er-warnings.png",
+    "caption": "Warning episodes with optional reviewer attribution",
+    "group": "03-design",
+    "number": "3.7"
+  },
+  {
+    "kind": "table",
+    "key": "schema-warnings",
+    "caption": "Implemented warnings table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "product_id",
+        "BIGINT",
+        "No",
+        "Foreign key",
+        "Stock-bearing product reference"
+      ],
+      [
+        "type",
+        "VARCHAR(20)",
+        "No",
+        "Column mapping",
+        "Movement or warning enum name"
+      ],
+      [
+        "state",
+        "VARCHAR(20)",
+        "No",
+        "Column mapping",
+        "OPEN or RESOLVED episode lifecycle"
+      ],
+      [
+        "observed_quantity",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "Quantity context of the warning episode"
+      ],
+      [
+        "threshold",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "Policy context of the warning episode"
+      ],
+      [
+        "created_at",
+        "TIMESTAMP(6)",
+        "No",
+        "Column mapping",
+        "Server creation timestamp"
+      ],
+      [
+        "expires_at",
+        "TIMESTAMP(6)",
+        "No",
+        "Column mapping",
+        "Stored recovery visibility boundary"
+      ],
+      [
+        "acknowledged_by",
+        "BIGINT",
+        "Yes",
+        "Foreign key",
+        "Optional first reviewer reference"
+      ],
+      [
+        "acknowledged_at",
+        "TIMESTAMP(6)",
+        "Yes",
+        "Column mapping",
+        "Optional first review timestamp"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.6"
+  },
+  {
+    "kind": "p",
+    "text": "Observed quantity and threshold describe the current episode interpretation. They are updated while a shortage remains within the same severity. They are not a snapshot of every stock movement; the movement table supplies that history. A new severity closes the old episode, while a healthy replenishment creates a recovery record that can remain visible temporarily.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Supporting settings and revision data",
+    "group": "03-design",
+    "display": "3.3.6 Supporting settings and revision data",
+    "bookmark": "head48"
+  },
+  {
+    "kind": "p",
+    "text": "Store settings are key-value pairs for the business name and display currency. The cache revision table contains a singleton counter that advances when stock, thresholds or other warning-relevant state changes. It is not a timestamp, demand estimate or session store. Keeping the counter durable makes cache namespaces survive an application restart consistently with database state.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "er-support",
+    "asset": "diagrams/15-er-support.png",
+    "caption": "Independent settings and cache revision tables",
+    "group": "03-design",
+    "number": "3.8"
+  },
+  {
+    "kind": "table",
+    "key": "schema-app_settings",
+    "caption": "Implemented app_settings table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "setting_key",
+        "VARCHAR(80)",
+        "No",
+        "Primary key",
+        "Preference identity"
+      ],
+      [
+        "setting_value",
+        "VARCHAR(240)",
+        "No",
+        "Column mapping",
+        "Display preference value"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.7"
+  },
+  {
+    "kind": "table",
+    "key": "schema-cache_revision",
+    "caption": "Implemented cache_revision table fields and constraints",
+    "rows": [
+      [
+        "Field",
+        "SQL type",
+        "Nullable",
+        "Constraint",
+        "Purpose"
+      ],
+      [
+        "id",
+        "BIGINT",
+        "No",
+        "Primary key",
+        "Record identifier"
+      ],
+      [
+        "revision",
+        "BIGINT",
+        "No",
+        "Column mapping",
+        "Durable cache namespace counter"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.8"
+  },
+  {
+    "kind": "p",
+    "text": "The global counter is simple, but it is also a shared write target. Updates to different products can contend on that row even when product locks differ. The current workload does not quantify this contention. A future high-write deployment could consider partitioned revisions or another invalidation design after preserving the same post-write query contract.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "UML classes and repository dependencies",
+    "group": "03-design",
+    "display": "3.4 UML classes and repository dependencies",
+    "bookmark": "head49"
+  },
+  {
+    "kind": "p",
+    "text": "The domain class diagram in {fig:domain-classes} shows the implemented Product, UserAccount, InventoryTransaction and WarningEpisode relationships. Its attributes use the source-level visibility of the current entity classes. The diagram focuses on the core associations and selected fields; the schema tables provide the complete persistence fields. A class diagram and an ER diagram answer different questions: one explains program objects, while the other explains stored relationships and constraints.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "domain-classes",
+    "asset": "diagrams/16-uml-domain.png",
+    "caption": "Core domain classes and their implemented associations",
+    "group": "03-design",
+    "number": "3.9"
+  },
+  {
+    "kind": "p",
+    "text": "The dependency diagram in {fig:service-classes} identifies InventoryService methods and the repository interfaces used by the stock and warning paths. A repository dependency does not transfer responsibility for an operation's overall consistency. For example, saving a transaction row is only one step: the service must also assign the quantity, evaluate warning state and advance revision before the encompassing transaction completes.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "service-classes",
+    "asset": "diagrams/17-uml-service.png",
+    "caption": "Inventory service dependencies on repository interfaces",
+    "group": "03-design",
+    "number": "3.10"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Transactional stock consistency",
+    "group": "03-design",
+    "display": "3.5 Transactional stock consistency",
+    "bookmark": "head50"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Product locking and bounded arithmetic",
+    "group": "03-design",
+    "display": "3.5.1 Product locking and bounded arithmetic",
+    "bookmark": "head51"
+  },
+  {
+    "kind": "p",
+    "text": "The server first loads the authenticated actor and acquires a product-row locking read. MySQL documents locking reads as a mechanism for reserving a row for coordinated updates until commit or rollback [@mysql-locks]. Spring Data JPA exposes repository-level lock modes through its locking facilities [@spring-locks]. Shelfwise uses these mechanisms at the product boundary instead of calculating a new quantity from a previously displayed value.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "The movement method uses READ_COMMITTED isolation and derives its delta from the locked product. Addition is checked for arithmetic overflow and for the supported quantity bounds. An absolute stocktake computes observed quantity minus the current locked quantity. A count equal to the current balance creates a zero-delta observation, while zero-delta relative adjustments are rejected. This distinction is a business rule, not an optimization of the write path.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "The locked write coordinates product quantity, audit record, warning evaluation and revision advancement. If a domain or persistence exception aborts the transaction, the accepted database effects are rolled back together. The source uses a flush when saving the audit record so that certain integrity errors surface during the operation. Flushing is not a separate transaction commit.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Idempotency and retry scope",
+    "group": "03-design",
+    "display": "3.5.2 Idempotency and retry scope",
+    "bookmark": "head52"
+  },
+  {
+    "kind": "p",
+    "text": "After acquiring the product lock, the service checks the actor-key relationship for a prior movement. If the product, type, normalized reason and quantity meaning match, the original view is returned. For a count, the earlier after quantity is compared with the requested observed amount. For other types, the earlier signed delta is compared with the requested effect. A mismatched replay produces HTTP 409.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "This ordering serializes the ordinary same-product retry path. The composite unique constraint adds a durable backstop. Simultaneously reusing a key across different products is a different contention pattern: separate product locks do not serialize it, and a uniqueness conflict may be the outcome rather than an exact-replay response. The current concurrent-identical test concerns one product. The thesis does not generalize it to every cross-product reuse race.",
+    "group": "03-design"
+  },
+  {
+    "kind": "table",
+    "key": "stock-consistency",
+    "caption": "Consistency controls and the problems they address",
+    "rows": [
+      [
+        "Control",
+        "Protected fact",
+        "Important boundary"
+      ],
+      [
+        "Product row lock",
+        "Current balance used to derive the new result",
+        "Lock scope is one product"
+      ],
+      [
+        "Transaction boundary",
+        "Quantity ledger warning and revision agree",
+        "Persistence exceptions must abort the whole operation"
+      ],
+      [
+        "Actor-key uniqueness",
+        "One accepted movement per key namespace",
+        "Different actors may use the same textual key"
+      ],
+      [
+        "Normalized replay comparison",
+        "Retry returns the prior intention's result",
+        "Reused key with changed content conflicts"
+      ],
+      [
+        "Quantity bounds",
+        "Accepted balance is non-negative and bounded",
+        "Does not define decimal unit conversion"
+      ],
+      [
+        "Mandatory actor and reason",
+        "Accepted movement remains explainable",
+        "Does not prevent privileged direct database modification"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.9"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Warning lifecycle design",
+    "group": "03-design",
+    "display": "3.6 Warning lifecycle design",
+    "bookmark": "head53"
+  },
+  {
+    "kind": "p",
+    "text": "The lifecycle in {fig:warning-state} separates shortage severity from recovery. Quantity zero selects OUT. Positive quantity at or below threshold selects LOW. Healthy quantity closes an open shortage and may create RESTOCKED. A transition between LOW and OUT closes the former severity and opens the latter. Remaining in one severity updates its quantity context without resetting review attribution.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "warning-state",
+    "asset": "diagrams/22-warning-state.png",
+    "caption": "Shortage and recovery episode lifecycle with independent acknowledgement",
+    "group": "03-design",
+    "number": "3.11"
+  },
+  {
+    "kind": "p",
+    "text": "RESTOCKED has a stored expiry twenty-four hours after creation. Warning queries exclude expired recovery rows, and a scheduled cleanup marks expired recovery episodes resolved. The cache can retain a previously serialized page until revision or TTL changes; cleanup is periodic rather than instantaneous. The design therefore does not promise a zero-delay screen change at the expiry boundary. Dedicated clock-controlled expiry and cache-boundary tests would strengthen this part of the evaluation.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "Acknowledgement locks the warning row and preserves the first recorded reviewer. Repeating acknowledgement returns the existing attribution. The interface offers the action for open unreviewed episodes. The service method itself checks whether a reviewer already exists but does not require an OPEN state, so an authorized API caller can first-review a resolved record by identifier. This is an explicit current behavior to review before defining a stricter production review policy.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Revision-based cache design",
+    "group": "03-design",
+    "display": "3.7 Revision-based cache design",
+    "bookmark": "head54"
+  },
+  {
+    "kind": "p",
+    "text": "The warning query first reads the durable revision and constructs a key containing revision, type, lifecycle state, page and size. A valid cache hit returns a decoded page. A miss or cache exception causes a database query and a best-effort fill with a thirty-second TTL. The sequence in {fig:cache-sequence} makes this alternate path visible. The database-backed revision is part of the read cost even when Redis has the response.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "cache-sequence",
+    "asset": "diagrams/20-seq-warning.png",
+    "caption": "Warning retrieval through a revision namespace and cache-aside fallback",
+    "group": "03-design",
+    "number": "3.12"
+  },
+  {
+    "kind": "p",
+    "text": "A cache fill that began before a write can complete under the old revision. A later query reading the new revision will not address that old key. This addresses a stale-fill race that simple deletion alone would not describe. It does not cancel in-flight reads or establish a globally synchronized view across all open browser screens. A user may need a new read to observe the committed change.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "The SQL filtering precedes pagination so totals correspond to the requested warning type and lifecycle selection. Page content, total elements and total pages are serialized together. Cache equivalence is therefore defined over the response contract, not merely over the first displayed row. Malformed cached JSON and broader database outages remain useful fault cases beyond the recorded Redis interruption.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Permissions and request security",
+    "group": "03-design",
+    "display": "3.8 Permissions and request security",
+    "bookmark": "head55"
+  },
+  {
+    "kind": "p",
+    "text": "The authorization matrix in {tab:role-matrix} is implemented by HTTP method and route patterns. Threshold changes have a narrower route so managers can alter stock policy without editing SKU, name or supplier. Posting a movement is allowed for administrators and clerks. Warnings and reports are allowed for administrators and managers. Staff accounts and settings changes are administrator operations.",
+    "group": "03-design"
+  },
+  {
+    "kind": "table",
+    "key": "role-matrix",
+    "caption": "Server authorization matrix",
+    "rows": [
+      [
+        "Operation",
+        "Administrator",
+        "Manager",
+        "Clerk"
+      ],
+      [
+        "Read inventory and movement history",
+        "Yes",
+        "Yes",
+        "Yes"
+      ],
+      [
+        "Post receipt dispatch adjustment or count",
+        "Yes",
+        "No",
+        "Yes"
+      ],
+      [
+        "Create edit or archive product",
+        "Yes",
+        "No",
+        "No"
+      ],
+      [
+        "Update stock thresholds",
+        "Yes",
+        "Yes",
+        "No"
+      ],
+      [
+        "Read warning board and reports",
+        "Yes",
+        "Yes",
+        "No"
+      ],
+      [
+        "Acknowledge a warning",
+        "Yes",
+        "Yes",
+        "No"
+      ],
+      [
+        "Manage users and access",
+        "Yes",
+        "No",
+        "No"
+      ],
+      [
+        "Change store preferences",
+        "Yes",
+        "No",
+        "No"
+      ],
+      [
+        "Read stock summary and preferences",
+        "Yes",
+        "Yes",
+        "Yes"
+      ]
+    ],
+    "group": "03-design",
+    "number": "3.10"
+  },
+  {
+    "kind": "p",
+    "text": "The request-security path in {fig:security} combines session identity, CSRF protection, account refresh and endpoint authorization. Spring Security's CSRF documentation identifies unsafe browser methods as requiring protection when credentials can be supplied automatically [@spring-csrf]. Shelfwise issues a token and sends the matching header for unsafe requests. The readable CSRF token has a different purpose from the HttpOnly session cookie.",
+    "group": "03-design"
+  },
+  {
+    "kind": "fig",
+    "key": "security",
+    "asset": "diagrams/23-security-flow.png",
+    "caption": "Security checks preceding controller execution",
+    "group": "03-design",
+    "number": "3.13"
+  },
+  {
+    "kind": "p",
+    "text": "Password hashes use BCrypt, and session ID rotation occurs after authentication. Account access is reloaded from MySQL during later requests. These implemented measures do not supply rate limiting, MFA, password recovery or a completed penetration assessment. Production deployment would also require TLS and secure cookie configuration. The design chapter distinguishes those deployment obligations from the controls that are present in the source.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Chapter summary",
+    "group": "03-design",
+    "display": "3.9 Chapter summary",
+    "bookmark": "head56"
+  },
+  {
+    "kind": "p",
+    "text": "The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.",
+    "group": "03-design"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "System implementation",
+    "group": "04-implementation",
+    "display": "4 System implementation",
+    "chapter": 4,
+    "bookmark": "head57"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Project organization and development baseline",
+    "group": "04-implementation",
+    "display": "4.1 Project organization and development baseline",
+    "bookmark": "head58"
+  },
+  {
+    "kind": "p",
+    "text": "The implemented repository contains backend, frontend, scripts, documentation and thesis materials. The backend is built with Maven and Java 21. The browser application uses the pinned dependencies in its package manifest and lockfile. MySQL and Redis are started through Docker Compose. The thesis figures are maintained with their editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "p",
+    "text": "Backend domain entities, request and response records, repository interfaces, controllers, the inventory service and security configuration are kept in the com.shelfwise package. The organization is compact rather than a separate class file for every domain object. It exposes the main consistency path in one service but would need further decomposition as more workflows are added. The frontend similarly uses a login view and a substantial workspace view with several operational sections.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "p",
+    "text": "Flyway applies the initial migration, and Hibernate validates the entity mapping at startup. A migration failure prevents normal service startup rather than silently recreating tables. Demonstration seeding is guarded by configuration, password length and the presence of existing user records. It does not overwrite existing accounts when a local environment password changes. This behavior preserves previously created state during ordinary restarts.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "API routes and interface navigation",
+    "group": "04-implementation",
+    "display": "4.2 API routes and interface navigation",
+    "bookmark": "head59"
+  },
+  {
+    "kind": "p",
+    "text": "The application exposes JSON resources below /api. Authentication endpoints obtain a CSRF token, create a session, return the current account and log out. Catalogue paths create, edit and archive products. A separate threshold path narrows manager authority. Transactions represent accepted stock operations. Warnings support filtered retrieval and review attribution. Reports, users and preferences have their own permission boundaries.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "table",
+    "key": "route-groups",
+    "caption": "API resource groups and their implemented purpose",
+    "rows": [
+      [
+        "Resource group",
+        "Representative path",
+        "Responsibility"
+      ],
+      [
+        "Authentication",
+        "/api/auth/login and /api/auth/me",
+        "Establish and inspect the session"
+      ],
+      [
+        "Catalogue",
+        "/api/products and /api/products/{id}",
+        "Product identity and filtered inventory"
+      ],
+      [
+        "Threshold policy",
+        "/api/products/{id}/thresholds",
+        "Manager-accessible policy update"
+      ],
+      [
+        "Reference data",
+        "/api/categories and /api/suppliers",
+        "Product grouping and partner directory"
+      ],
+      [
+        "Movement ledger",
+        "/api/transactions",
+        "Accepted stock commands and history"
+      ],
+      [
+        "Warnings",
+        "/api/warnings and /api/warnings/{id}/ack",
+        "Episode retrieval and reviewer attribution"
+      ],
+      [
+        "Reporting",
+        "/api/dashboard and /api/reports/summary",
+        "Recorded stock summaries"
+      ],
+      [
+        "Administration",
+        "/api/users and /api/settings",
+        "Accounts access and workspace preferences"
+      ]
+    ],
+    "group": "04-implementation",
+    "number": "4.1"
+  },
+  {
+    "kind": "p",
+    "text": "Vue Router separates the login path from the workspace. Within the workspace, a query parameter selects the operational view. Route guards restore the current account and redirect selected unauthorized deep links. The code in {fig:route-code} shows the actual guard. It is an interface aid: the server still checks every API operation, including a request made without Vue Router.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "route-code",
+    "asset": "code/09-code-navigation.png",
+    "caption": "Authenticated navigation and role guards in the frontend source",
+    "group": "04-implementation",
+    "number": "4.1"
+  },
+  {
+    "kind": "p",
+    "text": "The browser API client uses credentials on requests and centralizes CSRF preparation and headers. Its response interceptor triggers session recovery behavior when a protected request is unauthenticated. The source in {fig:client-code} provides a shared place for these rules, reducing the chance that one form submits an unsafe request differently from another.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "client-code",
+    "asset": "code/08-code-api-client.png",
+    "caption": "Typed client functions and the unsafe-request CSRF header",
+    "group": "04-implementation",
+    "number": "4.2"
+  },
+  {
+    "kind": "p",
+    "text": "Application errors distinguish invalid input, lack of authentication, lack of authority, missing records and conflicts. Controllers validate supported warning filters before calling the service. Database uniqueness or referenced-record failures become conflicts. A replay can return the original movement while retaining the transaction endpoint's 201 response annotation; clients should use the returned identifier to recognize equivalence rather than assume every 201 created a new row.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Authentication and session implementation",
+    "group": "04-implementation",
+    "display": "4.3 Authentication and session implementation",
+    "bookmark": "head60"
+  },
+  {
+    "kind": "p",
+    "text": "The desktop login screen in {fig:login-desktop} collects account credentials without exposing the password in a response. Its left-side stockroom preview is explicitly illustrative interface content. The authenticated dashboard is obtained later from the server. The login screen should not be treated as performance or current-inventory evidence merely because it contains stock-themed graphics.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "login-desktop",
+    "asset": "ui/01-login-desktop.png",
+    "caption": "Desktop login interface with an illustrative stockroom preview",
+    "group": "04-implementation",
+    "number": "4.3"
+  },
+  {
+    "kind": "p",
+    "text": "The authentication sequence in {fig:login-sequence} begins with CSRF preparation, submits credentials and delegates authentication to the configured manager. The user repository supplies the enabled account and hash. Successful authentication rotates the session identifier and stores the security context in the servlet session. The persistent user table and the in-process session are distinct stores.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "login-sequence",
+    "asset": "diagrams/18-seq-login.png",
+    "caption": "Authentication interaction with the user repository and servlet session",
+    "group": "04-implementation",
+    "number": "4.4"
+  },
+  {
+    "kind": "p",
+    "text": "The code excerpt in {fig:login-code} contains the corresponding controller operation. User-facing data is returned through a view record. The username and role are not accepted from later movement payloads as actor authority: controllers obtain the principal from the server authentication context. Restarting the sole application process can invalidate its in-memory sessions without removing the durable inventory records.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "login-code",
+    "asset": "code/07-code-session-login.png",
+    "caption": "Credential authentication and session ID rotation in the controller",
+    "group": "04-implementation",
+    "number": "4.5"
+  },
+  {
+    "kind": "p",
+    "text": "The security rules in {fig:security-code} define the implemented endpoint permissions and CSRF handling. They are a clearer basis for assessing authority than whether a sidebar item happens to be visible. For example, managers can patch thresholds but cannot post a movement, while clerks can post a movement but cannot acknowledge a warning.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "security-code",
+    "asset": "code/06-code-security.png",
+    "caption": "Implemented security filter configuration and role-specific route rules",
+    "group": "04-implementation",
+    "number": "4.6"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Overview and inventory inspection",
+    "group": "04-implementation",
+    "display": "4.4 Overview and inventory inspection",
+    "bookmark": "head61"
+  },
+  {
+    "kind": "p",
+    "text": "The dashboard in {fig:dashboard-ui} combines a current-stock summary, movement trend, category mix, priority products and quick links. It is intended to help the manager identify the next inspection task. Counts and value come from server aggregation over active products. The display does not estimate customer demand or independently establish that a replenishment will arrive.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "dashboard-ui",
+    "asset": "ui/02-dashboard.png",
+    "caption": "Administrator overview rendered from the current demonstration database",
+    "group": "04-implementation",
+    "number": "4.7"
+  },
+  {
+    "kind": "p",
+    "text": "The movement trend uses the recorded seven-day date series. Zero-activity days appear as zero rather than being omitted. The category visualization sums current unit counts. These definitions matter when interpreting the graphic: a spike means more recorded movements, and combining bottles with kilograms does not produce a standardized physical measure. Detailed numerical evaluation is presented separately in Chapter 5.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "p",
+    "text": "The inventory interface in {fig:inventory-ui} provides search, category and stock-health filters, quantities, threshold context, unit price and paging. It also shows the role-appropriate product actions. Quantity is presented with its unit and reorder level so that a red or amber badge can be interpreted without relying only on color.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "inventory-ui",
+    "asset": "ui/03-inventory.png",
+    "caption": "Inventory page with product identity quantity policy context and pagination",
+    "group": "04-implementation",
+    "number": "4.8"
+  },
+  {
+    "kind": "p",
+    "text": "Filtering is implemented as database predicates. The source in {fig:filter-code} selects active or archived products, combines text and category conditions, and distinguishes OUT, LOW and healthy quantities. Sorting uses an allow-list and ID tie-breaker, while page size is capped. The code explains why the result count belongs to the selected query rather than to a separately filtered browser array.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "filter-code",
+    "asset": "code/03-code-product-filter.png",
+    "caption": "Server-side inventory predicates and bounded stable pagination",
+    "group": "04-implementation",
+    "number": "4.9"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Catalogue administration",
+    "group": "04-implementation",
+    "display": "4.5 Catalogue administration",
+    "bookmark": "head62"
+  },
+  {
+    "kind": "p",
+    "text": "The catalogue view in {fig:catalogue-ui} shares inventory data with an administrative emphasis. The separate view name is a navigation choice rather than a second stock store. Administrators can create and edit identity fields, set references and configure policy. Stock remains outside the catalogue payload.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "catalogue-ui",
+    "asset": "ui/04-catalogue.png",
+    "caption": "Product catalogue view within the same inventory workspace",
+    "group": "04-implementation",
+    "number": "4.10"
+  },
+  {
+    "kind": "p",
+    "text": "The creation form in {fig:add-product-ui} collects product identity, unit, price, references and thresholds. It explains that stock changes through a recorded transaction. A newly created product begins with zero quantity; opening stock must be entered through a stock operation so that the accepted balance has an explanation. The screenshot is a captured draft form, not a posted creation result.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "add-product-ui",
+    "asset": "ui/14-add-product.png",
+    "caption": "Product creation form with no direct quantity editor",
+    "group": "04-implementation",
+    "number": "4.11"
+  },
+  {
+    "kind": "p",
+    "text": "The existing-product form in {fig:edit-product-ui} displays stored descriptive and policy values. Its save operation checks uniqueness and reference validity. It acquires a product lock before applying changes that can affect warning interpretation. Preserving quantity during editing prevents an administrator from inadvertently erasing the meaning of the ledger while correcting a product name.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "edit-product-ui",
+    "asset": "ui/15-edit-product.png",
+    "caption": "Product edit form populated from an existing catalogue record",
+    "group": "04-implementation",
+    "number": "4.12"
+  },
+  {
+    "kind": "p",
+    "text": "The category page in {fig:categories-ui} groups products through named categories and optional descriptions. The related creation form in {fig:category-form-ui} exposes those fields. Category identifiers are referenced by products; category cards and filtering are views of that relationship. Referenced deletion conflicts preserve consistency instead of detaching records silently.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "categories-ui",
+    "asset": "ui/05-categories.png",
+    "caption": "Category administration and links to grouped inventory",
+    "group": "04-implementation",
+    "number": "4.13"
+  },
+  {
+    "kind": "fig",
+    "key": "category-form-ui",
+    "asset": "ui/20-category-form.png",
+    "caption": "Category creation form captured without submission",
+    "group": "04-implementation",
+    "number": "4.14"
+  },
+  {
+    "kind": "p",
+    "text": "The supplier directory in {fig:suppliers-ui} provides partner names and available contact details. The form in {fig:supplier-form-ui} creates descriptive supplier data. Neither interface generates a delivery, purchase order or payment obligation. A product can reference a supplier, but actual received stock is still recorded through the stock activity path.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "suppliers-ui",
+    "asset": "ui/06-suppliers.png",
+    "caption": "Supplier directory with descriptive partner information",
+    "group": "04-implementation",
+    "number": "4.15"
+  },
+  {
+    "kind": "fig",
+    "key": "supplier-form-ui",
+    "asset": "ui/21-supplier-form.png",
+    "caption": "Supplier creation fields for name and contact information",
+    "group": "04-implementation",
+    "number": "4.16"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Audited stock operations",
+    "group": "04-implementation",
+    "display": "4.6 Audited stock operations",
+    "bookmark": "head63"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Locking and coordination",
+    "group": "04-implementation",
+    "display": "4.6.1 Locking and coordination",
+    "bookmark": "head64"
+  },
+  {
+    "kind": "p",
+    "text": "The product repository exposes a pessimistic locking query, shown in {fig:lock-code}. The service uses it before inspecting the active flag, calculating a result or checking the ordinary same-product retry path. A value previously displayed by the browser is never used as the authoritative before quantity.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "lock-code",
+    "asset": "code/01-code-product-lock.png",
+    "caption": "Repository query that acquires the product write lock",
+    "group": "04-implementation",
+    "number": "4.17"
+  },
+  {
+    "kind": "p",
+    "text": "The interaction in {fig:movement-sequence} connects browser intention, controller authentication, service decisions and MySQL commit. Its return path includes the accepted movement view with attributed quantities. It represents the normal request path and selected replay checks, rather than a claim that every database or network failure is handled by a distributed recovery protocol.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "movement-sequence",
+    "asset": "diagrams/19-seq-stock.png",
+    "caption": "Stock intention validation and database commit sequence",
+    "group": "04-implementation",
+    "number": "4.18"
+  },
+  {
+    "kind": "p",
+    "text": "The workflow in {fig:movement-flow} emphasizes where a request can terminate without applying another change: archival rejection, equivalent replay, conflicting replay or invalid quantity. The accepted path writes the new quantity, audit row, warning changes and revision. This makes the order visible before the reader inspects the compact source.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "movement-flow",
+    "asset": "diagrams/21-stock-flow.png",
+    "caption": "Stock transaction workflow including replay and quantity boundaries",
+    "group": "04-implementation",
+    "number": "4.19"
+  },
+  {
+    "kind": "p",
+    "text": "The source in {fig:movement-code} implements these steps in one transactional method. The reason is trimmed for comparison and storage. Before and after quantities are assigned by the service. Math.addExact detects overflow before the supported bounds are applied. An absolute count uses the locked balance when deriving delta, which makes repeated display values irrelevant to its arithmetic.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "movement-code",
+    "asset": "code/02-code-stock-transaction.png",
+    "caption": "Actual stock movement method with audit idempotency and warning coordination",
+    "group": "04-implementation",
+    "number": "4.20"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Receipt and dispatch forms",
+    "group": "04-implementation",
+    "display": "4.6.2 Receipt and dispatch forms",
+    "bookmark": "head65"
+  },
+  {
+    "kind": "p",
+    "text": "The receipt form in {fig:receipt-ui} presents a positive quantity and reason. It identifies the selected product and current display quantity as context. Saving the form submits STOCK_IN, and the server accepts a positive effect only after checking the request and product. The captured figure uses an existing demonstration product and an unsubmitted reason draft.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "receipt-ui",
+    "asset": "ui/16-stock-receipt.png",
+    "caption": "Receiving form as an unsubmitted demonstration of the stock command",
+    "group": "04-implementation",
+    "number": "4.21"
+  },
+  {
+    "kind": "p",
+    "text": "The dispatch form in {fig:dispatch-ui} also asks for a positive input amount. The operation type gives it a negative stock effect on the server. This interface avoids asking staff to enter a minus sign for an ordinary dispatch. A displayed balance can become stale; insufficient-stock protection must consequently remain in the locked server operation.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "dispatch-ui",
+    "asset": "ui/17-stock-dispatch.png",
+    "caption": "Dispatch form with positive input and server-derived negative delta",
+    "group": "04-implementation",
+    "number": "4.22"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Adjustment and physical count forms",
+    "group": "04-implementation",
+    "display": "4.6.3 Adjustment and physical count forms",
+    "bookmark": "head66"
+  },
+  {
+    "kind": "p",
+    "text": "The adjustment form in {fig:adjustment-ui} uses a signed change and makes that interpretation explicit. It can represent removal of damaged goods or addition of a known correction. A zero adjustment is rejected because it does not describe a relative change. Its reason explains why the correction differs from routine receiving or dispatch.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "adjustment-ui",
+    "asset": "ui/18-stock-adjustment.png",
+    "caption": "Adjustment form with an explicitly signed quantity change",
+    "group": "04-implementation",
+    "number": "4.23"
+  },
+  {
+    "kind": "p",
+    "text": "The count form in {fig:count-ui} instead asks for the observed absolute quantity. If the recorded locked balance is eight and the count is three, the service writes a delta of negative five. A count equal to eight still records an observation with zero delta. The distinction between count and adjustment is preserved by the type field, labels and integration tests.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "count-ui",
+    "asset": "ui/19-stocktake.png",
+    "caption": "Stocktake form using an absolute counted quantity",
+    "group": "04-implementation",
+    "number": "4.24"
+  },
+  {
+    "kind": "p",
+    "text": "The browser retains a request key for the opened form and guards against a simultaneous second save while a request is pending. The source in {fig:form-code} shows this client behavior. It reduces accidental repetition but does not replace server idempotency: a lost response or manually repeated HTTP request can bypass a disabled button.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "form-code",
+    "asset": "code/14-code-stock-form.png",
+    "caption": "Client request-key retention and stock-form submission guard",
+    "group": "04-implementation",
+    "number": "4.25"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Attributed history",
+    "group": "04-implementation",
+    "display": "4.6.4 Attributed history",
+    "bookmark": "head67"
+  },
+  {
+    "kind": "p",
+    "text": "The history page in {fig:history-ui} connects each accepted operation to product, actor, reason, timestamp and before-and-after balance. Relative adjustments and counts remain distinguishable by their type. This view provides an explanation when the current inventory is questioned, rather than merely recording that some field was edited.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "history-ui",
+    "asset": "ui/07-history.png",
+    "caption": "Movement history preserving actor reason and before-and-after quantities",
+    "group": "04-implementation",
+    "number": "4.26"
+  },
+  {
+    "kind": "p",
+    "text": "The persistence excerpt in {fig:schema-code} contains mandatory actor and product references and the composite request-key uniqueness constraint. It also shows the warning table alongside the ledger. The database constraint protects accepted uniqueness even when concurrency bypasses an application-level prior-result check.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "schema-code",
+    "asset": "code/10-code-schema.png",
+    "caption": "Flyway ledger and warning definitions including the actor-key constraint",
+    "group": "04-implementation",
+    "number": "4.27"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Warning review and cached retrieval",
+    "group": "04-implementation",
+    "display": "4.7 Warning review and cached retrieval",
+    "bookmark": "head68"
+  },
+  {
+    "kind": "p",
+    "text": "The warning board in {fig:warnings-ui} presents shortage type, current quantity, threshold, detection time and review status. The note below the table explains that acknowledgement does not change stock. This is part of the operational meaning of the interface: a reviewed out-of-stock item remains out of stock until a separate movement changes it.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "warnings-ui",
+    "asset": "ui/08-warnings.png",
+    "caption": "Warning board showing shortage context and independent reviewer attribution",
+    "group": "04-implementation",
+    "number": "4.28"
+  },
+  {
+    "kind": "p",
+    "text": "The lifecycle code in {fig:lifecycle-code} examines open episodes, chooses severity, resolves prior types and creates recovery when stock becomes healthy. Continued same-severity shortage updates its context while retaining attribution. Archived products resolve their open episodes and cannot accept future movements. This behavior is checked by selected tests rather than inferred solely from a badge color.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "lifecycle-code",
+    "asset": "code/05-code-warning-lifecycle.png",
+    "caption": "Warning episode transitions in the implemented inventory service",
+    "group": "04-implementation",
+    "number": "4.29"
+  },
+  {
+    "kind": "p",
+    "text": "The cache implementation in {fig:cache-code} incorporates the durable revision into each warning-page key. Exceptions during Redis access lead to database retrieval or a failed optional fill, while SQL filtering occurs before pagination. Redis does not store the servlet session, allocate stock or authenticate users. Its limited role is important when interpreting the recovery and performance results.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "cache-code",
+    "asset": "code/04-code-warning-cache.png",
+    "caption": "Revision-keyed warning retrieval with database fallback and TTL",
+    "group": "04-implementation",
+    "number": "4.30"
+  },
+  {
+    "kind": "p",
+    "text": "The manager workspace in {fig:manager-ui} exposes warning review without administrator account controls. The threshold edit form in {fig:threshold-ui} disables descriptive product fields for that role. Its narrower PATCH endpoint prevents the manager from changing SKU or price through the threshold operation even if a client attempts to send additional catalogue data.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "manager-ui",
+    "asset": "ui/24-manager-workspace.png",
+    "caption": "Manager workspace for warning inspection and review",
+    "group": "04-implementation",
+    "number": "4.31"
+  },
+  {
+    "kind": "fig",
+    "key": "threshold-ui",
+    "asset": "ui/23-manager-thresholds.png",
+    "caption": "Threshold-only product edit form presented to a manager",
+    "group": "04-implementation",
+    "number": "4.32"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Reports and administration",
+    "group": "04-implementation",
+    "display": "4.8 Reports and administration",
+    "bookmark": "head69"
+  },
+  {
+    "kind": "p",
+    "text": "The reports view in {fig:reports-ui} presents the value estimate, active products, low and out-of-stock counts, movements and category mix. Its explanatory labels state that current quantity times current price is an estimate and that movement dates use UTC. These qualifications identify what the graphic represents before a reader attempts to interpret a trend as sales or profit.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "reports-ui",
+    "asset": "ui/09-reports.png",
+    "caption": "Implemented reporting view with explicit definitions of its metrics",
+    "group": "04-implementation",
+    "number": "4.33"
+  },
+  {
+    "kind": "p",
+    "text": "The staff page in {fig:team-ui} presents fixed role bundles and account status. Administrative changes become effective on later server requests because access is reloaded. The creation form in {fig:account-form-ui} collects a display name, username, temporary password and role. Password fields are not returned in the staff list. The last-enabled-administrator control is enforced by service behavior, not by a decorative role card.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "team-ui",
+    "asset": "ui/10-team.png",
+    "caption": "Staff administration with role and enabled-account controls",
+    "group": "04-implementation",
+    "number": "4.34"
+  },
+  {
+    "kind": "fig",
+    "key": "account-form-ui",
+    "asset": "ui/22-account-form.png",
+    "caption": "New staff-account form with role selection",
+    "group": "04-implementation",
+    "number": "4.35"
+  },
+  {
+    "kind": "p",
+    "text": "The store settings page in {fig:settings-ui} controls the displayed business name and currency. Its currency help text states that no exchange-rate conversion occurs. The current schema stores preferences as key-value entries, so introducing accounting currency or historical conversion would require a different data policy rather than merely adding another option to this select control.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "settings-ui",
+    "asset": "ui/11-settings.png",
+    "caption": "Store preferences and the display-only currency setting",
+    "group": "04-implementation",
+    "number": "4.36"
+  },
+  {
+    "kind": "p",
+    "text": "The clerk view in {fig:clerk-ui} provides movement recording and history without warning or staff-management operations. A direct link to a protected view is redirected by the browser guard, while a forbidden API action receives server denial. The distinction allows the user experience and the authority boundary to be assessed independently.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "clerk-ui",
+    "asset": "ui/25-clerk-workspace.png",
+    "caption": "Clerk stock-activity workspace with role-appropriate controls",
+    "group": "04-implementation",
+    "number": "4.37"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Responsive Web behavior",
+    "group": "04-implementation",
+    "display": "4.9 Responsive Web behavior",
+    "bookmark": "head70"
+  },
+  {
+    "kind": "p",
+    "text": "Phone-sized access uses the same browser application and backend. The login interface in {fig:phone-login-ui} adapts to the narrower viewport. It is not a React Native application and does not imply an iOS or Android package. The image records the actual responsive login layout at the captured browser size.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "phone-login-ui",
+    "asset": "ui/26-mobile-login.png",
+    "caption": "Responsive Web sign-in at a phone-sized viewport",
+    "group": "04-implementation",
+    "number": "4.38"
+  },
+  {
+    "kind": "p",
+    "text": "The inventory image in {fig:phone-inventory-ui} is a full-page capture of the responsive page, including content that a user reaches by scrolling. Wide table content is confined to its own container. The capture check confirms that the document itself does not overflow the 390-pixel viewport. It does not establish usability on every device, touch target compliance or assistive-technology compatibility.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "phone-inventory-ui",
+    "asset": "ui/27-mobile-inventory.png",
+    "caption": "Full-page responsive Web inventory capture at 390 CSS pixels",
+    "group": "04-implementation",
+    "number": "4.39"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Version control and local deployment",
+    "group": "04-implementation",
+    "display": "4.10 Version control and local deployment",
+    "bookmark": "head71"
+  },
+  {
+    "kind": "p",
+    "text": "The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend currently identifies itself as version 0.1.0-SNAPSHOT and the frontend as 0.1.0. This thesis does not infer a production release process from those identifiers.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "p",
+    "text": "The topology in {fig:deployment} shows the implemented development arrangement. Vite serves the browser client on port 5173 and proxies API requests to Spring Boot on port 8080. Docker Compose publishes MySQL on the host's loopback port 3307 and Redis on loopback port 6380. The Vite development server is configured to listen on all interfaces; the loopback restriction shown for database services should not be generalized to every development process.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "deployment",
+    "asset": "diagrams/24-deployment.png",
+    "caption": "Implemented development processes and container service ports",
+    "group": "04-implementation",
+    "number": "4.40"
+  },
+  {
+    "kind": "p",
+    "text": "The Compose source in {fig:compose-code} supplies explicit images, environment-variable requirements, health checks and the MySQL named volume. It does not embed the local passwords into the thesis. Redis persistence is disabled because the cached responses are disposable. MySQL data must be retained and backed up independently of the application process.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "compose-code",
+    "asset": "code/11-code-deployment.png",
+    "caption": "Container configuration using environment references and durable MySQL storage",
+    "group": "04-implementation",
+    "number": "4.41"
+  },
+  {
+    "kind": "p",
+    "text": "A production deployment would serve built assets through an appropriate Web server, terminate TLS, enable secure session cookies, keep database services private and define backups and restore drills. Multiple application nodes would also require session affinity or shared session storage. Those operations are future deployment requirements. The tested local development topology should not be presented as a complete hardened production platform.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Chapter summary",
+    "group": "04-implementation",
+    "display": "4.11 Chapter summary",
+    "bookmark": "head72"
+  },
+  {
+    "kind": "p",
+    "text": "The implementation translates the model into controls that preserve the meaning of each operation. Catalogue forms cannot directly assign stock, counts differ from adjustments, review differs from replenishment and Redis differs from durable storage. The interface images demonstrate how the implemented workflow is presented, while the source excerpts expose its critical mechanisms. The following chapter assesses the extent to which executable evidence supports those mechanisms.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "System testing and evaluation",
+    "group": "05-testing",
+    "display": "5 System testing and evaluation",
+    "chapter": 5,
+    "bookmark": "head73"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Evaluation questions and evidence organization",
+    "group": "05-testing",
+    "display": "5.1 Evaluation questions and evidence organization",
+    "bookmark": "head74"
+  },
+  {
+    "kind": "p",
+    "text": "Evaluation addresses the four questions introduced at the beginning of the thesis. Functional tests examine whether stock changes are bounded and attributed. Concurrency and replay tests examine whether repeated or competing intentions produce acceptable results. Warning tests examine the separation of severity, recovery and review. Browser checks examine presentation and navigation. Local measurements and recorded failure scenarios examine the optional cache path and durable state.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The evidence has several dates and purposes. The backend and frontend result images included here are from 5 October 2026. The original browser acceptance record and performance and recovery records are dated 3 October UTC, corresponding to the local development session that produced them. A later capture run on 5 October obtains the expanded interface collection without posting new business data. These records are not interchangeable samples of one experiment.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "table",
+    "key": "evidence-dates",
+    "caption": "Evaluation evidence and its scope",
+    "rows": [
+      [
+        "Evidence",
+        "Recorded date",
+        "What it establishes"
+      ],
+      [
+        "Backend result log",
+        "5 October 2026 local time",
+        "Twenty-seven integration cases completed without failures"
+      ],
+      [
+        "Frontend result log",
+        "5 October 2026 local time",
+        "Three threshold presentation tests passed"
+      ],
+      [
+        "Original browser journey",
+        "3 October 2026 UTC",
+        "Fourteen checks including one receipt and one acknowledgement"
+      ],
+      [
+        "Expanded figure capture",
+        "5 October 2026 UTC",
+        "Twenty-seven captures role guard checks and no page runtime errors"
+      ],
+      [
+        "Warning-query benchmark",
+        "3 October 2026 UTC",
+        "Six hundred sequential measured samples per mode"
+      ],
+      [
+        "Redis interruption",
+        "3 October 2026 UTC",
+        "Equivalent warning result during the recorded cache outage"
+      ],
+      [
+        "Restart fingerprint",
+        "Preserved repository record",
+        "Equal selected product and transaction rows after restart"
+      ]
+    ],
+    "group": "05-testing",
+    "number": "5.1"
+  },
+  {
+    "kind": "p",
+    "text": "The prototype uses fictitious records and local services. Tests can provide strong evidence for a specified invariant while still leaving practical questions unanswered. In particular, the study does not measure store-user learning, business losses avoided, supplier lead times or production capacity. The result discussion keeps the units and scope of each claim aligned with the recorded procedure.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Backend integration testing",
+    "group": "05-testing",
+    "display": "5.2 Backend integration testing",
+    "bookmark": "head75"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Environment and case coverage",
+    "group": "05-testing",
+    "display": "5.2.1 Environment and case coverage",
+    "bookmark": "head76"
+  },
+  {
+    "kind": "p",
+    "text": "The backend test class uses Testcontainers to create MySQL and Redis instances for the test execution. Its dynamic properties direct the Spring application to those instances. This is valuable because locking, uniqueness and persistence behavior involve the actual database rather than an in-memory substitute. It does not mean that every production database setting or fault mode is reproduced.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The 27 cases cover authentication, CSRF, role restrictions, catalogue validation, quantity changes, audit history, retry behavior, concurrency, shortage transitions, review and account safeguards. The result in {fig:backend-result} reports zero failures, errors and skipped tests. A passing suite means that those executable assertions held in this run. It is not a numerical code-coverage percentage or a proof that all possible requests are correct.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "backend-result",
+    "asset": "evidence/01-backend-tests.png",
+    "caption": "Backend integration result from the 5 October 2026 execution",
+    "group": "05-testing",
+    "number": "5.1"
+  },
+  {
+    "kind": "table",
+    "key": "backend-groups",
+    "caption": "Main backend acceptance groups",
+    "rows": [
+      [
+        "Group",
+        "Representative assertions",
+        "Reported outcome"
+      ],
+      [
+        "Authentication",
+        "Anonymous denial invalid credentials and missing login fields",
+        "Passed"
+      ],
+      [
+        "Authorization",
+        "Clerk review denial manager posting denial and threshold boundary",
+        "Passed"
+      ],
+      [
+        "Catalogue",
+        "Unique SKU valid threshold hierarchy and archived movement denial",
+        "Passed"
+      ],
+      [
+        "Stock arithmetic",
+        "Receipt dispatch signed adjustment absolute count and zero count",
+        "Passed"
+      ],
+      [
+        "Audit behavior",
+        "Before and after history and unchanged stocktake observation",
+        "Passed"
+      ],
+      [
+        "Retries",
+        "Equal replay identifier and changed-payload conflict",
+        "Passed"
+      ],
+      [
+        "Concurrency",
+        "No overselling identical submission and first reviewer preservation",
+        "Passed"
+      ],
+      [
+        "Warnings",
+        "Zero equality healthy recovery severity renewal and accurate filters",
+        "Passed"
+      ],
+      [
+        "Administration",
+        "Last enabled administrator cannot be disabled or demoted",
+        "Passed"
+      ]
+    ],
+    "group": "05-testing",
+    "number": "5.2"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Negative-stock and audit consistency",
+    "group": "05-testing",
+    "display": "5.2.2 Negative-stock and audit consistency",
+    "bookmark": "head77"
+  },
+  {
+    "kind": "p",
+    "text": "The insufficient-stock test attempts a dispatch from an empty product. It expects a domain exception, unchanged transaction count and unchanged quantity. This checks both the arithmetic boundary and the absence of an accepted history row for a rejected operation. The receipt-and-dispatch test then verifies a valid sequence: before zero, receipt eight, dispatch three and final quantity five with two movements.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The absolute-count cases verify the semantic distinction from a relative adjustment. Starting at ten, an adjustment of negative two produces eight; counting three then produces delta negative five and after quantity three. Counting to zero is also accepted and auditable. An unchanged count creates a zero-delta history row. These cases would not be equivalent to a generic test that an input number can be stored in a product field.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Duplicate and concurrent requests",
+    "group": "05-testing",
+    "display": "5.2.3 Duplicate and concurrent requests",
+    "bookmark": "head78"
+  },
+  {
+    "kind": "p",
+    "text": "The exact-replay case sends the same actor-scoped request twice and checks the same movement identifier and one stock effect. A changed quantity with that key produces a conflict. These assertions connect the returned response to the stored result rather than merely checking that the server returns a success status.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The concurrency source in {fig:concurrency-code} shows two demanding scenarios. Twelve unit dispatch attempts compete for a starting balance of seven; the test expects exactly seven successes and quantity zero. Four concurrent identical stock-in submissions must produce one identifier and quantity four. Those bounds directly test the intended outcome under the selected same-product workload.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "concurrency-code",
+    "asset": "code/12-code-concurrency-tests.png",
+    "caption": "Actual concurrent dispatch and identical-submission integration cases",
+    "group": "05-testing",
+    "number": "5.2"
+  },
+  {
+    "kind": "p",
+    "text": "The tests do not establish fairness, sustained throughput or behavior under every lock timeout. The shared revision row can serialize parts of writes across different products. Cross-product reuse of one actor-key pair and database deadlocks require additional targeted cases. MySQL's documentation treats deadlocks as a transaction condition that applications must consider [@mysql-deadlocks]; the current service does not advertise an automatic deadlock-retry policy.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Warning and review assertions",
+    "group": "05-testing",
+    "display": "5.2.4 Warning and review assertions",
+    "bookmark": "head79"
+  },
+  {
+    "kind": "p",
+    "text": "The threshold test verifies OUT at zero and LOW at exact positive equality. Healthy replenishment removes the active shortage and creates RESTOCKED. A review test verifies that acknowledgement becomes visible through the cache and leaves quantity zero. The concurrent-review case expects both responses to expose the same first reviewer. Archive cases confirm that the product rejects movements and its open warnings are resolved.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The test named for restocked expiry and new shortage exercises renewed shortage after replenishment. It does not advance a clock through twenty-four hours. Its supported conclusion is that a new shortage closes the active recovery episode and opens OUT. Time-based expiry, periodic cleanup and a cached page around the expiry boundary remain incompletely evaluated. This distinction prevents a descriptive test name from becoming stronger evidence than its assertions provide.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Frontend and browser testing",
+    "group": "05-testing",
+    "display": "5.3 Frontend and browser testing",
+    "bookmark": "head80"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Threshold presentation",
+    "group": "05-testing",
+    "display": "5.3.1 Threshold presentation",
+    "bookmark": "head81"
+  },
+  {
+    "kind": "p",
+    "text": "The frontend unit tests check the zero boundary, exact threshold equality and positive healthy stock. The source in {fig:frontend-test-code} makes those values visible. The result in {fig:frontend-result} confirms three passing cases. The tests protect the labels shown beside quantity so that the browser does not contradict the server's fundamental classification.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "frontend-test-code",
+    "asset": "code/13-code-boundary-tests.png",
+    "caption": "Frontend test inputs for zero equality and healthy stock",
+    "group": "05-testing",
+    "number": "5.3"
+  },
+  {
+    "kind": "fig",
+    "key": "frontend-result",
+    "asset": "evidence/02-frontend-tests.png",
+    "caption": "Frontend unit-test result from the current execution",
+    "group": "05-testing",
+    "number": "5.4"
+  },
+  {
+    "kind": "p",
+    "text": "These are small focused tests. They do not cover every modal, asynchronous loading state or component interaction. The broader browser journeys serve a complementary purpose by opening the application and observing rendered behavior. Neither layer establishes full accessibility conformance or practical usability for store employees.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Earlier operational browser journey",
+    "group": "05-testing",
+    "display": "5.3.2 Earlier operational browser journey",
+    "bookmark": "head82"
+  },
+  {
+    "kind": "p",
+    "text": "The preserved earlier browser record contains fourteen checks with zero JavaScript runtime errors. It covers administrator login and operational views, an empty search, an actual receipt submission with the correct delta, clerk and manager navigation restrictions, managerial acknowledgement and phone-sized viewport containment. Its write operations make it stronger evidence of an interface-to-server journey than a collection of screenshots alone.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The empty-result interface in {fig:empty-ui} illustrates the recovery state used by the search check. It presents an explanation and a way to clear filters. A successful empty selection should not be confused with a failed request; error handling and query results represent different conditions in the application.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "empty-ui",
+    "asset": "ui/13-empty-search.png",
+    "caption": "Empty inventory search with a visible recovery action",
+    "group": "05-testing",
+    "number": "5.5"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Expanded capture verification",
+    "group": "05-testing",
+    "display": "5.3.3 Expanded capture verification",
+    "bookmark": "head83"
+  },
+  {
+    "kind": "p",
+    "text": "The later capture run obtains twenty-seven interfaces and forms. It signs in as all three roles, checks that managers cannot reach staff administration and clerks cannot reach the warning board, and checks document width at 390 pixels. It records zero page runtime errors. The verification image in {fig:browser-result} identifies this capture-specific evidence.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "browser-result",
+    "asset": "evidence/03-browser-verification.png",
+    "caption": "Capture-run checks and the absence of posted business changes",
+    "group": "05-testing",
+    "number": "5.6"
+  },
+  {
+    "kind": "p",
+    "text": "The capture process opens forms and fills drafts but does not submit stock, account or catalogue changes. Receipt and dispatch images therefore demonstrate the implemented controls and labels, not additional accepted movements. The thesis uses the earlier operational journey and backend cases when discussing accepted writes. This separation allows screenshots to remain useful without assigning them evidential weight they do not have.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Performance test of the warning query",
+    "group": "05-testing",
+    "display": "5.4 Performance test of the warning query",
+    "bookmark": "head84"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Workload and measurement procedure",
+    "group": "05-testing",
+    "display": "5.4.1 Workload and measurement procedure",
+    "bookmark": "head85"
+  },
+  {
+    "kind": "p",
+    "text": "The performance record compares the warning query with cache enabled and with cache bypassed. It uses sixteen products, sixteen open warning episodes, page size one hundred and concurrency one. Three rounds alternate the mode order. Each mode receives twenty warm-up requests and two hundred measured requests per round, giving six hundred measured samples for each mode. Results include the local HTTP path rather than isolated Redis or MySQL operation time.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The recorded host is Apple Silicon macOS with MySQL and Redis containers accessed over loopback. The script records the operating system, machine type, Python version and backend/database baseline. Authentication, durable revision retrieval, filtering, serialization and network handling can contribute to each response. A cache hit therefore avoids only part of the total request work.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "table",
+    "key": "benchmark-workload",
+    "caption": "Recorded local benchmark workload",
+    "rows": [
+      [
+        "Parameter",
+        "Value"
+      ],
+      [
+        "Products",
+        "16"
+      ],
+      [
+        "Open warning episodes",
+        "16"
+      ],
+      [
+        "Page size",
+        "100"
+      ],
+      [
+        "Concurrent requests",
+        "1"
+      ],
+      [
+        "Alternating measurement rounds",
+        "3"
+      ],
+      [
+        "Warm-up requests per mode per round",
+        "20"
+      ],
+      [
+        "Measured requests per mode per round",
+        "200"
+      ],
+      [
+        "Pooled measured samples per mode",
+        "600"
+      ],
+      [
+        "Network and service placement",
+        "Loopback HTTP and local Colima containers"
+      ]
+    ],
+    "group": "05-testing",
+    "number": "5.3"
+  },
+  {
+    "kind": "p",
+    "text": "The benchmark is preserved evidence, not a newly executed production experiment. The inclusion of warm-up and alternating order improves interpretability, but it does not remove all variation due to the host, containers or background activity. No simultaneous-user or capacity curve can be inferred from sequential requests.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Descriptive latency results",
+    "group": "05-testing",
+    "display": "5.4.2 Descriptive latency results",
+    "bookmark": "head86"
+  },
+  {
+    "kind": "p",
+    "text": "The summary in {tab:latency} reports pooled median and tail percentiles from the preserved samples. Percentiles use the sorted-sample index implemented by the project's evaluation script. The Redis-enabled path has a median of approximately 5.33 ms, compared with approximately 6.56 ms for bypass. Its p95 is approximately 7.57 ms, compared with 8.11 ms. These are measurements in this particular run, not latency targets guaranteed by the architecture.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "table",
+    "key": "latency",
+    "caption": "Warning-query latency from six hundred samples per mode",
+    "rows": [
+      [
+        "Mode",
+        "Samples",
+        "Median ms",
+        "p95 ms",
+        "p99 ms"
+      ],
+      [
+        "Redis enabled",
+        "600",
+        "5.33",
+        "7.57",
+        "8.87"
+      ],
+      [
+        "MySQL bypass",
+        "600",
+        "6.56",
+        "8.11",
+        "9.42"
+      ]
+    ],
+    "group": "05-testing",
+    "number": "5.4"
+  },
+  {
+    "kind": "p",
+    "text": "The bar chart in {fig:latency-summary} presents the same descriptive statistics. It helps separate the typical result from the upper-tail values. The approximately 1.24 ms difference between pooled medians is small in absolute terms. It is associated with the optional cache path under this dataset, while the benchmark includes costs that the cache cannot remove.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "latency-summary",
+    "asset": "evidence/04-latency-summary.png",
+    "caption": "Pooled local median and tail latency for cached and bypass warning queries",
+    "group": "05-testing",
+    "number": "5.7"
+  },
+  {
+    "kind": "p",
+    "text": "The empirical cumulative distribution in {fig:latency-ecdf} shows the proportion of measured responses below each latency. It reveals overlapping distributions instead of implying that every cached request is faster than every bypass request. The plotted tail also makes occasional slower observations visible. No statistical hypothesis test or confidence interval is reported.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "latency-ecdf",
+    "asset": "evidence/05-latency-ecdf.png",
+    "caption": "Empirical distribution of the preserved warning-query latencies",
+    "group": "05-testing",
+    "number": "5.8"
+  },
+  {
+    "kind": "p",
+    "text": "The box plot in {fig:latency-box} shows variability and outlying observations. Those observations should not be silently removed merely to improve the visual result. They also should not be generalized into a production reliability rate. The sample is small in business scope and restricted to one read operation with sequential local traffic.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "fig",
+    "key": "latency-box",
+    "asset": "evidence/06-latency-boxplot.png",
+    "caption": "Local latency variability including observed outliers",
+    "group": "05-testing",
+    "number": "5.9"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Interpretation and remaining performance work",
+    "group": "05-testing",
+    "display": "5.4.3 Interpretation and remaining performance work",
+    "bookmark": "head87"
+  },
+  {
+    "kind": "p",
+    "text": "The cache reduces repeated page assembly in the tested workload, but each read still obtains a durable revision and checks session authority. A high cache-hit ratio is not equivalent to eliminating database access. The prototype's write path also advances a shared revision row. Testing many writers across different products is therefore a necessary next step before drawing conclusions about larger-store workload behavior.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "Useful extensions would vary catalogue size, warning count, page size, concurrent readers and concurrent writers. They would report warm and cold cache behavior, latency distributions, rejected requests and database resource use. A production comparison should control relevant deployment variables and preserve raw samples. These proposed tests describe additional evaluation, not results already obtained.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Recorded failure and persistence checks",
+    "group": "05-testing",
+    "display": "5.5 Recorded failure and persistence checks",
+    "bookmark": "head88"
+  },
+  {
+    "kind": "p",
+    "text": "The Redis recovery record stops and restarts only the cache service while MySQL remains available. A cache-enabled query during interruption is compared with the uncached baseline. The record reports the same database warning result during the outage and a recovered service afterward. Individual observed query times are approximately 10.49 ms before interruption, 12.25 ms while unavailable and 25.94 ms after recovery. They are individual observations, not estimates of a recovery-time distribution.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "table",
+    "key": "recovery",
+    "caption": "Recorded cache interruption and restart observations",
+    "rows": [
+      [
+        "Observation",
+        "Recorded result",
+        "Supported interpretation"
+      ],
+      [
+        "Redis stopped with MySQL available",
+        "Same warning result",
+        "Cache outage did not remove authoritative warning data"
+      ],
+      [
+        "Redis restarted",
+        "Recovered service and equivalent result",
+        "Normal cache service resumed in this check"
+      ],
+      [
+        "Application restarted",
+        "Same selected stock and movement rows",
+        "Durable MySQL state survived ordinary process restart"
+      ],
+      [
+        "Selected-row fingerprint",
+        "34 rows and equal SHA-256",
+        "Compared product and transaction data remained equal"
+      ]
+    ],
+    "group": "05-testing",
+    "number": "5.5"
+  },
+  {
+    "kind": "p",
+    "text": "A separate persistence record compares selected product and transaction rows around an application restart using a fingerprint. It reports equality for thirty-four selected rows. This supports ordinary persistence of those records. It is not a backup restoration, disk-failure or full-database recovery test. Session survival is also a different property: the in-process login state may be lost while stock remains durable.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Traceability and validity of the conclusions",
+    "group": "05-testing",
+    "display": "5.6 Traceability and validity of the conclusions",
+    "bookmark": "head89"
+  },
+  {
+    "kind": "p",
+    "text": "The acceptance evidence is strongest where a requirement has a direct assertion. Non-negative concurrent stock has a final balance and a success-count check. Exact replay has an identifier and quantity check. Acknowledgement has a reviewer and unchanged-stock check. Weaker or absent evidence is identified separately, including complete expiry timing, sustained multi-user workload and operational usability.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "Internal validity is limited by the particular test scenarios and the execution environment. External validity is limited by demonstration data and the single-store boundary. Construct validity depends on using the intended metric: movement counts are not sales, current-price value is not profit, and response latency under one sequential query is not throughput capacity. The thesis maintains those distinctions throughout its figures and result tables.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "The current evidence supports a working bounded inventory system with selected consistency and recovery properties. It does not establish a production SLA, a quantified reduction in supermarket stockouts or the safety of unrestricted public deployment. Those conclusions require additional operational controls, workloads and field observations beyond this development study.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Chapter summary",
+    "group": "05-testing",
+    "display": "5.7 Chapter summary",
+    "bookmark": "head90"
+  },
+  {
+    "kind": "p",
+    "text": "Functional tests support the implemented stock arithmetic, audit path, role boundaries and selected warning transitions. Browser evidence supports the rendered workflow and selected operational journeys. The local cache benchmark reports a lower pooled median for the enabled path under a small sequential workload. Failure records support cache fallback and ordinary persistence. The following conclusion relates these findings to the original engineering questions and identifies the next work needed for a broader deployment.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Conclusion",
+    "group": "06-conclusion",
+    "display": "Conclusion",
+    "chapter": "A",
+    "bookmark": "head91"
+  },
+  {
+    "kind": "p",
+    "text": "Shelfwise implements an inventory and stock-warning workflow for one supermarket. The completed application connects a current product balance to accepted stock movements and connects shortage interpretation to persisted warning episodes. A responsive Vue interface gives administrators, managers and clerks access to different operations, while a Spring Boot server and MySQL database remain responsible for authorization and durable change. Redis is an optional page cache rather than a second source of business truth.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "The first engineering question concerned bounded and explainable quantity changes. The design answers it with a locked product read, server-derived arithmetic, mandatory actor and reason, an actor-key uniqueness constraint and a coordinated transaction. The integration evidence includes receipt, dispatch, signed correction, absolute counts, rejection without history, exact replay and selected concurrent operations. Seven units cannot be oversold by the twelve competing unit-dispatch attempts in the implemented test. This is a concrete supported case, not a universal workload proof.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "The second question concerned the interpretation of shortage and recovery. The system distinguishes OUT, LOW and a time-limited RESTOCKED episode while storing acknowledgement separately. A review records the first reviewer without changing quantity. The tests support zero and equality boundaries, healthy replenishment, renewed shortage, archival and concurrent acknowledgement. Complete time-based expiry and cached visibility at that boundary remain useful additional cases. The distinction between review and replenishment is nevertheless preserved in the implemented model and user-facing controls.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "The third question concerned the relationship between interface authority and server authority. Fixed role bundles and endpoint rules separate catalogue administration, stock posting and managerial review. Browser navigation reduces inappropriate paths, while integration checks exercise server denial. Account enabled state and current role are refreshed on subsequent requests. The resulting boundary does not depend on a hidden button being the only obstacle to an unauthorized write. Further deployment work must still address rate limiting, credential recovery, MFA, session scaling and a wider security assessment.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "The fourth question concerned evidence for performance and recovery. The preserved warning-query benchmark records a pooled median of 5.33 ms with Redis enabled and 6.56 ms with bypass across six hundred sequential samples per path. Its distributions overlap, and the result includes the revision and authentication work retained in both paths. A recorded Redis interruption returns equivalent warning data, and an ordinary application restart preserves selected stock and movement rows. These observations support the selected local mechanisms without establishing capacity, disaster recovery or a production availability target.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "The main outcome is therefore an integrated and inspectable engineering artifact. Requirements, diagrams, implementation excerpts, captured interfaces and executable evidence refer to the same domain concepts. The system makes the difference between a product edit, a movement, a physical count and a review explicit. That explanatory consistency is valuable even before more complex retail functions are introduced.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "Future development should first resolve domain limits that affect actual store use. Fractional quantities need exact unit and rounding policies. Batch and expiry tracking need additional stock identities. A point-of-sale integration needs external event identity, retry behavior and reconciliation. Purchasing requires supplier terms and order lifecycle data. These additions should extend the ledger and acceptance catalog before they add dashboard claims.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "p",
+    "text": "Operational evaluation should then examine staff workflows, wider concurrent workloads, cache-expiry boundaries, cross-product key races, database deadlocks and restore drills. Frontend decomposition and service refactoring can improve maintenance, provided that the effective transaction and permission boundaries remain intact. The present application supplies a tested baseline for that work, with its limits stated alongside its supported results.",
+    "group": "06-conclusion"
+  },
+  {
+    "kind": "heading",
+    "level": 1,
+    "text": "Appendices",
+    "group": "07-appendices",
+    "display": "Appendices",
+    "chapter": "A",
+    "bookmark": "head92"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Appendix A API and response contracts",
+    "group": "07-appendices",
+    "display": "Appendix A API and response contracts",
+    "bookmark": "head93"
+  },
+  {
+    "kind": "p",
+    "text": "The following catalog records the implemented route families at the source revision used by this thesis. Roles refer to ADMIN, MANAGER and CLERK. Authenticated GET access to category and supplier lists does not imply catalogue write access. An inventory request identifies the stock intention, while the returned movement supplies the authoritative actor and quantities.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "table",
+    "key": "api-catalog",
+    "caption": "Implemented HTTP route catalog",
+    "rows": [
+      [
+        "Method",
+        "Path",
+        "Allowed callers",
+        "Meaning"
+      ],
+      [
+        "GET",
+        "/api/auth/csrf",
+        "Anonymous or signed in",
+        "Obtain CSRF token"
+      ],
+      [
+        "POST",
+        "/api/auth/login",
+        "Anonymous with CSRF",
+        "Authenticate and create session"
+      ],
+      [
+        "GET",
+        "/api/auth/me",
+        "Signed in",
+        "Current account"
+      ],
+      [
+        "POST",
+        "/api/auth/logout",
+        "Signed in with CSRF",
+        "End session"
+      ],
+      [
+        "GET",
+        "/api/products",
+        "Signed in",
+        "Filtered bounded inventory page"
+      ],
+      [
+        "GET",
+        "/api/products/{id}",
+        "Signed in",
+        "Product detail"
+      ],
+      [
+        "POST",
+        "/api/products",
+        "Administrator",
+        "Create zero-stock catalogue record"
+      ],
+      [
+        "PUT",
+        "/api/products/{id}",
+        "Administrator",
+        "Edit identity and policy"
+      ],
+      [
+        "DELETE",
+        "/api/products/{id}",
+        "Administrator",
+        "Archive product"
+      ],
+      [
+        "PATCH",
+        "/api/products/{id}/thresholds",
+        "Administrator or manager",
+        "Update threshold policy"
+      ],
+      [
+        "GET",
+        "/api/categories and /api/suppliers",
+        "Signed in",
+        "Reference directory"
+      ],
+      [
+        "POST PUT DELETE",
+        "Category and supplier resources",
+        "Administrator",
+        "Maintain reference records"
+      ],
+      [
+        "GET",
+        "/api/transactions",
+        "Signed in",
+        "Movement history optionally by product"
+      ],
+      [
+        "POST",
+        "/api/transactions",
+        "Administrator or clerk",
+        "Submit audited stock intention"
+      ],
+      [
+        "GET",
+        "/api/warnings",
+        "Administrator or manager",
+        "Filtered warning page"
+      ],
+      [
+        "POST",
+        "/api/warnings/{id}/ack",
+        "Administrator or manager",
+        "Preserve first reviewer"
+      ],
+      [
+        "GET",
+        "/api/dashboard and /api/reports/summary",
+        "Administrator or manager",
+        "Stock aggregates"
+      ],
+      [
+        "GET",
+        "/api/stock-summary",
+        "Signed in",
+        "Summary view without warning items"
+      ],
+      [
+        "GET POST PATCH",
+        "/api/users and access resources",
+        "Administrator",
+        "Accounts roles and enabled state"
+      ],
+      [
+        "GET",
+        "/api/settings",
+        "Signed in",
+        "Current display preferences"
+      ],
+      [
+        "PUT",
+        "/api/settings",
+        "Administrator",
+        "Store name and display currency"
+      ]
+    ],
+    "group": "07-appendices",
+    "number": "A.1"
+  },
+  {
+    "kind": "p",
+    "text": "Paginated responses contain items, page, size, totalElements and totalPages. Product queries accept q, categoryId, status, archived, page, size, sort and direction. Supported stock-health values are healthy, low and out. Warning queries accept type, state, page, size and cache. Unsupported warning values are rejected by the controller. Timestamps are emitted as UTC ISO-8601 values; the browser formats local display times.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "p",
+    "text": "A transaction payload includes productId, type, quantity, reason and idempotencyKey. STOCK_IN and STOCK_OUT quantities are positive. ADJUSTMENT is signed and non-zero. STOCKTAKE is an absolute non-negative count. An example intention to receive twelve units does not carry an actor ID, quantityBefore or quantityAfter: the server supplies those fields from its authenticated and locked context.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "table",
+    "key": "status-codes",
+    "caption": "Response status interpretation",
+    "rows": [
+      [
+        "Status",
+        "Meaning in the application",
+        "Client interpretation"
+      ],
+      [
+        "200",
+        "Successful query update or acknowledgement",
+        "Inspect returned representation"
+      ],
+      [
+        "201",
+        "Transaction or creation endpoint success",
+        "Use returned identifier; replay can return an existing movement"
+      ],
+      [
+        "204",
+        "Successful archive or logout response",
+        "No JSON representation expected"
+      ],
+      [
+        "400",
+        "Validation or supported-boundary error",
+        "Correct the submitted intention"
+      ],
+      [
+        "401",
+        "Authentication missing or invalid",
+        "Establish a valid session"
+      ],
+      [
+        "403",
+        "CSRF or role restriction",
+        "Check credentials token and authority"
+      ],
+      [
+        "404",
+        "Requested record absent",
+        "Refresh selection or correct identifier"
+      ],
+      [
+        "409",
+        "Identity reference or replay conflict",
+        "Resolve the conflicting intention or record"
+      ]
+    ],
+    "group": "07-appendices",
+    "number": "A.2"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Appendix B Backend acceptance catalog",
+    "group": "07-appendices",
+    "display": "Appendix B Backend acceptance catalog",
+    "bookmark": "head94"
+  },
+  {
+    "kind": "p",
+    "text": "This catalog names the 27 executable backend cases and states the behavior their assertions address. It is provided to make a passed count interpretable. The wording of a test name is not itself an assertion; the renewed-shortage case is consequently described according to its executed operations rather than as a complete time-expiry experiment.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "table",
+    "key": "acceptance-catalog",
+    "caption": "The twenty-seven backend acceptance cases",
+    "rows": [
+      [
+        "Case",
+        "Executed assertion focus",
+        "Result"
+      ],
+      [
+        "Empty search and stable pagination",
+        "No-match query reports zero and oversized page request is capped.",
+        "Passed"
+      ],
+      [
+        "Unauthorized user cannot read inventory",
+        "Anonymous inventory request receives 401.",
+        "Passed"
+      ],
+      [
+        "Csrf required for unsafe methods",
+        "Unsafe stock request without CSRF receives 403.",
+        "Passed"
+      ],
+      [
+        "Clerk cannot acknowledge or manage users",
+        "Clerk review and staff administration are denied.",
+        "Passed"
+      ],
+      [
+        "Manager cannot post stock",
+        "Manager cannot submit an inventory movement.",
+        "Passed"
+      ],
+      [
+        "Bad catalog input rejected",
+        "Empty identity and invalid price input are rejected.",
+        "Passed"
+      ],
+      [
+        "Receipt and dispatch have audit history",
+        "Receipt and dispatch produce correct quantity and two ledger rows.",
+        "Passed"
+      ],
+      [
+        "Negative stock rejected without history",
+        "Rejected dispatch changes neither quantity nor accepted history.",
+        "Passed"
+      ],
+      [
+        "Exact replay returns same id",
+        "Equivalent retry returns one identifier and one stock effect.",
+        "Passed"
+      ],
+      [
+        "Changed payload replay conflicts",
+        "Changed intention with the same actor key conflicts.",
+        "Passed"
+      ],
+      [
+        "Threshold equality is low and zero is out",
+        "Zero is OUT and positive equality is LOW.",
+        "Passed"
+      ],
+      [
+        "Healthy replenishment resolves shortage",
+        "Healthy stock resolves shortage and creates RESTOCKED.",
+        "Passed"
+      ],
+      [
+        "Acknowledgement is visible through cache",
+        "Review attribution is visible and stock remains unchanged.",
+        "Passed"
+      ],
+      [
+        "Signed adjustment and absolute count",
+        "Signed correction and absolute count have distinct arithmetic.",
+        "Passed"
+      ],
+      [
+        "Count to zero is auditable",
+        "Counting zero retains its negative-delta audit record.",
+        "Passed"
+      ],
+      [
+        "Archived product cannot move",
+        "Archived product rejects a new stock operation.",
+        "Passed"
+      ],
+      [
+        "Unique sku and threshold hierarchy",
+        "Duplicate SKU and inconsistent thresholds are rejected.",
+        "Passed"
+      ],
+      [
+        "Concurrent dispatch cannot oversell",
+        "Seven units permit exactly seven successful unit dispatches.",
+        "Passed"
+      ],
+      [
+        "Concurrent identical submission does not duplicate",
+        "Concurrent same-product retry yields one accepted identifier.",
+        "Passed"
+      ],
+      [
+        "Same count still records audit",
+        "Unchanged absolute count creates a zero-delta observation.",
+        "Passed"
+      ],
+      [
+        "Manager threshold endpoint and clerk denial",
+        "Manager can update thresholds and clerk cannot.",
+        "Passed"
+      ],
+      [
+        "Last admin cannot be disabled or demoted",
+        "Last enabled administrator is protected from access removal.",
+        "Passed"
+      ],
+      [
+        "Archived warnings are resolved",
+        "Archival removes open warning attention.",
+        "Passed"
+      ],
+      [
+        "Restocked expires and new shortage starts new episode",
+        "Renewed shortage closes recovery and opens OUT; no clock expiry is tested.",
+        "Passed"
+      ],
+      [
+        "Warning filters have accurate totals",
+        "Selected warning type agrees with returned content and total.",
+        "Passed"
+      ],
+      [
+        "Concurrent acknowledgements preserve first reviewer",
+        "Concurrent review returns the same first attribution.",
+        "Passed"
+      ],
+      [
+        "Invalid credentials and null login fields return client errors",
+        "Invalid credentials and absent required login values are rejected.",
+        "Passed"
+      ]
+    ],
+    "group": "07-appendices",
+    "number": "A.3"
+  },
+  {
+    "kind": "p",
+    "text": "The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. New batch, fractional-unit or purchasing features would require new acceptance scenarios in addition to the present catalog.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Appendix C Reproduction and evidence locations",
+    "group": "07-appendices",
+    "display": "Appendix C Reproduction and evidence locations",
+    "bookmark": "head95"
+  },
+  {
+    "kind": "p",
+    "text": "The application is reproduced by installing the pinned project baseline, preparing local environment values, starting the Compose services and running the backend and browser client. The backend wrapper reads the repository's local environment and selects the local Java and Maven installations when present. The frontend wrapper selects the project Node baseline. Secrets remain in the local environment and are not included in this document.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "p",
+    "text": "Backend integration tests use the current Docker socket for Testcontainers. On the recorded Colima host, DOCKER_HOST points to its Unix socket. This is an execution-environment setting, not a business parameter. Frontend unit tests run through the pinned package scripts. The earlier operational browser script posts a demonstration receipt and review, whereas the expanded capture script opens draft forms without submitting business changes.",
+    "group": "07-appendices"
+  },
+  {
+    "kind": "table",
+    "key": "reproduce",
+    "caption": "Reproduction actions and their artifacts",
+    "rows": [
+      [
+        "Action",
+        "Repository entry point",
+        "Inspectable result"
+      ],
+      [
+        "Start local infrastructure",
+        "docker-compose.yml",
+        "MySQL and Redis health checks"
+      ],
+      [
+        "Run backend",
+        "scripts/backend.sh spring-boot:run",
+        "Migrated schema and API health"
+      ],
+      [
+        "Run browser client",
+        "scripts/frontend.sh run dev",
+        "Responsive application on development port"
+      ],
+      [
+        "Backend integration suite",
+        "scripts/backend.sh test",
+        "Surefire result and test log"
+      ],
+      [
+        "Frontend unit suite",
+        "scripts/frontend.sh test",
+        "Three boundary-test results"
+      ],
+      [
+        "Operational browser journey",
+        "scripts/browser-smoke.mjs",
+        "Earlier write review and navigation evidence"
+      ],
+      [
+        "Expanded interface capture",
+        "scripts/capture-paper-ui.mjs",
+        "Screens and capture verification"
+      ],
+      [
+        "Cache benchmark",
+        "scripts/benchmark.py",
+        "Workload environment and raw latency samples"
+      ],
+      [
+        "Failure and persistence checks",
+        "scripts/fault-recovery.py and persistence-snapshot.py",
+        "Recovery and selected-row equality records"
+      ],
+      [
+        "Figure drawing",
+        "scripts/prepare-paper-diagrams.py",
+        "Editable diagrams and image exports"
+      ],
+      [
+        "Thesis assembly",
+        "scripts/build-expanded-thesis.py",
+        "Editable LaTeX manuscript and compiled PDF"
+      ]
+    ],
+    "group": "07-appendices",
+    "number": "A.4"
+  },
+  {
+    "kind": "p",
+    "text": "The figure collection includes a manifest of image dimensions, source paths, capture dates and content hashes. Code images preserve the original source line locations and exact excerpt text. The current result logs and historical raw measurements remain separate. These artifacts allow a reader to identify what was drawn, what was captured and what was measured, without treating every image as equivalent evidence.",
+    "group": "07-appendices"
+  }
+]

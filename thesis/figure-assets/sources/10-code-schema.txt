@@ -1,0 +1,21 @@
+CREATE TABLE inventory_transactions (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT, product_id BIGINT NOT NULL, actor_id BIGINT NOT NULL,
+  type VARCHAR(20) NOT NULL, delta BIGINT NOT NULL, quantity_before BIGINT NOT NULL, quantity_after BIGINT NOT NULL,
+  reason VARCHAR(300) NOT NULL, idempotency_key VARCHAR(80) NOT NULL,
+  created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  CONSTRAINT fk_tx_product FOREIGN KEY(product_id) REFERENCES products(id),
+  CONSTRAINT fk_tx_actor FOREIGN KEY(actor_id) REFERENCES users(id),
+  CONSTRAINT uk_tx_actor_key UNIQUE(actor_id,idempotency_key)
+);
+CREATE INDEX idx_tx_product_time ON inventory_transactions(product_id,created_at);
+CREATE TABLE warnings (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT, product_id BIGINT NOT NULL, type VARCHAR(20) NOT NULL,
+  state VARCHAR(20) NOT NULL DEFAULT 'OPEN', observed_quantity BIGINT NOT NULL, threshold BIGINT NOT NULL,
+  created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), expires_at TIMESTAMP(6) NOT NULL,
+  acknowledged_by BIGINT, acknowledged_at TIMESTAMP(6),
+  CONSTRAINT fk_warning_product FOREIGN KEY(product_id) REFERENCES products(id),
+  CONSTRAINT fk_warning_ack FOREIGN KEY(acknowledged_by) REFERENCES users(id)
+);
+CREATE INDEX idx_warning_state_time ON warnings(state,created_at);
+CREATE TABLE app_settings (setting_key VARCHAR(80) PRIMARY KEY, setting_value VARCHAR(240) NOT NULL);
+CREATE TABLE cache_revision (id BIGINT PRIMARY KEY, revision BIGINT NOT NULL);

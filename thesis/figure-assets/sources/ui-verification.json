@@ -1,0 +1,16 @@
+{
+  "capturedAt": "2026-10-05T12:27:01.939Z",
+  "checks": [
+    "admin signs in successfully",
+    "empty search renders expected state",
+    "manager signs in successfully",
+    "manager cannot reach staff administration",
+    "clerk signs in successfully",
+    "clerk cannot reach warning board",
+    "manager signs in successfully",
+    "390px responsive page has no document overflow"
+  ],
+  "consoleErrors": [],
+  "durableWrites": 0,
+  "screenshots": 27
+}

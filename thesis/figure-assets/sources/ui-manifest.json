@@ -1,0 +1,353 @@
+[
+  {
+    "id": "01-login-desktop",
+    "title": "Desktop sign-in interface",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/01-login-desktop.png"
+    ],
+    "source": "frontend/src/views/LoginView.vue",
+    "url": "http://localhost:5173/login",
+    "note": "Left-hand preview is illustrative UI, not measured inventory.",
+    "capturedAt": "2026-10-05T12:26:29.172Z"
+  },
+  {
+    "id": "02-dashboard",
+    "title": "Administrator dashboard",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/02-dashboard.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=overview",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:31.310Z"
+  },
+  {
+    "id": "03-inventory",
+    "title": "Inventory search and stock status",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/03-inventory.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=inventory",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:32.174Z"
+  },
+  {
+    "id": "04-catalogue",
+    "title": "Product catalogue",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/04-catalogue.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=products",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:33.032Z"
+  },
+  {
+    "id": "05-categories",
+    "title": "Category management",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/05-categories.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=categories",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:33.737Z"
+  },
+  {
+    "id": "06-suppliers",
+    "title": "Supplier directory",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/06-suppliers.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=suppliers",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:34.442Z"
+  },
+  {
+    "id": "07-history",
+    "title": "Attributed stock movement history",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/07-history.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=transactions",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:35.253Z"
+  },
+  {
+    "id": "08-warnings",
+    "title": "Open warning board",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/08-warnings.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=warnings",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:36.052Z"
+  },
+  {
+    "id": "09-reports",
+    "title": "Inventory reporting",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/09-reports.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=reports",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:36.781Z"
+  },
+  {
+    "id": "10-team",
+    "title": "Staff and role administration",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/10-team.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=team",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:37.488Z"
+  },
+  {
+    "id": "11-settings",
+    "title": "Store settings",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/11-settings.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=settings",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:38.306Z"
+  },
+  {
+    "id": "12-inventory-search",
+    "title": "Product search by text",
+    "chapter": 2,
+    "type": "ui",
+    "files": [
+      "ui/12-inventory-search.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=inventory",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:39.305Z"
+  },
+  {
+    "id": "13-empty-search",
+    "title": "Empty-search recovery state",
+    "chapter": 5,
+    "type": "ui",
+    "files": [
+      "ui/13-empty-search.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=inventory",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:39.636Z"
+  },
+  {
+    "id": "14-add-product",
+    "title": "Product creation form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/14-add-product.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=products",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:40.500Z"
+  },
+  {
+    "id": "15-edit-product",
+    "title": "Existing product and threshold edit form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/15-edit-product.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=products",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:41.900Z"
+  },
+  {
+    "id": "16-stock-receipt",
+    "title": "Stock receipt form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/16-stock-receipt.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=transactions",
+    "note": "Draft form only; no stock movement was submitted.",
+    "capturedAt": "2026-10-05T12:26:44.899Z"
+  },
+  {
+    "id": "17-stock-dispatch",
+    "title": "Stock dispatch form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/17-stock-dispatch.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=transactions",
+    "note": "Draft form only; no stock movement was submitted.",
+    "capturedAt": "2026-10-05T12:26:45.413Z"
+  },
+  {
+    "id": "18-stock-adjustment",
+    "title": "Signed stock adjustment form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/18-stock-adjustment.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=transactions",
+    "note": "Draft form only; no stock movement was submitted.",
+    "capturedAt": "2026-10-05T12:26:45.948Z"
+  },
+  {
+    "id": "19-stocktake",
+    "title": "Absolute stocktake form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/19-stocktake.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=transactions",
+    "note": "Draft form only; no stock movement was submitted.",
+    "capturedAt": "2026-10-05T12:26:46.466Z"
+  },
+  {
+    "id": "20-category-form",
+    "title": "Category creation form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/20-category-form.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=categories",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:47.992Z"
+  },
+  {
+    "id": "21-supplier-form",
+    "title": "Supplier creation form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/21-supplier-form.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=suppliers",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:49.543Z"
+  },
+  {
+    "id": "22-account-form",
+    "title": "Staff account creation form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/22-account-form.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=team",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:51.094Z"
+  },
+  {
+    "id": "23-manager-thresholds",
+    "title": "Manager threshold-only edit form",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/23-manager-thresholds.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=inventory",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:54.566Z"
+  },
+  {
+    "id": "24-manager-workspace",
+    "title": "Manager warning-review workspace",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/24-manager-workspace.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=warnings",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:56.195Z"
+  },
+  {
+    "id": "25-clerk-workspace",
+    "title": "Clerk stock-activity workspace",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/25-clerk-workspace.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=transactions",
+    "note": "",
+    "capturedAt": "2026-10-05T12:26:58.741Z"
+  },
+  {
+    "id": "26-mobile-login",
+    "title": "Responsive Web sign-in on a phone",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/26-mobile-login.png"
+    ],
+    "source": "frontend/src/views/LoginView.vue",
+    "url": "http://localhost:5173/login",
+    "note": "Responsive Web interface, not a native mobile application.",
+    "capturedAt": "2026-10-05T12:26:59.964Z"
+  },
+  {
+    "id": "27-mobile-inventory",
+    "title": "Responsive Web inventory on a phone",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/27-mobile-inventory.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=inventory",
+    "note": "Responsive Web interface, not a native mobile application.",
+    "capturedAt": "2026-10-05T12:27:01.936Z"
+  }
+]

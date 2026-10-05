@@ -1,0 +1,41 @@
+[
+  {
+    "id": "04-latency-summary",
+    "title": "Local warning-query latency summary",
+    "chapter": 5,
+    "type": "benchmark-plot",
+    "source": "docs/evidence/cache-benchmark.json",
+    "files": [
+      "evidence/04-latency-summary.png",
+      "evidence/04-latency-summary.svg",
+      "evidence/04-latency-summary.pdf"
+    ],
+    "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode"
+  },
+  {
+    "id": "05-latency-ecdf",
+    "title": "Empirical warning-query latency distribution",
+    "chapter": 5,
+    "type": "benchmark-plot",
+    "source": "docs/evidence/cache-benchmark.json",
+    "files": [
+      "evidence/05-latency-ecdf.png",
+      "evidence/05-latency-ecdf.svg",
+      "evidence/05-latency-ecdf.pdf"
+    ],
+    "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode"
+  },
+  {
+    "id": "06-latency-boxplot",
+    "title": "Warning-query latency variability",
+    "chapter": 5,
+    "type": "benchmark-plot",
+    "source": "docs/evidence/cache-benchmark.json",
+    "files": [
+      "evidence/06-latency-boxplot.png",
+      "evidence/06-latency-boxplot.svg",
+      "evidence/06-latency-boxplot.pdf"
+    ],
+    "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode"
+  }
+]

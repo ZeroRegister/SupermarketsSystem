@@ -1,0 +1,159 @@
+\chapter*{Appendices}
+
+\addcontentsline{toc}{chapter}{Appendices}
+
+\FloatBarrier
+
+\section*{Appendix A API and response contracts}
+
+\addcontentsline{toc}{section}{Appendix A API and response contracts}
+
+The following catalog records the implemented route families at the source revision used by this thesis. Roles refer to ADMIN, MANAGER and CLERK. Authenticated GET access to category and supplier lists does not imply catalogue write access. An inventory request identifies the stock intention, while the returned movement supplies the authoritative actor and quantities.
+
+
+\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.135\textwidth}>{\raggedright\arraybackslash}p{0.297\textwidth}>{\raggedright\arraybackslash}p{0.216\textwidth}>{\raggedright\arraybackslash}p{0.252\textwidth}}
+\caption{Implemented HTTP route catalog}\label{tab:api-catalog}\\
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Allowed callers} & \textbf{Meaning} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Method} & \textbf{Path} & \textbf{Allowed callers} & \textbf{Meaning} \\
+\midrule\endhead
+\bottomrule\endfoot
+GET & \path|/api/auth/csrf| & Anonymous or signed in & Obtain CSRF token \\
+POST & \path|/api/auth/login| & Anonymous with CSRF & Authenticate and create session \\
+GET & \path|/api/auth/me| & Signed in & Current account \\
+POST & \path|/api/auth/logout| & Signed in with CSRF & End session \\
+GET & \path|/api/products| & Signed in & Filtered bounded inventory page \\
+GET & \path|/api/products/{id}| & Signed in & Product detail \\
+POST & \path|/api/products| & Administrator & Create zero-stock catalogue record \\
+PUT & \path|/api/products/{id}| & Administrator & Edit identity and policy \\
+DELETE & \path|/api/products/{id}| & Administrator & Archive product \\
+PATCH & \path|/api/products/{id}/thresholds| & Administrator or manager & Update threshold policy \\
+GET & \path|/api/categories and /api/suppliers| & Signed in & Reference directory \\
+POST PUT DELETE & Category and supplier resources & Administrator & Maintain reference records \\
+GET & \path|/api/transactions| & Signed in & Movement history optionally by product \\
+POST & \path|/api/transactions| & Administrator or clerk & Submit audited stock intention \\
+GET & \path|/api/warnings| & Administrator or manager & Filtered warning page \\
+POST & \path|/api/warnings/{id}/ack| & Administrator or manager & Preserve first reviewer \\
+GET & \path|/api/dashboard and /api/reports/summary| & Administrator or manager & Stock aggregates \\
+GET & \path|/api/stock-summary| & Signed in & Summary view without warning items \\
+GET POST PATCH & \path|/api/users and access resources| & Administrator & Accounts roles and enabled state \\
+GET & \path|/api/settings| & Signed in & Current display preferences \\
+PUT & \path|/api/settings| & Administrator & Store name and display currency \\
+\end{longtable}\endgroup
+
+Paginated responses contain items, page, size, totalElements and totalPages. Product queries accept q, categoryId, status, archived, page, size, sort and direction. Supported stock-health values are healthy, low and out. Warning queries accept type, state, page, size and cache. Unsupported warning values are rejected by the controller. Timestamps are emitted as UTC ISO-8601 values; the browser formats local display times.
+
+
+A transaction payload includes productId, type, quantity, reason and idempotencyKey. STOCK\_IN and STOCK\_OUT quantities are positive. ADJUSTMENT is signed and non-zero. STOCKTAKE is an absolute non-negative count. An example intention to receive twelve units does not carry an actor ID, quantityBefore or quantityAfter: the server supplies those fields from its authenticated and locked context.
+
+
+\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
+\caption{Response status interpretation}\label{tab:status-codes}\\
+\toprule
+\textbf{Status} & \textbf{Meaning in the application} & \textbf{Client interpretation} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Status} & \textbf{Meaning in the application} & \textbf{Client interpretation} \\
+\midrule\endhead
+\bottomrule\endfoot
+200 & Successful query update or acknowledgement & Inspect returned representation \\
+201 & Transaction or creation endpoint success & Use returned identifier; replay can return an existing movement \\
+204 & Successful archive or logout response & No JSON representation expected \\
+400 & Validation or supported-boundary error & Correct the submitted intention \\
+401 & Authentication missing or invalid & Establish a valid session \\
+403 & CSRF or role restriction & Check credentials token and authority \\
+404 & Requested record absent & Refresh selection or correct identifier \\
+409 & Identity reference or replay conflict & Resolve the conflicting intention or record \\
+\end{longtable}\endgroup
+
+\FloatBarrier
+
+\section*{Appendix B Backend acceptance catalog}
+
+\addcontentsline{toc}{section}{Appendix B Backend acceptance catalog}
+
+This catalog names the 27 executable backend cases and states the behavior their assertions address. It is provided to make a passed count interpretable. The wording of a test name is not itself an assertion; the renewed-shortage case is consequently described according to its executed operations rather than as a complete time-expiry experiment.
+
+
+\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.324\textwidth}>{\raggedright\arraybackslash}p{0.441\textwidth}>{\raggedright\arraybackslash}p{0.135\textwidth}}
+\caption{The twenty-seven backend acceptance cases}\label{tab:acceptance-catalog}\\
+\toprule
+\textbf{Case} & \textbf{Executed assertion focus} & \textbf{Result} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Case} & \textbf{Executed assertion focus} & \textbf{Result} \\
+\midrule\endhead
+\bottomrule\endfoot
+Empty search and stable pagination & No-match query reports zero and oversized page request is capped. & Passed \\
+Unauthorized user cannot read inventory & Anonymous inventory request receives 401. & Passed \\
+Csrf required for unsafe methods & Unsafe stock request without CSRF receives 403. & Passed \\
+Clerk cannot acknowledge or manage users & Clerk review and staff administration are denied. & Passed \\
+Manager cannot post stock & Manager cannot submit an inventory movement. & Passed \\
+Bad catalog input rejected & Empty identity and invalid price input are rejected. & Passed \\
+Receipt and dispatch have audit history & Receipt and dispatch produce correct quantity and two ledger rows. & Passed \\
+Negative stock rejected without history & Rejected dispatch changes neither quantity nor accepted history. & Passed \\
+Exact replay returns same id & Equivalent retry returns one identifier and one stock effect. & Passed \\
+Changed payload replay conflicts & Changed intention with the same actor key conflicts. & Passed \\
+Threshold equality is low and zero is out & Zero is OUT and positive equality is LOW. & Passed \\
+Healthy replenishment resolves shortage & Healthy stock resolves shortage and creates RESTOCKED. & Passed \\
+Acknowledgement is visible through cache & Review attribution is visible and stock remains unchanged. & Passed \\
+Signed adjustment and absolute count & Signed correction and absolute count have distinct arithmetic. & Passed \\
+Count to zero is auditable & Counting zero retains its negative-delta audit record. & Passed \\
+Archived product cannot move & Archived product rejects a new stock operation. & Passed \\
+Unique sku and threshold hierarchy & Duplicate SKU and inconsistent thresholds are rejected. & Passed \\
+Concurrent dispatch cannot oversell & Seven units permit exactly seven successful unit dispatches. & Passed \\
+Concurrent identical submission does not duplicate & Concurrent same-product retry yields one accepted identifier. & Passed \\
+Same count still records audit & Unchanged absolute count creates a zero-delta observation. & Passed \\
+Manager threshold endpoint and clerk denial & Manager can update thresholds and clerk cannot. & Passed \\
+Last admin cannot be disabled or demoted & Last enabled administrator is protected from access removal. & Passed \\
+Archived warnings are resolved & Archival removes open warning attention. & Passed \\
+Restocked expires and new shortage starts new episode & Renewed shortage closes recovery and opens OUT; no clock expiry is tested. & Passed \\
+Warning filters have accurate totals & Selected warning type agrees with returned content and total. & Passed \\
+Concurrent acknowledgements preserve first reviewer & Concurrent review returns the same first attribution. & Passed \\
+Invalid credentials and null login fields return client errors & Invalid credentials and absent required login values are rejected. & Passed \\
+\end{longtable}\endgroup
+
+The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. New batch, fractional-unit or purchasing features would require new acceptance scenarios in addition to the present catalog.
+
+
+\FloatBarrier
+
+\section*{Appendix C Reproduction and evidence locations}
+
+\addcontentsline{toc}{section}{Appendix C Reproduction and evidence locations}
+
+The application is reproduced by installing the pinned project baseline, preparing local environment values, starting the Compose services and running the backend and browser client. The backend wrapper reads the repository's local environment and selects the local Java and Maven installations when present. The frontend wrapper selects the project Node baseline. Secrets remain in the local environment and are not included in this document.
+
+
+Backend integration tests use the current Docker socket for Testcontainers. On the recorded Colima host, DOCKER\_HOST points to its Unix socket. This is an execution-environment setting, not a business parameter. Frontend unit tests run through the pinned package scripts. The earlier operational browser script posts a demonstration receipt and review, whereas the expanded capture script opens draft forms without submitting business changes.
+
+
+\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
+\caption{Reproduction actions and their artifacts}\label{tab:reproduce}\\
+\toprule
+\textbf{Action} & \textbf{Repository entry point} & \textbf{Inspectable result} \\
+\midrule\endfirsthead
+\toprule
+\textbf{Action} & \textbf{Repository entry point} & \textbf{Inspectable result} \\
+\midrule\endhead
+\bottomrule\endfoot
+Start local infrastructure & docker-compose.yml & MySQL and Redis health checks \\
+Run backend & scripts/backend.sh spring-boot:run & Migrated schema and API health \\
+Run browser client & scripts/frontend.sh run dev & Responsive application on development port \\
+Backend integration suite & scripts/backend.sh test & Surefire result and test log \\
+Frontend unit suite & scripts/frontend.sh test & Three boundary-test results \\
+Operational browser journey & scripts/browser-smoke.mjs & Earlier write review and navigation evidence \\
+Expanded interface capture & scripts/capture-paper-ui.mjs & Screens and capture verification \\
+Cache benchmark & scripts/benchmark.py & Workload environment and raw latency samples \\
+Failure and persistence checks & scripts/fault-recovery.py and persistence-snapshot.py & Recovery and selected-row equality records \\
+Figure drawing & scripts/prepare-paper-diagrams.py & Editable diagrams and image exports \\
+Thesis assembly & scripts/build-expanded-thesis.py & Editable LaTeX manuscript and compiled PDF \\
+\end{longtable}\endgroup
+
+The figure collection includes a manifest of image dimensions, source paths, capture dates and content hashes. Code images preserve the original source line locations and exact excerpt text. The current result logs and historical raw measurements remain separate. These artifacts allow a reader to identify what was drawn, what was captured and what was measured, without treating every image as equivalent evidence.

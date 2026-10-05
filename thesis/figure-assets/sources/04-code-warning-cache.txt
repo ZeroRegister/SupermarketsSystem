@@ -1,0 +1,14 @@
+ @Transactional(readOnly=true) PageResult<WarningView> warningPage(String type,String state,int page,int size,boolean cacheEnabled){
+  String revision=Long.toString(revisions.findById(1L).map(r->r.revision).orElse(0L));String key="warning:"+revision+":"+type+":"+state+":"+page+":"+size;
+  if(cacheEnabled)try{String value=redis.opsForValue().get(key);if(value!=null)return decodePage(value);}catch(Exception ignored){}
+  Pageable pageable=PageRequest.of(Math.max(page,0),Math.min(Math.max(size,1),100));Page<WarningEpisode> result;
+  WarningType selectedType=type==null||type.isBlank()?null:WarningType.valueOf(type.toUpperCase(Locale.ROOT));
+  if("open".equalsIgnoreCase(state))result=selectedType==null?warnings.activeWarnings(WarningState.OPEN,pageable):selectedType==WarningType.RESTOCKED?warnings.activeRestocked(WarningState.OPEN,pageable):warnings.findByTypeAndStateOrderByCreatedAtDesc(selectedType,WarningState.OPEN,pageable);
+  else if("resolved".equalsIgnoreCase(state))result=selectedType==null?warnings.findByStateOrderByCreatedAtDesc(WarningState.RESOLVED,pageable):warnings.findByTypeAndStateOrderByCreatedAtDesc(selectedType,WarningState.RESOLVED,pageable);
+  else result=selectedType==null?warnings.findAllByOrderByCreatedAtDesc(pageable):warnings.findByTypeOrderByCreatedAtDesc(selectedType,pageable);
+  var filtered=result.map(WarningView::of);
+  // Filter in SQL before pagination so totals describe the selected warning type.
+  PageResult<WarningView> response=new PageResult<>(filtered.getContent(),filtered.getNumber(),filtered.getSize(),filtered.getTotalElements(),filtered.getTotalPages());
+  if(cacheEnabled)try{redis.opsForValue().set(key,new com.fasterxml.jackson.databind.ObjectMapper().findAndRegisterModules().disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).writeValueAsString(response),props.cacheTtlSeconds(),TimeUnit.SECONDS);}catch(Exception ignored){}
+  return response;
+ }

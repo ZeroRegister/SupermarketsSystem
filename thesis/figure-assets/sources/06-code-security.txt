@@ -1,0 +1,15 @@
+ @Bean SecurityFilterChain security(HttpSecurity http,UserRefreshFilter refresh)throws Exception {
+   CookieCsrfTokenRepository repo=CookieCsrfTokenRepository.withHttpOnlyFalse();
+   CsrfTokenRequestAttributeHandler csrfHandler=new CsrfTokenRequestAttributeHandler();
+   http.csrf(c->c.csrfTokenRepository(repo).csrfTokenRequestHandler(csrfHandler))
+    .authorizeHttpRequests(a->a.requestMatchers("/api/auth/csrf","/api/auth/login","/actuator/health").permitAll()
+      .requestMatchers("/api/auth/**").authenticated()
+      .requestMatchers(HttpMethod.GET,"/api/settings").authenticated()
+      .requestMatchers("/api/users/**","/api/settings/**").hasRole("ADMIN")
+      .requestMatchers(HttpMethod.PATCH,"/api/products/*/thresholds").hasAnyRole("ADMIN","MANAGER")
+      .requestMatchers(HttpMethod.POST,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
+      .requestMatchers(HttpMethod.PUT,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
+      .requestMatchers(HttpMethod.DELETE,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
+      .requestMatchers("/api/warnings/**","/api/reports/**","/api/dashboard").hasAnyRole("ADMIN","MANAGER")
+      .requestMatchers(HttpMethod.POST,"/api/transactions").hasAnyRole("ADMIN","CLERK")
+      .anyRequest().authenticated())
