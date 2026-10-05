@@ -1,0 +1,13 @@
+\chapter{IMPLEMENTATION}
+\section{Development of information system classes}
+The backend contains domain entities, repositories, validated request records, response records, controllers, a central inventory service, and security configuration. Flyway creates the schema and JPA validates it at startup. The service owns the stock transaction boundary. Quantity is not writable through catalog input. The startup demonstration seed runs only for an empty user table and requires an explicit local password.
+\section{Development of software routing and paths}
+The API includes authentication, dashboard, products, categories, suppliers, transactions, warnings, users, settings, and report paths. Product queries support search, category, health, archive, page, size, and allow-listed sort parameters. Transaction requests use a movement type, quantity, reason, and idempotency key. Warning requests accept lifecycle/type filters and a cache bypass parameter for evaluation.
+\section{Implementation of software functions}
+The dashboard reports current product count, low-stock count, out-of-stock count, estimated current-price value, movement count, recent activity, category mix, and priority warnings. The inventory view supports empty states, filters, pagination, CSV export, and product administration. The stock form distinguishes positive receiving/dispatch quantities, signed adjustments, and absolute counts. The warning board shows quantity, threshold, detection time, reviewer, and acknowledgement state.
+\fig[0.45]{ui-dashboard.png}{Implemented dashboard for the current store state.}{fig:aligned-dashboard}
+\fig[0.45]{ui-warnings.png}{Implemented warning board with independent review status.}{fig:aligned-warnings}
+\section{Version control and semantic versioning management}
+The project uses logical commits for bootstrap, design, inventory implementation, frontend implementation, thesis evidence, and layout corrections. The public repository excludes SPEC.md, local environment files, databases, dependencies, and build intermediates. Release tags identify the submission package and the later portrait-page and compact-pagination corrections.
+\section{Information system deploying}
+Docker Compose starts MySQL and Redis. The backend runs with Java 21 and Maven, while the frontend runs with Node 22 and Vite during development. A clean setup copies .env.example, starts containers, runs migration at application startup, and launches the browser client. Production deployment would require TLS, secure cookies, a secrets manager, backups, rate limiting, and a shared session strategy for multiple application nodes.

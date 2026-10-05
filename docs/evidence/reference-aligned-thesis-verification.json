@@ -1,0 +1,8 @@
+{
+  "pdf": "dist/shelfwise-reference-aligned-thesis.pdf",
+  "pages": 23,
+  "structure": ["WORK OVERVIEW", "OBJECT ANALYSIS", "ASSIGNMENT OF TASKS", "DESIGN", "IMPLEMENTATION", "SYSTEM TESTING", "CONCLUSION", "REFERENCES"],
+  "references_resolved": true,
+  "visual_review": "Rendered title page, contents, object analysis, implementation, testing and bibliography pages; no clipping or rotated pages observed.",
+  "source_reference": "docs/_MasterThesiseExample.docx"
+}

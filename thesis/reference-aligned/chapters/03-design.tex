@@ -1,0 +1,13 @@
+\chapter{DESIGN}
+\section{System architecture design}
+The system is a modular monolith with a Vue browser client, Spring Boot application, MySQL database, and Redis cache. The browser submits intentions; the server validates role, reason, quantity, and idempotency; MySQL commits durable state; Redis may serve a versioned warning page. This layout makes the source of truth explicit and avoids distributing a single stock balance across services.
+\fig[0.48]{architecture.png}{Runtime architecture and data ownership.}{fig:aligned-architecture}
+\section{Refining the architecture design}
+The backend is divided into authentication, catalog, inventory transaction, warning, and reporting responsibilities. The request path locks one product before calculating a new balance. A successful movement changes quantity, writes the ledger, evaluates warning state, and increments the cache revision in one transaction. A cache read uses the revision, warning type, lifecycle state, page, and size as its key. Redis failures fall back to MySQL.
+\fig[0.54]{stock-workflow.png}{Stock movement transaction and warning update flow.}{fig:aligned-workflow}
+\section{Database design}
+Products reference categories and optional suppliers. Inventory transactions reference products and actors. Warning episodes reference products and optional reviewers. Unique constraints protect SKU, barcode, username, and actor/idempotency-key combinations. Product quantity is bounded at the database and service layers. Historical products are archived instead of deleted.
+\section{Role permission model}
+\begin{table}[H]\centering\small\caption{Role permission model.}\begin{tabularx}{\textwidth}{Yccc}\toprule Operation & Administrator & Manager & Clerk\\\midrule Read inventory/history & Yes & Yes & Yes\\ Post stock movement & Yes & No & Yes\\ Edit product identity & Yes & No & No\\ Edit thresholds & Yes & Yes & No\\ Review warnings/reports & Yes & Yes & No\\ Manage users/settings & Yes & No & No\\\bottomrule\end{tabularx}\end{table}
+\section{Security layered architecture}
+Authentication uses a server session, BCrypt password hashes, CSRF tokens for unsafe browser methods, and server-side role checks. A request filter reloads the current enabled user and role from MySQL, so access changes apply without trusting an old session authority. The security model follows the basic role-bundle idea of RBAC~\citep{sandhu1996}. It does not claim production-grade MFA, rate limiting, password recovery, or penetration testing.

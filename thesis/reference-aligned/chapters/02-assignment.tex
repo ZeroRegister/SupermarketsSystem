@@ -1,0 +1,17 @@
+\chapter{ASSIGNMENT OF TASKS}
+\section{Definition of requirements for the software system}
+The system shall authenticate users and enforce administrator, manager, and clerk permissions. It shall support product, category, and supplier records, searchable inventory with pagination, and an immutable accepted movement history. It shall provide receiving, dispatch, signed adjustment, and absolute stocktake operations. It shall generate LOW, OUT, and RESTOCKED warning episodes, record acknowledgement separately, and expose reports suitable for inspection.
+
+Non-functional requirements concern correctness, reproducibility, and recovery. A duplicate request must not create a second movement when it reuses the same actor-scoped key. Concurrent dispatches must not oversell a product. Redis failure must not remove authoritative warning results. A restart must preserve products and inventory history. The repository must contain pinned versions, migrations, environment examples, and executable validation commands.
+\begin{table}[H]\centering\small\caption{Requirements and acceptance evidence.}\label{tab:req-aligned}\begin{tabularx}{\textwidth}{p{0.10\textwidth}YY}\toprule ID & Requirement & Evidence \\\midrule
+R1 & Authentication and role protection & API and integration permission checks; browser route guards.\\
+R2 & Catalog and reference records & Validation, uniqueness, foreign-key and archive checks.\\
+R3 & Audited stock movement & Before/delta/after history, reason, actor, and transaction rollback.\\
+R4 & Warning and acknowledgement model & Threshold, recovery, expiry, and review tests.\\
+R5 & Reproducible execution & Compose, migrations, lockfiles, CI, and thesis build.\\\bottomrule\end{tabularx}\end{table}
+\section{Description of system analogy}
+Commercial inventory platforms commonly combine product records, stock ledgers, thresholds, and replenishment workflows. This project adopts the useful explanatory mechanisms while keeping scope smaller. It follows the idea of reordering boundaries documented by Odoo~\citep{odoo}, and the retained movement explanations described by ERPNext~\citep{erpnext,erpnext-stock}. It does not claim feature parity with either product or implement automatic procurement.
+\section{Technology selection and comparative analysis}
+Spring Boot was selected for a Java 21 backend with validation, security, JPA locking, Flyway migrations, and actuator health checks. Vue 3 and TypeScript provide a component-based browser application with routing and role-aware navigation~\citep{vue}. MySQL is the source of truth because row locks and transactional constraints matter to the stock invariant. Redis provides an optional cache-aside path with TTL and revision-key invalidation~\citep{redis-cache}. Docker Compose makes local MySQL and Redis versions explicit. Testcontainers supplies disposable real-service integration environments~\citep{testcontainers}.
+
+The alternatives were not rejected because they are technically incapable. PostgreSQL, another frontend framework, or a separate service architecture could implement the same domain. The selected stack fits the required baseline and keeps one transaction boundary visible for a small single-store system. REST-style JSON routes follow resource-oriented practice without claiming full statelessness, because the application uses server sessions~\citep{fielding2000}.

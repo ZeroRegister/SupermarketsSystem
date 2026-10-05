@@ -9,6 +9,8 @@ frontend/playwright-report/
 *.tsbuildinfo
 thesis/build/
 thesis/chinese/build/
+thesis/reference-aligned/build/
+thesis/reference-aligned/build-old-*/
 .DS_Store
 .idea/
 .vscode/

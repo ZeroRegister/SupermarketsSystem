@@ -1,0 +1,16 @@
+\chapter{OBJECT ANALYSIS}
+\section{Description of the subject area}
+A small supermarket receives products, sells or dispatches products, performs physical counts, and corrects differences caused by damage or recording mistakes. The same product can therefore pass through several operational states in one day. Staff need a current quantity, but they also need a trustworthy explanation of that quantity when a delivery is incomplete, a shelf is unexpectedly empty, or a later count disagrees with the system.
+
+The object of analysis is a single-store inventory workflow. A product has an identity (SKU, optional barcode, name, unit, category, supplier, and price), a current quantity, and two policy values: safety stock and reorder threshold. A movement has a type, signed effect, reason, actor, timestamp, and before/after balances. A warning is an episode derived from quantity and threshold state; it is not merely a coloured field on the product row.
+
+The system deliberately excludes multi-store tenancy, payment, accounting, procurement settlement, forecasting, batch traceability, and fractional units. These exclusions make the consistency problem observable. Adding any of those capabilities would require new entities, policies, and evaluation data.
+\section{Construction of the conceptual model}
+The conceptual model distinguishes durable facts from derived views. Products store the current balance for fast reads. Inventory transactions preserve accepted changes. Warning episodes preserve transitions between shortage, recovery, and review. Users provide roles and actor identity. Categories and suppliers classify products without being copied into every transaction. Settings and a cache revision support presentation and query invalidation.
+\fig[0.52]{erd.png}{Core data model for products, users, inventory movements, warnings, and cache revision.}{fig:object-erd}
+
+The central invariant is
+\begin{equation}q_{new}=q_{old}+\Delta,\qquad 0\leq q_{new}\leq 10^9.\end{equation}
+The server derives $\Delta$ for stocktake requests and never accepts a client-provided before/after pair as authoritative. The object model therefore connects a displayed number with an explanation and an actor.
+\section{Operational actors}
+The administrator maintains the catalog and access model. The store manager interprets warnings, configures thresholds, and reads reports. The stock clerk records operational movements. All roles can inspect inventory and history. The model intentionally separates the authority to post stock from the authority to acknowledge a warning, because these actions represent different facts.

@@ -1,0 +1,54 @@
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,microtype}
+\usepackage[margin=30mm,headheight=16pt]{geometry}
+\usepackage{setspace,graphicx,booktabs,tabularx,array,amsmath,amssymb}
+\usepackage{caption,float,longtable,xcolor,fancyhdr,listings}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{bookmark}
+\graphicspath{{../figures/}}
+\onehalfspacing
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.25em}
+\setlength{\emergencystretch}{3em}
+\pagestyle{fancy}\fancyhf{}\fancyhead[L]{\small\nouppercase{\leftmark}}\fancyhead[R]{\small Shelfwise}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0.3pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+\captionsetup{font=small,labelfont=bf,skip=7pt}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\fig}[4][0.56]{\begin{figure}[H]\centering\includegraphics[width=\textwidth,height=#1\textheight,keepaspectratio]{#2}\caption{#3}\label{#4}\end{figure}}
+\lstset{basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{gray!7},frame=single,breaklines=true,columns=fullflexible,showstringspaces=false}
+\hypersetup{pdftitle={Development of an Inventory and Stock Warning System for Small Supermarkets},pdfauthor={Author Name (Placeholder)}}
+\begin{document}
+\begin{titlepage}\centering
+{\large UNIVERSITY NAME (PLACEHOLDER)\par}\vspace{0.4em}{\large Department / School Name (Placeholder)\par}
+\vfill{\Large\bfseries MASTER'S THESIS\par}\vspace{1em}{\LARGE Development of an Inventory and Stock Warning System for Small Supermarkets\par}\vspace{2em}{\large Degree Title (Placeholder)\par}
+\vfill\begin{tabular}{p{0.42\textwidth}p{0.42\textwidth}}Master's degree student & Author Name (Placeholder)\\[1em]Supervisor & Supervisor Name (Placeholder)\\\end{tabular}
+\vfill{\large City (Placeholder) 2026\par}\end{titlepage}
+\pagenumbering{roman}
+\chapter*{WORK OVERVIEW}\addcontentsline{toc}{chapter}{WORK OVERVIEW}
+\section*{Research purpose and objectives}
+The purpose of this work is to design and develop a reproducible web-based inventory and stock-warning system for a small supermarket. The project focuses on three operational questions: how the current stock position is known, how every quantity change can be explained, and how staff can identify products that need attention before a shelf becomes empty.
+
+The objectives are to analyse a single-store inventory domain; define a role and permission model; design a relational inventory ledger and warning lifecycle; implement a Spring Boot and Vue 3 application backed by MySQL and Redis; verify duplicate, concurrent, invalid, and failure scenarios; and prepare evidence suitable for a software-engineering thesis.
+\section*{Technical contribution}
+The implemented system combines four mechanisms in one auditable path: a product row lock for concurrent stock changes, actor-scoped idempotency keys for retries, persisted warning episodes that separate stock recovery from acknowledgement, and revision-keyed Redis caching that falls back to MySQL. The project presents these as engineering design decisions and verified behaviors rather than as new algorithms.
+\section*{Submission and artifact requirements}
+The deliverables are the runnable system, schema migration, API and deployment documentation, source diagrams, reproducibility scripts, evidence data, and this English thesis. The author, university, department, degree, supervisor, and student number remain placeholders because they were not supplied. No institutional compliance or real-store trial is claimed.
+\section*{Personal contribution}
+The implementation covers the domain analysis, API and database design, backend and frontend development, security configuration, integration tests, browser checks, performance measurement, failure testing, evidence capture, and thesis preparation. All reported measurements are from the repository's scripts and local validation environment.
+\section*{Structure and scope of the thesis}
+Chapter 1 introduces the supermarket inventory domain and the object of analysis. Chapter 2 defines the assignment, requirements, related systems, and technology choices. Chapter 3 designs the architecture, database, permissions, and security boundaries. Chapter 4 describes implementation, routing, core functions, versioning, and deployment. Chapter 5 reports functional, integration, browser, performance, and recovery tests. The conclusion answers the project questions and states the limitations.
+\tableofcontents\listoffigures\listoftables\clearpage\pagenumbering{arabic}
+\include{chapters/01-object-analysis}
+\include{chapters/02-assignment}
+\include{chapters/03-design}
+\include{chapters/04-implementation}
+\include{chapters/05-testing}
+\chapter*{CONCLUSION}\addcontentsline{toc}{chapter}{CONCLUSION}
+The project produced a working single-store inventory and warning system with an auditable stock movement path. MySQL remains the source of truth, while Redis is an optional read accelerator. Tests support non-negative stock under the selected concurrency cases, exact retry behavior, role boundaries, warning lifecycle transitions, and database fallback during Redis failure. The results do not establish a production SLA, business benefit, or real-store usability outcome. Whole-unit stock, manual thresholds, single-node sessions, and the absence of a field study remain important limits.
+
+The next work should validate the workflow with store staff, add the domain controls required for batches and fractional units, test backup restoration and security hardening, and evaluate a point-of-sale integration. Automatic purchasing and forecasting should be considered only after demand and supplier data are available.
+\bibliographystyle{plainnat}\bibliography{references}
+\end{document}
