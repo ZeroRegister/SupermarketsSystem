@@ -1,7 +1,7 @@
 name: shelfwise
 services:
   mysql:
-    image: mysql:8.4.8
+    image: ${SHELFWISE_MYSQL_IMAGE:?Set SHELFWISE_MYSQL_IMAGE in the release env file}
     environment:
       MYSQL_DATABASE: shelfwise
       MYSQL_USER: shelfwise
@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   redis:
-    image: redis:7.4.9-alpine
+    image: ${SHELFWISE_REDIS_IMAGE:?Set SHELFWISE_REDIS_IMAGE in the release env file}
     command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]

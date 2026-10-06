@@ -47,14 +47,13 @@ git tag v1.2.0
 git push origin v1.2.0
 ```
 
-The GitHub repository owner must make the GHCR packages public for password-free pulls, or the recipient must sign in to GHCR with a GitHub token that has package read access. On the Windows deployment machine, copy `.env.release.example` to `.env.release`, replace the image prefix and passwords, then run in PowerShell:
+The GitHub repository owner must make all four GHCR packages public for password-free pulls, or the recipient must sign in to GHCR with a GitHub token that has package read access. The release workflow mirrors the pinned official MySQL and Redis manifests into the repository namespace, so the recipient does not need Docker Hub access during deployment. On the Windows deployment machine, copy `.env.release.example` to `.env.release`, replace the image prefix and passwords, then run in PowerShell:
 
 ```powershell
-docker compose --env-file .env.release -f docker-compose.release.yml pull
-docker compose --env-file .env.release -f docker-compose.release.yml up -d --wait
+powershell -ExecutionPolicy Bypass -File .\scripts\start-release.ps1
 ```
 
-The recipient then opens `http://localhost:5173`. This route does not run Maven, npm or a local source build; Docker only downloads the prebuilt application images and the pinned MySQL/Redis images. Set `SHELFWISE_IMAGE_TAG` to a version such as `1.2.0` when the deployment should remain on a fixed release. The MySQL volume is still created locally and must be backed up separately.
+The script first pulls the frontend, backend, MySQL and Redis images from GHCR. If the GHCR pull fails, it retries only the database images from Docker Hub; this is a fallback for environments where the GHCR infrastructure mirrors are unavailable. If Docker Hub is blocked, the first GHCR attempt remains the working path. The recipient then opens `http://localhost:5173`. This route does not run Maven, npm or a local source build. Set `SHELFWISE_IMAGE_TAG` to a version such as `1.2.1` when the deployment should remain on a fixed release. The MySQL volume is still created locally and must be backed up separately.
 
 Demonstration accounts are seeded only for an empty user table when `DEMO_ENABLED=true` and the supplied password has at least 12 characters. The same temporary password is used for `admin`, `manager`, and `clerk`. The seeder adds a fictitious product catalog and opening-stock transactions, never real user data. Turn off demonstration seeding before deployment; it does not reset existing passwords or add new users after the first administrator exists. Create real team members through the admin interface.
 
