@@ -12,6 +12,9 @@
 .metric-foot:not(.metric-link),.quick-action small,.view-footnote,.report-disclaimer,.report-metric>small,.role-card>span:last-child,.history-intro>small,.history-intro>span>small,.settings-section-head small,.settings-actions>span,.settings-form .field-help{display:none}
 .quick-action>span:nth-child(2){gap:0}
 .store-switch{cursor:pointer;text-align:left;color:inherit;font:inherit}
-.icon-action>.el-icon{position:static;width:auto;height:auto;display:inline-flex;font-size:18px}
+.icon-action>.el-icon{position:static;width:auto;height:auto;display:inline-flex;font-size:18px;background:transparent;border:0;border-radius:0;box-shadow:none}
 .icon-action>.notification-dot{position:absolute;width:7px;height:7px;display:block;border-radius:50%;background:#e17d5d;border:1.5px solid white;top:6px;right:6px}
 .top-avatar{cursor:pointer}
+.warning-row-icon .el-icon{width:auto;height:auto;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+.warning-icon-out{color:#b85d68;background:#fae9ec}
+.warning-icon-low{color:#b47b2e;background:#fff2dd}
