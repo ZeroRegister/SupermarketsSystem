@@ -33,6 +33,15 @@ class InventoryIntegrationTest {
  @Autowired BatchInventory batches;
  @Autowired WarningRules rules;
  @Autowired Purchasing purchasing;
+ @Autowired StockReviews reviews;
+ @Test void approvedDisposalClearsBatchWarningAndReplayDoesNotRepeat(){
+  Product p=fresh();service.move(new TransactionInput(p.id,MovementType.STOCK_IN,4L,"Expired receipt",UUID.randomUUID().toString(),"waste",null,batches.today().minusDays(1),null),"admin");
+  var batch=batches.list(p.id,0,20).items().getFirst();var r=reviews.submit(new StockReviewInput("DISPOSAL",p.id,batch.id(),4,"Expired batch"),"clerk");assertThat(service.product(p.id).quantity()).isEqualTo(4);
+  var a=reviews.act(r.id(),new StockReviewAction("APPROVE","Verified expiry"),"manager");var b=reviews.act(r.id(),new StockReviewAction("APPROVE","Replay"),"manager");assertThat(a.transactionId()).isEqualTo(b.transactionId());assertThat(service.product(p.id).quantity()).isZero();
+  assertThat(service.warningPage("EXPIRED","open",0,100,false).items()).noneMatch(w->w.productId().equals(p.id));
+ }
+ @Test void staleStockCountCannotOverwriteConcurrentReceipt(){Product p=fresh();var r=reviews.submit(new StockReviewInput("COUNT",p.id,null,2,"Count"),"clerk");service.move(movement(p,MovementType.STOCK_IN,3,UUID.randomUUID().toString()),"admin");assertThatThrownBy(()->reviews.act(r.id(),new StockReviewAction("APPROVE","Checked"),"manager")).isInstanceOf(DomainException.class).hasMessageContaining("snapshot");assertThat(service.product(p.id).quantity()).isEqualTo(3);}
+ @Test void clerkCannotBypassAdjustmentApproval()throws Exception{Product p=fresh();mvc.perform(post("/api/transactions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content(mapper.writeValueAsString(movement(p,MovementType.ADJUSTMENT,3,UUID.randomUUID().toString())))).andExpect(status().isForbidden());mvc.perform(post("/api/stock-reviews/1/actions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content("{\"action\":\"APPROVE\",\"note\":\"Checked\"}")).andExpect(status().isForbidden());}
  @Test void purchasePartialReceiptReplayAndCancellationPreserveInventory(){
   Product p=fresh();var supplier=service.createSupplier(new SupplierInput("Vendor "+UUID.randomUUID(),null,null,null));
   var o=purchasing.save(null,new PurchaseInput(supplier.id,List.of(new PurchaseLineInput(p.id,10)),"Replenish",null),"clerk");
