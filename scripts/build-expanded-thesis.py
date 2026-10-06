@@ -165,9 +165,9 @@ def build_tex():
 \setlength{\textfloatsep}{6pt}
 \setlength{\floatsep}{6pt}
 \setlength{\intextsep}{6pt}
-\setstretch{1.15}
+\setstretch{1.0}
 \setlength{\parindent}{0.65cm}
-\setlength{\parskip}{2.5pt}
+\setlength{\parskip}{1.5pt}
 \setlength{\emergencystretch}{3em}
 \setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{2}
