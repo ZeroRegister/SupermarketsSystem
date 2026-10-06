@@ -50,6 +50,7 @@ enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
     @Column(nullable=false,length=40) String unit="pcs";
     @Column(nullable=false,precision=12,scale=2) BigDecimal price=BigDecimal.ZERO;
     @Column(nullable=false) long quantity=0;
+    @Column(nullable=false) long sellableQuantity=0;
     @Column(nullable=false) long safetyStock=0;
     @Column(nullable=false) long reorderThreshold=0;
     @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="category_id") Category category;
@@ -70,6 +71,7 @@ enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
     @Column(nullable=false) long quantityAfter;
     @Column(nullable=false,length=300) String reason;
     @Column(name="idempotency_key",nullable=false,length=80) String idempotencyKey;
+    @Column(nullable=false,length=500) String requestMetadata="";
     @Column(nullable=false) Instant createdAt=Instant.now();
     protected InventoryTransaction(){}
 }

@@ -36,6 +36,7 @@ class SecurityConfig {
       .requestMatchers(HttpMethod.PUT,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
       .requestMatchers(HttpMethod.DELETE,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
       .requestMatchers("/api/warnings/**","/api/reports/**","/api/dashboard").hasAnyRole("ADMIN","MANAGER")
+      .requestMatchers(HttpMethod.POST,"/api/batches/*/control").hasAnyRole("ADMIN","MANAGER")
       .requestMatchers(HttpMethod.POST,"/api/transactions").hasAnyRole("ADMIN","CLERK")
       .anyRequest().authenticated())
     .formLogin(f->f.disable()).httpBasic(b->b.disable())

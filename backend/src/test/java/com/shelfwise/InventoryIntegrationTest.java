@@ -30,6 +30,31 @@ class InventoryIntegrationTest {
  @Autowired InventoryService service; @Autowired ProductRepository products; @Autowired TransactionRepository transactions; @Autowired WarningRepository warnings;
  @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;
  @Autowired WarningWorkflow workflow;
+ @Autowired BatchInventory batches;
+ @Test void batchDispatchUsesFefoAndExcludesExpiredOrQuarantined(){
+  Product p=fresh();var today=batches.today();
+  service.move(new TransactionInput(p.id,MovementType.STOCK_IN,4L,"Early",UUID.randomUUID().toString(),"early",null,today.plusDays(1),null),"admin");
+  service.move(new TransactionInput(p.id,MovementType.STOCK_IN,6L,"Late",UUID.randomUUID().toString(),"late",null,today.plusDays(5),null),"admin");
+  service.move(new TransactionInput(p.id,MovementType.STOCK_IN,3L,"Expired",UUID.randomUUID().toString(),"expired",null,today.minusDays(1),null),"admin");
+  assertThat(service.product(p.id).quantity()).isEqualTo(13);assertThat(service.product(p.id).sellableQuantity()).isEqualTo(10);
+  var out=service.move(movement(p,MovementType.STOCK_OUT,5,UUID.randomUUID().toString()),"clerk");
+  assertThat(batches.transactionAllocations(out.id())).extracting(AllocationView::batchNumber).containsExactly("early","late");
+  assertThat(batches.transactionAllocations(out.id())).extracting(AllocationView::delta).containsExactly(-4L,-1L);
+  var late=batches.list(p.id,0,100).items().stream().filter(b->b.batchNumber().equals("late")).findFirst().orElseThrow();
+  batches.control(late.id(),new BatchControlInput(true,"Damaged packaging"),"manager");service.refreshWarning(p.id);
+  assertThat(service.product(p.id).sellableQuantity()).isZero();
+  assertThatThrownBy(()->service.move(movement(p,MovementType.STOCK_OUT,1,UUID.randomUUID().toString()),"admin")).isInstanceOf(DomainException.class);
+  assertThat(service.product(p.id).quantity()).isEqualTo(8);
+ }
+ @Test void receiptReplayChecksBatchMetadataAndRollsBackInvalidDates(){
+  Product p=fresh();String key=UUID.randomUUID().toString();
+  var in=new TransactionInput(p.id,MovementType.STOCK_IN,3L,"Receipt",key,"a",null,batches.today(),null);
+  assertThat(service.move(in,"admin").id()).isEqualTo(service.move(in,"admin").id());
+  assertThatThrownBy(()->service.move(new TransactionInput(p.id,MovementType.STOCK_IN,3L,"Receipt",key,"b",null,batches.today(),null),"admin")).isInstanceOf(DomainException.class);
+  assertThat(batches.list(p.id,0,100).totalElements()).isEqualTo(1);
+  assertThatThrownBy(()->service.move(new TransactionInput(p.id,MovementType.STOCK_IN,3L,"Invalid",UUID.randomUUID().toString(),"bad",batches.today(),batches.today().minusDays(1),null),"admin")).isInstanceOf(DomainException.class);
+  assertThat(service.product(p.id).quantity()).isEqualTo(3);
+ }
  @Test void warningHandlingKeepsConditionAndAudit(){
   Product p=fresh();var w=service.warningPage("OUT","open",0,100,false).items().stream().filter(x->x.productId().equals(p.id)).findFirst().orElseThrow();
   var manager=service.userList().stream().filter(u->u.username().equals("manager")).findFirst().orElseThrow();

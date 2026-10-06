@@ -4,18 +4,23 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 
 record ProductInput(@NotBlank @Size(max=64) String sku,@Size(max=64) String barcode,@NotBlank @Size(max=180) String name,
  @NotBlank @Size(max=40) String unit,@NotNull @DecimalMin("0.00") @Digits(integer=10,fraction=2) BigDecimal price,
  @NotNull @PositiveOrZero Long safetyStock,@NotNull @PositiveOrZero Long reorderThreshold,@Positive Long categoryId,@Positive Long supplierId) {}
 record TransactionInput(@NotNull Long productId,@NotNull MovementType type,@NotNull @Min(-1000000000) @Max(1000000000) Long quantity,
- @NotBlank @Size(max=300) String reason,@NotBlank @Size(max=80) String idempotencyKey) {}
+ @NotBlank @Size(max=300) String reason,@NotBlank @Size(max=80) String idempotencyKey,
+ @Size(max=80) String batchNumber,LocalDate productionDate,LocalDate expiryDate,Long batchId) {
+ TransactionInput(Long p,MovementType t,Long q,String r,String k){this(p,t,q,r,k,null,null,null,null);}
+ String metadata(){if(batchNumber==null&&productionDate==null&&expiryDate==null&&batchId==null)return "";return Objects.toString(batchNumber,"")+"|"+Objects.toString(productionDate,"")+"|"+Objects.toString(expiryDate,"")+"|"+Objects.toString(batchId,"");}
+}
 record PageResult<T>(List<T> items,int page,int size,long totalElements,int totalPages) {
  static <T> PageResult<T> of(org.springframework.data.domain.Page<T> p){return new PageResult<>(p.getContent(),p.getNumber(),p.getSize(),p.getTotalElements(),p.getTotalPages());}
 }
-record ProductView(Long id,String sku,String barcode,String name,String unit,BigDecimal price,long quantity,long safetyStock,long reorderThreshold,String category,String supplier,boolean active,Instant updatedAt) {
- static ProductView of(Product p){return new ProductView(p.id,p.sku,p.barcode,p.name,p.unit,p.price,p.quantity,p.safetyStock,p.reorderThreshold,p.category==null?null:p.category.name,p.supplier==null?null:p.supplier.name,p.active,p.updatedAt);}
+record ProductView(Long id,String sku,String barcode,String name,String unit,BigDecimal price,long quantity,long safetyStock,long reorderThreshold,String category,String supplier,boolean active,Instant updatedAt,long sellableQuantity) {
+ static ProductView of(Product p){return new ProductView(p.id,p.sku,p.barcode,p.name,p.unit,p.price,p.quantity,p.safetyStock,p.reorderThreshold,p.category==null?null:p.category.name,p.supplier==null?null:p.supplier.name,p.active,p.updatedAt,p.sellableQuantity);}
 }
 record TransactionView(Long id,Long productId,String productName,MovementType type,long delta,long quantityBefore,long quantityAfter,String reason,String actor,Instant createdAt) {
  static TransactionView of(InventoryTransaction t){return new TransactionView(t.id,t.product.id,t.product.name,t.type,t.delta,t.quantityBefore,t.quantityAfter,t.reason,t.actor.displayName,t.createdAt);}
