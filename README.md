@@ -14,6 +14,8 @@ docker compose up -d --build --wait
 
 Open http://localhost:5173. The Compose stack builds and runs the Vue/Nginx frontend, Spring Boot backend, MySQL and Redis. With `DEMO_ENABLED=true`, the accounts `admin`, `manager`, and `clerk` use the password you supplied as `DEMO_PASSWORD`. Demo credentials are read only on initial creation; changing the environment does not overwrite existing accounts. Disable demonstration seeding for a real deployment. See [deployment](docs/deployment.md) for production setup, backups and recovery.
 
+For Windows delivery without a local Maven or Node.js build, use the prebuilt-image workflow described in [deployment](docs/deployment.md#prebuilt-image-delivery-for-windows). It downloads versioned frontend and backend images from GitHub Container Registry and starts the same Compose stack with Docker Desktop.
+
 ## Verification and artifacts
 
 ```sh
