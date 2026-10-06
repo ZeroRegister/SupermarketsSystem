@@ -27,25 +27,24 @@ def simple(name,title,chapter,labels,source):
  for a,b in zip(ids,ids[1:]):d.edge(a,b,style='exitX=0.5;exitY=1;entryX=0.5;entryY=0;')
  d.save()
 # Object analysis: function decomposition and module-specific UML use cases.
-d=Diagram('01-functional-model','Overall functional model',1,['docs/requirements.md','frontend/src/views/WorkspaceView.vue']);hub=d.node('Shelfwise\nSupermarket inventory management',440,40,340,80)
-mods=[('Identity and access',['Sign in / sign out','Manage staff and roles']),('Catalogue',['Products and thresholds','Categories and suppliers']),('Stock activity',['Receive / dispatch','Adjust / stocktake']),('Stock warnings',['Shortage episodes','Review and acknowledge']),('Reporting',['Inventory summary','Movement history / CSV'])]
+d=Diagram('01-functional-model','Overall functional model',1,['docs/requirements.md','frontend/src/views/WorkspaceView.vue']);hub=d.node('Shelfwise\nSupermarket inventory management',40,430,330,100,'rounded=1;fillColor=#e8eefb;');mods=[('Identity and access',['Sign in / sign out','Manage staff and roles']),('Catalogue',['Products and thresholds','Categories and suppliers']),('Stock activity',['Receive / dispatch','Adjust / stocktake']),('Stock warnings',['Shortage episodes','Review and acknowledge']),('Reporting',['Inventory summary','Movement history / CSV'])]
 for i,(title,items) in enumerate(mods):
- x=20+i*270;n=d.node(title,x,240,240,60,'fillColor=#f3f3f3;');d.edge(hub,n,style=f'exitX={(i+1)/6};exitY=1;entryX=0.5;entryY=0;',points=[(x+120,190)])
+ y=40+i*190;n=d.node(title,470,y,260,70,'fillColor=#f3f3f3;');d.edge(hub,n,'',style='exitX=1;exitY='+str(.18+i*.16)+';entryX=0;entryY=0.5;')
  for j,t in enumerate(items):
-  q=d.node(t,x,370+j*110,240,65);d.edge(n,q,style=f'exitX={.3+j*.4};exitY=1;entryX=0.5;entryY=0;',points=[(x-15 if j==1 else x+120,340+j*110)] if j==1 else None)
+  q=d.node(t,830,y+j*82,300,60);d.edge(n,q,'',style='exitX=1;exitY='+str(.35+j*.3)+';entryX=0;entryY=0.5;')
 d.save()
 def usecase(name,title,rows):
  d=Diagram(name,title+' use cases',1,['backend/src/main/java/com/shelfwise/SecurityConfig.java','docs/requirements.md'])
- actions=list(dict.fromkeys(action for role,acts in rows for action in acts));height=100+len(actions)*140
- boundary=d.node(title,240,20,620,height,'swimlane;startSize=40;container=1;pointerEvents=0;fontStyle=1;')
- cases={action:d.node(action,60,70+i*140,500,85,'ellipse;',parent=boundary) for i,action in enumerate(actions)}
+ actions=list(dict.fromkeys(action for role,acts in rows for action in acts));height=120+len(actions)*120
+ boundary=d.node(title,300,20,600,height,'swimlane;startSize=40;container=1;pointerEvents=0;fontStyle=1;')
+ cases={action:d.node(action,60,70+i*120,480,72,'ellipse;',parent=boundary) for i,action in enumerate(actions)}
  for role,acts in rows:
-  if role=='Administrator':x,y=20,110
-  elif role=='Stock clerk':x,y=20,max(340,height-220)
-  else:x,y=930,height//2-40
-  actor=d.node(role,x,y,130,120,'shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;')
+  side='right' if role=='Store manager' else 'left'; x=980 if side=='right' else 20
+  center=sum(70+actions.index(a)*120+36 for a in acts)/len(acts); y=max(60,min(height-140,center-55))
+  actor=d.node(role,x,y,150,110,'shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;')
   for action in acts:
-   d.edge(actor,cases[action],style='edgeStyle=none;endArrow=none;exitX='+('0' if x>240 else '1')+';exitY=0.35;exitPerimeter=0;entryX='+('1' if x>240 else '0')+';entryY=0.5;')
+   idx=actions.index(action); entry='1' if side=='right' else '0'; exitx='0' if side=='right' else '1'
+   d.edge(actor,cases[action],'',style=f'edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX={exitx};exitY=0.5;entryX={entry};entryY=0.5;')
  d.save()
 usecase('02-uc-catalogue','Catalogue management',[('Administrator',['Inspect inventory','Create or edit product','Archive product','Manage categories / suppliers','Update stock thresholds']),('Store manager',['Inspect inventory','Update stock thresholds']),('Stock clerk',['Inspect inventory'])])
 usecase('03-uc-stock','Stock activity',[('Administrator',['Receive stock','Dispatch stock','Adjust quantity','Record stocktake','Inspect movement history']),('Stock clerk',['Receive stock','Dispatch stock','Adjust quantity','Record stocktake','Inspect movement history']),('Store manager',['Inspect movement history'])])
