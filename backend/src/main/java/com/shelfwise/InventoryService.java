@@ -24,6 +24,7 @@ class InventoryService {
  @org.springframework.beans.factory.annotation.Autowired private WarningWorkflow workflow;
  @org.springframework.beans.factory.annotation.Autowired private BatchInventory batchInventory;
  @org.springframework.beans.factory.annotation.Autowired private WarningRules warningRules;
+ @org.springframework.beans.factory.annotation.Autowired private Clock clock;
  InventoryService(ProductRepository p,CategoryRepository c,SupplierRepository s,UserRepository u,TransactionRepository t,WarningRepository w,SettingRepository set,CacheRevisionRepository rev,StringRedisTemplate redis,PasswordEncoder encoder,ShelfwiseProperties props,EntityManager em){this.products=p;this.categories=c;this.suppliers=s;this.users=u;this.transactions=t;this.warnings=w;this.settings=set;this.revisions=rev;this.redis=redis;this.encoder=encoder;this.props=props;this.em=em;}
 
  @Transactional(readOnly=true) PageResult<ProductView> listProducts(String q,Long categoryId,String status,boolean archived,int page,int size,String sort,String direction){
@@ -65,9 +66,9 @@ class InventoryService {
   try{after=Math.addExact(p.quantity,delta);}catch(ArithmeticException e){throw bad("Quantity is outside the supported range");}
   if(after<0)throw bad("Insufficient stock: available quantity is "+p.quantity);if(after>1_000_000_000L)throw bad("Maximum stock quantity exceeded");
   InventoryTransaction t=new InventoryTransaction();t.product=p;t.actor=actor;t.type=in.type();t.delta=delta;t.quantityBefore=p.quantity;t.quantityAfter=after;t.reason=in.reason().trim();t.idempotencyKey=in.idempotencyKey();t.requestMetadata=in.metadata();
-  p.updatedAt=Instant.now();transactions.saveAndFlush(t);batchInventory.apply(p,t,in);p.quantity=after;updateWarning(p);invalidate();return TransactionView.of(t);
+  t.createdAt=clock.instant();p.updatedAt=t.createdAt;transactions.saveAndFlush(t);batchInventory.apply(p,t,in);p.quantity=after;updateWarning(p);invalidate();return TransactionView.of(t);
  }
- private long signedDelta(TransactionInput in){return switch(in.type()){case STOCK_IN->{if(in.quantity()<=0)throw bad("Stock-in quantity must be positive");yield in.quantity();}case STOCK_OUT->{if(in.quantity()<=0)throw bad("Stock-out quantity must be positive");yield -in.quantity();}case ADJUSTMENT->{if(in.quantity()==0)throw bad("Adjustment cannot be zero");yield in.quantity();}case STOCKTAKE->{yield in.quantity();}};}
+ private long signedDelta(TransactionInput in){return switch(in.type()){case STOCK_IN->{if(in.quantity()<=0)throw bad("Stock-in quantity must be positive");yield in.quantity();}case STOCK_OUT,SALE->{if(in.quantity()<=0)throw bad("Stock-out quantity must be positive");yield -in.quantity();}case ADJUSTMENT->{if(in.quantity()==0)throw bad("Adjustment cannot be zero");yield in.quantity();}case STOCKTAKE->{yield in.quantity();}};}
  @Transactional(readOnly=true) PageResult<TransactionView> history(Long productId,int page,int size){Pageable p=PageRequest.of(Math.max(page,0),Math.min(Math.max(size,1),100));var result=productId==null?transactions.findAllByOrderByCreatedAtDesc(p):transactions.findAllByProductIdOrderByCreatedAtDesc(productId,p);return PageResult.of(result.map(TransactionView::of));}
 
  @Transactional(readOnly=true) PageResult<WarningView> warningPage(String type,String state,int page,int size,boolean cacheEnabled){

@@ -32,7 +32,7 @@ record BatchActionView(boolean quarantined,String reason,String actor,Instant cr
  void recompute(Product p){p.sellableQuantity=batches.findByProductId(p.id).stream().filter(this::sellable).mapToLong(b->b.quantity).sum();}
  void seedBalance(Product p){if(p.quantity>0&&batches.findByProductId(p.id).isEmpty()){InventoryBatch b=new InventoryBatch();b.product=p;b.batchNumber="OPENING-"+p.id;b.receivedDate=today();b.quantity=p.quantity;batches.save(b);}recompute(p);}
  void apply(Product p,InventoryTransaction t,TransactionInput in){
-  if(in.batchId()!=null&&(t.delta>=0||in.type()==MovementType.STOCK_OUT))throw error("Batch selection is only supported for negative adjustments",400);
+  if(in.batchId()!=null&&(t.delta>=0||(in.type()==MovementType.STOCK_OUT||in.type()==MovementType.SALE)))throw error("Batch selection is only supported for negative adjustments",400);
   if(in.type()!=MovementType.STOCK_IN&&(in.batchNumber()!=null||in.expiryDate()!=null||in.productionDate()!=null))throw error("Batch dates are only supported for receipts",400);
   if(t.delta>0){
    if(in.productionDate()!=null&&in.productionDate().isAfter(today()))throw error("Production date cannot be in the future",400);
@@ -42,7 +42,7 @@ record BatchActionView(boolean quarantined,String reason,String actor,Instant cr
    InventoryBatch b=new InventoryBatch();b.product=p;b.batchNumber=number;b.receivedDate=today();b.productionDate=in.productionDate();b.expiryDate=in.expiryDate();b.quantity=t.delta;batches.save(b);allocate(t,b,t.delta);
   }else if(t.delta<0){
    List<InventoryBatch> candidates=new ArrayList<>(batches.findByProductId(p.id));
-   candidates.removeIf(b->b.quantity==0||(in.batchId()!=null&&!in.batchId().equals(b.id))||(in.type()==MovementType.STOCK_OUT&&!sellable(b)));
+   candidates.removeIf(b->b.quantity==0||(in.batchId()!=null&&!in.batchId().equals(b.id))||((in.type()==MovementType.STOCK_OUT||in.type()==MovementType.SALE)&&!sellable(b)));
    candidates.sort(Comparator.comparing((InventoryBatch b)->b.expiryDate,Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(b->b.receivedDate).thenComparing(b->b.id));
    long remaining=-t.delta;if(candidates.stream().mapToLong(b->b.quantity).sum()<remaining)throw error("Insufficient eligible batch stock",400);
    for(InventoryBatch b:candidates){long take=Math.min(remaining,b.quantity);if(take==0)break;b.quantity-=take;allocate(t,b,-take);remaining-=take;}

@@ -14,19 +14,25 @@ import org.springframework.web.bind.annotation.*;
  @Id Long id=1L;
  @Column(nullable=false) int nearExpiryDays=7;
  @Column(nullable=false,length=80) String businessTimezone="Asia/Shanghai";
+ @Column(nullable=false) int slowStockDays=30;
+ @Column(nullable=false) long slowStockMinimum=10;
  @Version long version;
 }
 interface WarningPolicyRepository extends JpaRepository<WarningPolicy,Long> {
  @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select p from WarningPolicy p where p.id=1") WarningPolicy locked();
 }
-record WarningPolicyInput(@Min(0) @Max(365) int nearExpiryDays,@NotBlank @Size(max=80) String businessTimezone) {}
-record WarningPolicyView(int nearExpiryDays,String businessTimezone,long version) {}
+record WarningPolicyInput(@Min(0) @Max(365) int nearExpiryDays,@NotBlank @Size(max=80) String businessTimezone,@Min(1) @Max(3650) int slowStockDays,@Min(1) @Max(1000000000) long slowStockMinimum) {
+ WarningPolicyInput(int days,String zone){this(days,zone,30,10);}
+}
+record WarningPolicyView(int nearExpiryDays,String businessTimezone,long version,int slowStockDays,long slowStockMinimum) {}
 
 @Service class WarningRules {
  private final WarningRepository warnings;private final BatchRepository batches;private final WarningWorkflow workflow;private final WarningPolicyRepository policies;private final CacheRevisionRepository revisions;private final Clock clock;
  WarningRules(WarningRepository w,BatchRepository b,WarningWorkflow f,WarningPolicyRepository p,CacheRevisionRepository r,Clock c){warnings=w;batches=b;workflow=f;policies=p;revisions=r;clock=c;}
- @Transactional(readOnly=true) WarningPolicyView policy(){WarningPolicy p=policies.findById(1L).orElseThrow();return new WarningPolicyView(p.nearExpiryDays,p.businessTimezone,p.version);}
- @Transactional WarningPolicyView configure(WarningPolicyInput in){try{ZoneId.of(in.businessTimezone());}catch(DateTimeException e){throw new DomainException("VALIDATION","Unknown business time zone",400);}WarningPolicy p=policies.locked();p.nearExpiryDays=in.nearExpiryDays();p.businessTimezone=in.businessTimezone();policies.flush();revisions.increment();return new WarningPolicyView(p.nearExpiryDays,p.businessTimezone,p.version);}
+ @org.springframework.beans.factory.annotation.Autowired private TransactionRepository transactions;
+ @Transactional(readOnly=true) WarningPolicyView policy(){return view(policies.findById(1L).orElseThrow());}
+ private WarningPolicyView view(WarningPolicy p){return new WarningPolicyView(p.nearExpiryDays,p.businessTimezone,p.version,p.slowStockDays,p.slowStockMinimum);}
+ @Transactional WarningPolicyView configure(WarningPolicyInput in){try{ZoneId.of(in.businessTimezone());}catch(DateTimeException e){throw new DomainException("VALIDATION","Unknown business time zone",400);}WarningPolicy p=policies.locked();p.nearExpiryDays=in.nearExpiryDays();p.businessTimezone=in.businessTimezone();p.slowStockDays=in.slowStockDays();p.slowStockMinimum=in.slowStockMinimum();policies.flush();revisions.increment();return view(p);}
  LocalDate today(){return clock.instant().atZone(ZoneId.of(policy().businessTimezone())).toLocalDate();}
  void refresh(Product p){
   WarningPolicy policy=policies.findById(1L).orElseThrow();LocalDate today=clock.instant().atZone(ZoneId.of(policy.businessTimezone)).toLocalDate();
@@ -36,6 +42,9 @@ record WarningPolicyView(int nearExpiryDays,String businessTimezone,long version
    boolean near=remaining&&!expired&&!b.quarantined&&!b.expiryDate.isAfter(today.plusDays(policy.nearExpiryDays));
    evaluate(p,b,WarningType.EXPIRED,expired,b.quantity,0);evaluate(p,b,WarningType.EXPIRING,near,b.quantity,policy.nearExpiryDays);
   }
+  Instant since=today.minusDays(policy.slowStockDays).atStartOfDay(ZoneId.of(policy.businessTimezone)).toInstant();
+  boolean slow=p.active&&p.sellableQuantity>=policy.slowStockMinimum&&!p.createdAt.isAfter(since)&&!transactions.existsByProductIdAndTypeAndCreatedAtGreaterThanEqual(p.id,MovementType.SALE,since);
+  evaluate(p,null,WarningType.SLOW,slow,p.sellableQuantity,policy.slowStockMinimum);
  }
  void evaluate(Product p,InventoryBatch batch,WarningType type,boolean condition,long quantity,long threshold){
   var events=warnings.findByProductIdAndState(p.id,WarningState.OPEN).stream().filter(w->w.type==type&&Objects.equals(w.batch==null?null:w.batch.id,batch==null?null:batch.id)).toList();

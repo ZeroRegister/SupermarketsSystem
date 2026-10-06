@@ -48,6 +48,16 @@ class InventoryIntegrationTest {
   assertThat(service.warningPage("EXPIRED","open",0,100,false).items()).noneMatch(w->w.productId().equals(p.id));
  }
  @Test void invalidTimezoneDoesNotChangePolicy(){var prior=rules.policy();assertThatThrownBy(()->rules.configure(new WarningPolicyInput(7,"Invalid/Zone"))).isInstanceOf(DomainException.class);assertThat(rules.policy()).isEqualTo(prior);}
+ @Test void slowStockUsesSalesOnlyAndPreservesOneContinuousEvent(){
+  Product p=fresh();service.move(movement(p,MovementType.STOCK_IN,20,UUID.randomUUID().toString()),"admin");
+  var now=Instant.now();org.mockito.Mockito.doReturn(now.plus(java.time.Duration.ofDays(31))).when(clock).instant();service.refreshWarning(p.id);
+  var slow=service.warningPage("SLOW","open",0,100,false).items().stream().filter(w->w.productId().equals(p.id)).findFirst().orElseThrow();
+  service.move(movement(p,MovementType.STOCK_OUT,1,UUID.randomUUID().toString()),"clerk");
+  assertThat(service.warningPage("SLOW","open",0,100,false).items()).anyMatch(w->w.id().equals(slow.id()));
+  service.move(movement(p,MovementType.SALE,1,UUID.randomUUID().toString()),"clerk");
+  service.refreshWarning(p.id);
+  assertThat(service.warningPage("SLOW","open",0,100,false).items()).noneMatch(w->w.productId().equals(p.id));
+ }
  @Test void batchDispatchUsesFefoAndExcludesExpiredOrQuarantined(){
   Product p=fresh();var today=batches.today();
   service.move(new TransactionInput(p.id,MovementType.STOCK_IN,4L,"Early",UUID.randomUUID().toString(),"early",null,today.plusDays(1),null),"admin");

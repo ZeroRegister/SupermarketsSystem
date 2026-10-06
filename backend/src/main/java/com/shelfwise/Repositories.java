@@ -17,6 +17,7 @@ interface ProductRepository extends JpaRepository<Product,Long>, JpaSpecificatio
  List<Product> findAllByActiveTrue();
 }
 interface TransactionRepository extends JpaRepository<InventoryTransaction,Long> {
+ boolean existsByProductIdAndTypeAndCreatedAtGreaterThanEqual(Long productId,MovementType type,Instant since);
  @EntityGraph(attributePaths={"product","actor"})
  Optional<InventoryTransaction> findByActorIdAndIdempotencyKey(Long actorId,String key);
  Page<InventoryTransaction> findAllByProductIdOrderByCreatedAtDesc(Long productId,Pageable pageable);

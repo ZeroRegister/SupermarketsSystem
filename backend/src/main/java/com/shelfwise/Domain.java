@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 enum Role { ADMIN, MANAGER, CLERK }
-enum MovementType { STOCK_IN, STOCK_OUT, ADJUSTMENT, STOCKTAKE }
-enum WarningType { LOW, OUT, RESTOCKED, EXPIRING, EXPIRED }
+enum MovementType { STOCK_IN, STOCK_OUT, SALE, ADJUSTMENT, STOCKTAKE }
+enum WarningType { LOW, OUT, RESTOCKED, EXPIRING, EXPIRED, SLOW }
 enum WarningState { OPEN, RESOLVED }
 enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
 
@@ -58,6 +58,7 @@ enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
     @Column(nullable=false) boolean active=true;
     @Version long version;
     @Column(nullable=false) Instant updatedAt=Instant.now();
+    @Column(nullable=false) Instant createdAt=Instant.now();
     protected Product(){}
 }
 
