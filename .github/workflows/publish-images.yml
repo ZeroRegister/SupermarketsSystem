@@ -73,7 +73,7 @@ jobs:
       - name: Mirror official image manifest to GHCR
         run: |
           source="${{ matrix.source }}"
-          target="${IMAGE_PREFIX}/${{ matrix.name }}"
+          target="${IMAGE_PREFIX,,}/${{ matrix.name }}"
           version="${source##*:}"
           docker buildx imagetools create --tag "${target}:${version}" "${source}"
           docker buildx imagetools create --tag "${target}:latest" "${source}"
