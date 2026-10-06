@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
  @Column(nullable=false) long snapshotQuantity;
  @Column(nullable=false) long snapshotVersion;
  @Column(nullable=false,length=300) String reason;
+ @Column(nullable=false,length=80) String requestKey;
  @Column(length=300) String reviewNote;
  @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="created_by",nullable=false) UserAccount createdBy;
  @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="reviewed_by") UserAccount reviewedBy;
@@ -29,18 +30,23 @@ import org.springframework.web.bind.annotation.*;
  Instant reviewedAt;
 }
 interface StockReviewRepository extends JpaRepository<StockReview,Long> {
+ Optional<StockReview> findByCreatedByIdAndRequestKey(Long userId,String key);
  @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select r from StockReview r where r.id=:id") Optional<StockReview> locked(@org.springframework.data.repository.query.Param("id")Long id);
 }
-record StockReviewInput(@NotBlank @Pattern(regexp="COUNT|DISPOSAL|ADJUSTMENT") String kind,@NotNull @Positive Long productId,Long batchId,@Min(-1000000000) @Max(1000000000) long quantity,@NotBlank @Size(max=300) String reason) {}
+record StockReviewInput(@NotBlank @Pattern(regexp="COUNT|DISPOSAL|ADJUSTMENT") String kind,@NotNull @Positive Long productId,Long batchId,@Min(-1000000000) @Max(1000000000) long quantity,@NotBlank @Size(max=300) String reason,@NotBlank @Size(max=80) String requestKey) {
+ StockReviewInput(String k,Long p,Long b,long q,String r){this(k,p,b,q,r,UUID.randomUUID().toString());}
+}
 record StockReviewAction(@NotBlank @Pattern(regexp="APPROVE|REJECT") String action,@NotBlank @Size(max=300) String note) {}
 record StockReviewView(Long id,String kind,String state,Long productId,String productName,String batchNumber,long quantity,long snapshotQuantity,String reason,String reviewNote,String createdBy,String reviewedBy,Long transactionId,Instant createdAt) {}
 @Service class StockReviews {
  private final StockReviewRepository reviews;private final ProductRepository products;private final BatchRepository batches;private final UserRepository users;private final TransactionRepository transactions;private final InventoryService inventory;private final Clock clock;
  @PersistenceContext private EntityManager em;
  StockReviews(StockReviewRepository r,ProductRepository p,BatchRepository b,UserRepository u,TransactionRepository t,InventoryService i,Clock c){reviews=r;products=p;batches=b;users=u;transactions=t;inventory=i;clock=c;}
- @Transactional StockReviewView submit(StockReviewInput in,String username){
+ @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED) StockReviewView submit(StockReviewInput in,String username){
   Product p=products.lockById(in.productId()).filter(x->x.active).orElseThrow(()->error("Active product required",400));
-  StockReview r=new StockReview();r.product=p;r.kind=in.kind();r.quantity=in.quantity();r.reason=in.reason().trim();r.createdBy=users.findByUsername(username).orElseThrow();r.createdAt=clock.instant();r.snapshotQuantity=p.quantity;r.snapshotVersion=p.version;
+  UserAccount actor=users.findByUsername(username).orElseThrow();var prior=reviews.findByCreatedByIdAndRequestKey(actor.id,in.requestKey());
+  if(prior.isPresent()){StockReview existing=prior.get();if(!existing.product.id.equals(in.productId())||!Objects.equals(existing.batch==null?null:existing.batch.id,in.batchId())||!existing.kind.equals(in.kind())||existing.quantity!=in.quantity()||!existing.reason.equals(in.reason().trim()))throw error("Request key used with a different review",409);return view(existing);}
+  StockReview r=new StockReview();r.product=p;r.kind=in.kind();r.quantity=in.quantity();r.reason=in.reason().trim();r.requestKey=in.requestKey();r.createdBy=actor;r.createdAt=clock.instant();r.snapshotQuantity=p.quantity;r.snapshotVersion=p.version;
   if("DISPOSAL".equals(in.kind())){if(in.batchId()==null||in.quantity()<=0)throw error("Disposal requires a batch and positive quantity",400);r.batch=batches.findById(in.batchId()).filter(b->b.product.id.equals(p.id)).orElseThrow(()->error("Batch does not belong to product",400));if(in.quantity()>r.batch.quantity)throw error("Disposal exceeds batch remainder",400);}
   else if(in.batchId()!=null)throw error("Batch selection is only used for disposal",400);
   if("COUNT".equals(in.kind())&&in.quantity()<0)throw error("Count must be non-negative",400);

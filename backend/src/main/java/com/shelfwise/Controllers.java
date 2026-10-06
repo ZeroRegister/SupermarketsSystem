@@ -35,7 +35,7 @@ class ApiController {
  @GetMapping("/warnings/{id}/history") List<WarningActionView> warningHistory(@PathVariable long id){return workflow.history(id);}
  @PostMapping("/warnings/{id}/actions") WarningView warningAction(@PathVariable long id,@Valid @RequestBody WarningActionInput in,org.springframework.security.core.Authentication auth){return workflow.act(id,in,auth.getName());}
  @GetMapping("/dashboard") DashboardView dashboard(){return service.dashboard();}
- @GetMapping("/stock-summary") DashboardView stockSummary(){var d=service.dashboard();return new DashboardView(d.productCount(),d.lowStock(),d.outOfStock(),d.inventoryValue(),d.transactionCount(),d.activityDates(),d.activityCounts(),d.categoryMix(),d.urgentProducts(),List.of());}
+ @GetMapping("/stock-summary") DashboardView stockSummary(){var d=service.dashboard();return new DashboardView(d.productCount(),d.lowStock(),d.outOfStock(),d.inventoryValue(),d.transactionCount(),d.activityDates(),d.activityCounts(),d.categoryMix(),d.urgentProducts(),List.of(),0);}
  @GetMapping("/reports/summary") Map<String,Object> report(){return service.report();}
  @GetMapping("/categories") List<Map<String,Object>> categories(){return service.categoryList().stream().map(c->Map.<String,Object>of("id",c.id,"name",c.name,"description",c.description==null?"":c.description,"active",c.active)).toList();}
  @PostMapping("/categories") @ResponseStatus(HttpStatus.CREATED) Map<String,Object> category(@Valid @RequestBody CategoryInput in){Category c=service.createCategory(in);return Map.of("id",c.id,"name",c.name);}

@@ -8,4 +8,4 @@ export interface WarningAction { id: number; action: string; note: string; actor
 export interface Page<T> { items: T[]; page: number; size: number; totalElements: number; totalPages: number }
 export interface Category { id: number; name: string; description: string; active: boolean }
 export interface Supplier { id: number; name: string; contactName: string; email: string; phone: string; active: boolean }
-export interface Dashboard { productCount: number; lowStock: number; outOfStock: number; inventoryValue: number; transactionCount: number; activityDates: string[]; activityCounts: number[]; categoryMix: { name: string; quantity: number; productCount: number }[]; urgentProducts: Product[]; warnings: Warning[] }
+export interface Dashboard { productCount: number; lowStock: number; outOfStock: number; inventoryValue: number; transactionCount: number; activityDates: string[]; activityCounts: number[]; categoryMix: { name: string; quantity: number; productCount: number }[]; urgentProducts: Product[]; warnings: Warning[]; activeWarningCount: number }

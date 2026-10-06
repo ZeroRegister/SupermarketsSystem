@@ -43,6 +43,6 @@ record SettingInput(@NotBlank @Size(max=120) String businessName,@NotBlank @Patt
 record ThresholdInput(@NotNull @Min(0) @Max(1000000000) Long safetyStock,@NotNull @Min(0) @Max(1000000000) Long reorderThreshold) {}
 record UserAccessInput(@NotNull Role role,@NotNull Boolean enabled) {}
 record CategoryMetric(String name,long quantity,long productCount) {}
-record DashboardView(long productCount,long lowStock,long outOfStock,BigDecimal inventoryValue,long transactionCount,List<String> activityDates,List<Long> activityCounts,List<CategoryMetric> categoryMix,List<ProductView> urgentProducts,List<WarningView> warnings) {}
+record DashboardView(long productCount,long lowStock,long outOfStock,BigDecimal inventoryValue,long transactionCount,List<String> activityDates,List<Long> activityCounts,List<CategoryMetric> categoryMix,List<ProductView> urgentProducts,List<WarningView> warnings,long activeWarningCount) {}
 record ReportView(long activeProducts,long lowStock,long outOfStock,BigDecimal inventoryValue,long movementsToday,List<Map<String,Object>> topMovements,List<Map<String,Object>> categorySummary) {}
 record ErrorView(String code,String message,Instant timestamp) {}

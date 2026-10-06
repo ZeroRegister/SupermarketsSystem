@@ -60,7 +60,9 @@ record WarningPolicyView(int nearExpiryDays,String businessTimezone,long version
  private final java.util.concurrent.locks.ReentrantLock sweepLock=new java.util.concurrent.locks.ReentrantLock();
  private volatile Instant lastCompleted;private volatile int failedProducts;
  WarningRefresh(ProductRepository p,InventoryService i){products=p;inventory=i;}
+ @org.springframework.beans.factory.annotation.Value("${shelfwise.warning-refresh-enabled:true}") private boolean scheduledEnabled;
  @org.springframework.scheduling.annotation.Scheduled(fixedDelay=30000,initialDelay=1000)
+ void scheduledRefresh(){if(scheduledEnabled)refresh();}
  public void refresh(){
   if(!sweepLock.tryLock())return;
   try{int failures=0;for(Long id:products.allIds()){try{inventory.refreshWarning(id);}catch(RuntimeException e){failures++;org.slf4j.LoggerFactory.getLogger(getClass()).warn("Warning refresh failed for product {}; retry next sweep",id,e);}}failedProducts=failures;lastCompleted=Instant.now();}finally{sweepLock.unlock();}

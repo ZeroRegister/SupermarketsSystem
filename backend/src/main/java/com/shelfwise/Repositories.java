@@ -26,6 +26,7 @@ interface TransactionRepository extends JpaRepository<InventoryTransaction,Long>
  List<InventoryTransaction> findByCreatedAtAfter(Instant since);
 }
 interface WarningRepository extends JpaRepository<WarningEpisode,Long> {
+ @Query("select count(w) from WarningEpisode w where w.state=com.shelfwise.WarningState.OPEN and w.type<>com.shelfwise.WarningType.RESTOCKED") long actionableCount();
  @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select w from WarningEpisode w where w.id=:id") Optional<WarningEpisode> lockById(@Param("id") Long id);
  @Lock(LockModeType.PESSIMISTIC_WRITE)
  List<WarningEpisode> findByTypeAndStateAndExpiresAtBefore(WarningType type,WarningState state,Instant now);

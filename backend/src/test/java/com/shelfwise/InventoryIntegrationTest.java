@@ -22,7 +22,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootTest @AutoConfigureMockMvc @Testcontainers
+@SpringBootTest(properties="shelfwise.warning-refresh-enabled=false") @AutoConfigureMockMvc @Testcontainers
 class InventoryIntegrationTest {
  @Container static MySQLContainer<?> mysql=new MySQLContainer<>("mysql:8.4.8");
  @Container static GenericContainer<?> redis=new GenericContainer<>("redis:7.4.9-alpine").withExposedPorts(6379);
@@ -41,6 +41,10 @@ class InventoryIntegrationTest {
   assertThat(service.warningPage("EXPIRED","open",0,100,false).items()).noneMatch(w->w.productId().equals(p.id));
  }
  @Test void staleStockCountCannotOverwriteConcurrentReceipt(){Product p=fresh();var r=reviews.submit(new StockReviewInput("COUNT",p.id,null,2,"Count"),"clerk");service.move(movement(p,MovementType.STOCK_IN,3,UUID.randomUUID().toString()),"admin");assertThatThrownBy(()->reviews.act(r.id(),new StockReviewAction("APPROVE","Checked"),"manager")).isInstanceOf(DomainException.class).hasMessageContaining("snapshot");assertThat(service.product(p.id).quantity()).isEqualTo(3);}
+ @Test void repeatedReviewSubmissionRetainsOneSnapshot(){Product p=fresh();var in=new StockReviewInput("COUNT",p.id,null,0,"Count");var a=reviews.submit(in,"clerk");assertThat(reviews.submit(in,"clerk").id()).isEqualTo(a.id());assertThatThrownBy(()->reviews.submit(new StockReviewInput("COUNT",p.id,null,2,"Count",in.requestKey()),"clerk")).isInstanceOf(DomainException.class);}
+ @Test void scheduledNoOpDoesNotInvalidateCache(){Product p=fresh();service.refreshWarning(p.id);long before=revision();service.refreshWarning(p.id);assertThat(revision()).isEqualTo(before);}
+ @Autowired CacheRevisionRepository revisions;
+ private long revision(){return revisions.findById(1L).orElseThrow().revision;}
  @Test void clerkCannotBypassAdjustmentApproval()throws Exception{Product p=fresh();mvc.perform(post("/api/transactions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content(mapper.writeValueAsString(movement(p,MovementType.ADJUSTMENT,3,UUID.randomUUID().toString())))).andExpect(status().isForbidden());mvc.perform(post("/api/stock-reviews/1/actions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content("{\"action\":\"APPROVE\",\"note\":\"Checked\"}")).andExpect(status().isForbidden());}
  @Test void purchasePartialReceiptReplayAndCancellationPreserveInventory(){
   Product p=fresh();var supplier=service.createSupplier(new SupplierInput("Vendor "+UUID.randomUUID(),null,null,null));

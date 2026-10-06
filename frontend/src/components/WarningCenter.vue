@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, reactive } from 'vue'
+import { onMounted, onUnmounted, ref, watch, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { api, warnings } from '../api'
 import type { Page, Warning, WarningAction, User } from '../types'
@@ -14,6 +14,8 @@ async function savePolicy(){saving.value=true;try{await api.put('/warnings/polic
 async function refresh(){loading.value=true;try{await api.post('/warnings/refresh');await load()}catch{ElMessage.error('Could not refresh warnings')}finally{loading.value=false}}
 async function load(){loading.value=true;try{page.value=await warnings({state:state.value,type:type.value,page:index.value,size:20})}catch(e:any){ElMessage.error(e.response?.data?.message||'Could not load warnings')}finally{loading.value=false}}
 watch([state,type],()=>{index.value=0;load()});watch(index,load);onMounted(load)
+const timer=setInterval(()=>{if(!open.value&&!rulesOpen.value&&!loading.value)load()},30000)
+onUnmounted(()=>clearInterval(timer))
 async function inspect(w:Warning){selected.value=w;assignee.value=w.assignedToId;note.value='';open.value=true;try{history.value=(await api.get(`/warnings/${w.id}/history`)).data;assignees.value=(await api.get('/warnings/assignees')).data}catch{ElMessage.error('Could not load warning history')}}
 async function act(action:string){if(!selected.value||saving.value)return;if(action!=='CONFIRM'&&!note.value.trim())return ElMessage.warning('Add a handling note');saving.value=true;try{const id=selected.value.id;selected.value=(await api.post(`/warnings/${id}/${action==='CONFIRM'?'ack':'actions'}`,action==='CONFIRM'?{}:{action,assigneeId:assignee.value??null,note:note.value})).data;history.value=(await api.get(`/warnings/${id}/history`)).data;note.value='';await load();ElMessage.success('Warning updated')}catch(e:any){ElMessage.error(e.response?.data?.message||'Could not update warning')}finally{saving.value=false}}
 </script>
