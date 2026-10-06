@@ -11,6 +11,7 @@ interface UserRepository extends JpaRepository<UserAccount,Long> { Optional<User
 interface CategoryRepository extends JpaRepository<Category,Long> { boolean existsByNameIgnoreCase(String name); }
 interface SupplierRepository extends JpaRepository<Supplier,Long> {}
 interface ProductRepository extends JpaRepository<Product,Long>, JpaSpecificationExecutor<Product> {
+ @Query("select p.id from Product p order by p.id") List<Long> allIds();
  @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select p from Product p where p.id=:id") Optional<Product> lockById(@Param("id") Long id);
  boolean existsBySkuIgnoreCaseAndIdNot(String sku,Long id); boolean existsByBarcodeIgnoreCaseAndIdNot(String barcode,Long id);
  List<Product> findAllByActiveTrue();
@@ -29,6 +30,7 @@ interface WarningRepository extends JpaRepository<WarningEpisode,Long> {
  List<WarningEpisode> findByTypeAndStateAndExpiresAtBefore(WarningType type,WarningState state,Instant now);
  Optional<WarningEpisode> findFirstByProductIdAndStateOrderByCreatedAtDesc(Long productId,WarningState state);
  Optional<WarningEpisode> findFirstByProductIdAndTypeOrderByCreatedAtDesc(Long productId,WarningType type);
+ Optional<WarningEpisode> findFirstByProductIdAndTypeAndBatchOrderByCreatedAtDesc(Long productId,WarningType type,InventoryBatch batch);
  @Lock(LockModeType.PESSIMISTIC_WRITE) List<WarningEpisode> findByProductIdAndState(Long productId,WarningState state);
  Page<WarningEpisode> findAllByStateOrderByCreatedAtDesc(WarningState state,Pageable pageable);
  Page<WarningEpisode> findAllByOrderByCreatedAtDesc(Pageable pageable);

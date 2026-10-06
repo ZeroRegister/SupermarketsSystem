@@ -17,3 +17,9 @@ The existing thesis and its screenshots describe the earlier release; regenerati
 ## Batch upgrade
 
 V3 preserves existing physical balances as undated `MIGRATED-{productId}` batches. Historical movements are retained; their batch allocation is unknown and is not fabricated. New movements carry durable signed allocations. Physical balances equal the sum of batch balances. Expired/quarantined batches cannot be dispatched, but remain physical stock until an explicit adjustment/disposal. Undated receipt batches are generated when no batch number is entered. Exact replay also checks receipt dates and batch identity. Product locking serializes batch changes and dispatch.
+
+## Time rules and recovery
+
+Expiry day remains sellable through the end of the configured business day. Near-expiry applies to valid, non-quarantined batches within the inclusive day window. Expired applies to physical batch remainder, including quarantined units; expiry never disposes inventory. V4 adds a unique active-rule key per product/batch/type. Cleared events retain handling history and recurrent events link to their predecessor.
+
+Stock changes update warnings in the same MySQL transaction, so failed writes cannot leave partial rule results. Configuration commits before a full sweep. Date-based rules are rechecked every 30 seconds; failed products retry on the next sweep. `/warnings/refresh-status` exposes completion/failure counts; operators can force a sweep. This interval is a schedule, not a hard latency guarantee under arbitrary load. Redis remains a revision-keyed optional query cache; unchanged sweeps do not invalidate it.

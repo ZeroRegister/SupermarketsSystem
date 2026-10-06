@@ -23,6 +23,7 @@ class InventoryService {
  private final PasswordEncoder encoder; private final ShelfwiseProperties props; private final EntityManager em;
  @org.springframework.beans.factory.annotation.Autowired private WarningWorkflow workflow;
  @org.springframework.beans.factory.annotation.Autowired private BatchInventory batchInventory;
+ @org.springframework.beans.factory.annotation.Autowired private WarningRules warningRules;
  InventoryService(ProductRepository p,CategoryRepository c,SupplierRepository s,UserRepository u,TransactionRepository t,WarningRepository w,SettingRepository set,CacheRevisionRepository rev,StringRedisTemplate redis,PasswordEncoder encoder,ShelfwiseProperties props,EntityManager em){this.products=p;this.categories=c;this.suppliers=s;this.users=u;this.transactions=t;this.warnings=w;this.settings=set;this.revisions=rev;this.redis=redis;this.encoder=encoder;this.props=props;this.em=em;}
 
  @Transactional(readOnly=true) PageResult<ProductView> listProducts(String q,Long categoryId,String status,boolean archived,int page,int size,String sort,String direction){
@@ -121,7 +122,7 @@ class InventoryService {
  }
  private void addProduct(String sku,String code,String name,String unit,double price,long qty,long threshold,Category c){Product p=new Product();p.sku=sku;p.barcode=code;p.name=name;p.unit=unit;p.price=BigDecimal.valueOf(price);p.quantity=qty;p.safetyStock=Math.min(qty/2,threshold);p.reorderThreshold=threshold;p.category=c;p=products.save(p);batchInventory.seedBalance(p);if(qty>0){InventoryTransaction t=new InventoryTransaction();t.product=p;t.actor=users.findByUsername("admin").orElseThrow();t.type=MovementType.STOCK_IN;t.delta=qty;t.quantityBefore=0;t.quantityAfter=qty;t.reason="Opening demonstration stock";t.idempotencyKey="seed-"+sku;transactions.save(t);}}
  @Transactional void cleanupExpiries(){var expired=warnings.findByTypeAndStateAndExpiresAtBefore(WarningType.RESTOCKED,WarningState.OPEN,Instant.now());for(WarningEpisode w:expired)workflow.recover(w);if(!expired.isEmpty())invalidate();}
- @Transactional void updateWarning(Product p){ batchInventory.recompute(p);List<WarningEpisode> open=warnings.findByProductIdAndState(p.id,WarningState.OPEN);WarningType next=p.sellableQuantity==0?WarningType.OUT:p.sellableQuantity<=p.reorderThreshold?WarningType.LOW:null;
+ @Transactional void updateWarning(Product p){batchInventory.recompute(p);warningRules.refresh(p);List<WarningEpisode> open=warnings.findByProductIdAndState(p.id,WarningState.OPEN).stream().filter(w->w.type==WarningType.LOW||w.type==WarningType.OUT||w.type==WarningType.RESTOCKED).toList();WarningType next=p.sellableQuantity==0?WarningType.OUT:p.sellableQuantity<=p.reorderThreshold?WarningType.LOW:null;
   if(!p.active){for(WarningEpisode w:open)workflow.recover(w);return;}
   if(next==null){boolean hadShortage=open.stream().anyMatch(w->w.type!=WarningType.RESTOCKED);for(WarningEpisode w:open)if(w.type!=WarningType.RESTOCKED)workflow.recover(w);if(hadShortage&&open.stream().noneMatch(w->w.type==WarningType.RESTOCKED)){WarningEpisode w=new WarningEpisode();w.product=p;w.type=WarningType.RESTOCKED;w.observedQuantity=p.sellableQuantity;w.threshold=p.reorderThreshold;w.createdAt=Instant.now();w.expiresAt=w.createdAt.plus(Duration.ofHours(24));warnings.save(w);workflow.created(w);}return;}
   for(WarningEpisode w:open)if(w.type!=next||w.type==WarningType.RESTOCKED)workflow.recover(w);
@@ -129,7 +130,8 @@ class InventoryService {
   else open.stream().filter(w->w.type==next&&w.state==WarningState.OPEN).findFirst().ifPresent(w->{w.observedQuantity=p.sellableQuantity;w.threshold=p.reorderThreshold;});
  }
  private void invalidate(){revisions.increment();}
- @Transactional void refreshWarning(long id){Product p=products.lockById(id).orElseThrow(()->notFound("Product not found"));updateWarning(p);invalidate();}
+ @Transactional void refreshWarning(long id){Product p=products.lockById(id).orElseThrow(()->notFound("Product not found"));String before=warningFingerprint(p);updateWarning(p);if(!before.equals(warningFingerprint(p)))invalidate();}
+ private String warningFingerprint(Product p){return p.sellableQuantity+":"+warnings.findByProductIdAndState(p.id,WarningState.OPEN).stream().map(w->w.id+":"+w.type+":"+w.observedQuantity+":"+w.threshold).sorted().toList();}
  private String blankToNull(String s){return s==null||s.isBlank()?null:s.trim();}
  private RuntimeException bad(String m){return new DomainException("VALIDATION",m,400);}private RuntimeException notFound(String m){return new DomainException("NOT_FOUND",m,404);}private RuntimeException conflict(String m){return new DomainException("CONFLICT",m,409);}
 }

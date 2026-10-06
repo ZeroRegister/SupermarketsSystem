@@ -31,6 +31,23 @@ class InventoryIntegrationTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;
  @Autowired WarningWorkflow workflow;
  @Autowired BatchInventory batches;
+ @Autowired WarningRules rules;
+ @org.springframework.test.context.bean.override.mockito.MockitoSpyBean java.time.Clock clock;
+ @Test void expiryDayIsSellableAndFollowingBusinessDayExpires(){
+  org.mockito.Mockito.doReturn(Instant.parse("2026-04-01T15:59:50Z")).when(clock).instant();
+  Product p=fresh();service.move(new TransactionInput(p.id,MovementType.STOCK_IN,8L,"Dated receipt",UUID.randomUUID().toString(),"today",null,java.time.LocalDate.of(2026,4,1),null),"admin");
+  assertThat(service.product(p.id).sellableQuantity()).isEqualTo(8);
+  var near=service.warningPage("EXPIRING","open",0,100,false).items().stream().filter(w->w.productId().equals(p.id)).findFirst().orElseThrow();
+  service.refreshWarning(p.id);assertThat(service.warningPage("EXPIRING","open",0,100,false).items().stream().filter(w->w.productId().equals(p.id)).count()).isEqualTo(1);
+  org.mockito.Mockito.doReturn(Instant.parse("2026-04-01T16:00:00Z")).when(clock).instant();service.refreshWarning(p.id);
+  assertThat(service.product(p.id).quantity()).isEqualTo(8);assertThat(service.product(p.id).sellableQuantity()).isZero();
+  assertThat(service.warningPage("EXPIRING","open",0,100,false).items()).noneMatch(w->w.id().equals(near.id()));
+  assertThat(service.warningPage("EXPIRED","open",0,100,false).items()).anyMatch(w->w.productId().equals(p.id)&&w.batchNumber().equals("today"));
+  var batch=batches.list(p.id,0,20).items().getFirst();
+  service.move(new TransactionInput(p.id,MovementType.ADJUSTMENT,-8L,"Expired disposal",UUID.randomUUID().toString(),null,null,null,batch.id()),"admin");
+  assertThat(service.warningPage("EXPIRED","open",0,100,false).items()).noneMatch(w->w.productId().equals(p.id));
+ }
+ @Test void invalidTimezoneDoesNotChangePolicy(){var prior=rules.policy();assertThatThrownBy(()->rules.configure(new WarningPolicyInput(7,"Invalid/Zone"))).isInstanceOf(DomainException.class);assertThat(rules.policy()).isEqualTo(prior);}
  @Test void batchDispatchUsesFefoAndExcludesExpiredOrQuarantined(){
   Product p=fresh();var today=batches.today();
   service.move(new TransactionInput(p.id,MovementType.STOCK_IN,4L,"Early",UUID.randomUUID().toString(),"early",null,today.plusDays(1),null),"admin");

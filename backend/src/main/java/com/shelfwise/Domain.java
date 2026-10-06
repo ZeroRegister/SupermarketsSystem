@@ -7,7 +7,7 @@ import java.util.UUID;
 
 enum Role { ADMIN, MANAGER, CLERK }
 enum MovementType { STOCK_IN, STOCK_OUT, ADJUSTMENT, STOCKTAKE }
-enum WarningType { LOW, OUT, RESTOCKED }
+enum WarningType { LOW, OUT, RESTOCKED, EXPIRING, EXPIRED }
 enum WarningState { OPEN, RESOLVED }
 enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
 
@@ -91,6 +91,7 @@ enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
     @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="assigned_to") UserAccount assignedTo;
     Instant recoveredAt;
     Long previousId;
+    @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="batch_id") InventoryBatch batch;
     protected WarningEpisode(){}
 }
 

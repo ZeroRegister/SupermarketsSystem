@@ -26,7 +26,8 @@ record BatchActionView(boolean quarantined,String reason,String actor,Instant cr
 @Service class BatchInventory {
  private final BatchRepository batches;private final AllocationRepository allocations;private final BatchActionRepository actions;private final UserRepository users;private final ProductRepository products;private final Clock clock;
  BatchInventory(BatchRepository b,AllocationRepository a,BatchActionRepository h,UserRepository u,ProductRepository p,Clock c){batches=b;allocations=a;actions=h;users=u;products=p;clock=c;}
- LocalDate today(){return LocalDate.now(clock.withZone(ZoneId.of("Asia/Shanghai")));}
+ @org.springframework.beans.factory.annotation.Autowired private WarningPolicyRepository policies;
+ LocalDate today(){return clock.instant().atZone(ZoneId.of(policies.findById(1L).orElseThrow().businessTimezone)).toLocalDate();}
  boolean sellable(InventoryBatch b){return !b.quarantined&&(b.expiryDate==null||!b.expiryDate.isBefore(today()));}
  void recompute(Product p){p.sellableQuantity=batches.findByProductId(p.id).stream().filter(this::sellable).mapToLong(b->b.quantity).sum();}
  void seedBalance(Product p){if(p.quantity>0&&batches.findByProductId(p.id).isEmpty()){InventoryBatch b=new InventoryBatch();b.product=p;b.batchNumber="OPENING-"+p.id;b.receivedDate=today();b.quantity=p.quantity;batches.save(b);}recompute(p);}
