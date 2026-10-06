@@ -4,20 +4,15 @@ A single-store inventory application and an English software-engineering thesis.
 
 ## Quick start
 
-Prerequisites: Java 21, Maven 3.9.9+, Node 22.12+ (tested version recorded in `docs/versions.md`), Docker Compose and a running Docker engine. macOS users may use Colima.
+Prerequisites: Docker Desktop or Docker Engine with the Docker Compose plugin. The container build supplies Java, Maven, Node.js, npm, Nginx, MySQL and Redis; Java, Maven and Node.js do not need to be installed on the deployment host.
 
 ```sh
 cp .env.example .env
 # Edit .env with local passwords; these are never committed.
-docker compose up -d --wait
-./scripts/backend.sh spring-boot:run
-# In a second terminal:
-cd frontend
-npm ci
-npm run dev
+docker compose up -d --build --wait
 ```
 
-Open http://localhost:5173. With `DEMO_ENABLED=true`, the accounts `admin`, `manager`, and `clerk` use the password you supplied as `DEMO_PASSWORD`. Demo credentials are read only on initial creation; changing the environment does not overwrite existing accounts. Disable demonstration seeding for a real deployment. See [deployment](docs/deployment.md) for production setup and recovery.
+Open http://localhost:5173. The Compose stack builds and runs the Vue/Nginx frontend, Spring Boot backend, MySQL and Redis. With `DEMO_ENABLED=true`, the accounts `admin`, `manager`, and `clerk` use the password you supplied as `DEMO_PASSWORD`. Demo credentials are read only on initial creation; changing the environment does not overwrite existing accounts. Disable demonstration seeding for a real deployment. See [deployment](docs/deployment.md) for production setup, backups and recovery.
 
 ## Verification and artifacts
 

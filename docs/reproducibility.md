@@ -1,9 +1,15 @@
 # Reproducibility commands
 
 ```sh
-# Infrastructure and local app
+# Full container stack
 cp .env.example .env                 # change the local passwords
-docker compose up -d --wait
+docker compose up -d --build --wait
+```
+
+For backend and frontend tests that run on the host, start only the infrastructure services:
+
+```sh
+docker compose up -d --wait mysql redis
 ./scripts/backend.sh test
 cd frontend && npm ci && npm run check && npm test && npm run build
 cd .. && python3 scripts/smoke.py
