@@ -1,0 +1,15 @@
+{
+  "checkedAt": "2026-10-06T08:19:44.194805+00:00",
+  "checks": [
+    "physical vs sellable balances and three simultaneous rule types",
+    "confirmation, assignment and processing history",
+    "approval permission, stock position and receipt replay",
+    "partial cancellation preserves received stock",
+    "review request replay, approved disposal and warning recovery",
+    "shortage recovery and batch balance reconciliation",
+    "cached and direct warning pages agree"
+  ],
+  "demoProductId": 17,
+  "purchaseId": 1,
+  "reviewId": 1
+}

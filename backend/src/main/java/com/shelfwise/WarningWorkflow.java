@@ -31,7 +31,9 @@ class WarningWorkflow {
    case "NOTE" -> {}
    default -> throw error("Unknown warning action",400);
   }
-  log(w,actor,in.action(),in.note().trim());revisions.increment();return WarningView.of(w);
+  String note=in.note().trim();if("ASSIGN".equals(in.action()))note="Assigned to "+(w.assignedTo==null?"Unassigned":w.assignedTo.displayName)+": "+note;
+  if(note.length()>1000)note=note.substring(0,1000);
+  log(w,actor,in.action(),note);revisions.increment();return WarningView.of(w);
  }
  @Transactional(readOnly=true) List<WarningActionView> history(long id){
   if(!warnings.existsById(id))throw error("Warning not found",404);

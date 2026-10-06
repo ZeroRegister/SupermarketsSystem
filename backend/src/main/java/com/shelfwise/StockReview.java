@@ -63,7 +63,8 @@ record StockReviewView(Long id,String kind,String state,Long productId,String pr
    if(r.batch!=null){em.refresh(r.batch);if(r.quantity>r.batch.quantity)throw error("Disposal exceeds current batch remainder",409);}
    MovementType type=r.kind.equals("COUNT")?MovementType.STOCKTAKE:MovementType.ADJUSTMENT;
    long qty=r.kind.equals("DISPOSAL")?-r.quantity:r.quantity;
-   var t=inventory.move(new TransactionInput(p.id,type,qty,"Review #"+r.id+": "+r.reason,"review:"+r.id,null,null,null,r.batch==null?null:r.batch.id),username);
+   String movementReason="Review #"+r.id+": "+r.reason;if(movementReason.length()>300)movementReason=movementReason.substring(0,300);
+   var t=inventory.move(new TransactionInput(p.id,type,qty,movementReason,"review:"+r.id,null,null,null,r.batch==null?null:r.batch.id),username);
    r.transaction=transactions.findById(t.id()).orElseThrow();r.state="APPROVED";
   }else r.state="REJECTED";
   r.reviewedBy=users.findByUsername(username).orElseThrow();r.reviewNote=in.note().trim();r.reviewedAt=clock.instant();return view(r);

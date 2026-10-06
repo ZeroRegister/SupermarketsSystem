@@ -45,6 +45,22 @@ class InventoryIntegrationTest {
  @Test void scheduledNoOpDoesNotInvalidateCache(){Product p=fresh();service.refreshWarning(p.id);long before=revision();service.refreshWarning(p.id);assertThat(revision()).isEqualTo(before);}
  @Autowired CacheRevisionRepository revisions;
  private long revision(){return revisions.findById(1L).orElseThrow().revision;}
+ @Test void multiLinePurchaseRejectionEditAndCompletion(){
+  Product p=fresh(),q=fresh();var vendor=service.createSupplier(new SupplierInput("Multi vendor "+UUID.randomUUID(),null,null,null));
+  var input=new PurchaseInput(vendor.id,List.of(new PurchaseLineInput(p.id,10),new PurchaseLineInput(q.id,10)),"Two products",null);
+  var o=purchasing.save(null,input,"clerk");purchasing.act(o.id(),new PurchaseActionInput("SUBMIT","Ready"),"clerk");
+  purchasing.act(o.id(),new PurchaseActionInput("REJECT","Check quantities"),"manager");
+  o=purchasing.save(o.id(),input,"clerk");purchasing.act(o.id(),new PurchaseActionInput("SUBMIT","Rechecked"),"clerk");purchasing.act(o.id(),new PurchaseActionInput("APPROVE","Approved"),"manager");
+  for(var line:o.lines())purchasing.receive(o.id(),new ReceiptInput(line.id(),10,null,null,batches.today().plusDays(30),UUID.randomUUID().toString()),"clerk");
+  assertThat(purchasing.get(o.id()).state()).isEqualTo(PurchaseState.COMPLETED);assertThat(service.product(p.id).quantity()).isEqualTo(10);assertThat(service.product(q.id).quantity()).isEqualTo(10);
+  final long id=o.id();assertThatThrownBy(()->purchasing.act(id,new PurchaseActionInput("CANCEL","Cannot cancel"),"manager")).isInstanceOf(DomainException.class);
+ }
+ @Test void concurrentReceiptReplayCreatesOneBatch()throws Exception{
+  Product p=fresh();var vendor=service.createSupplier(new SupplierInput("Receipt vendor "+UUID.randomUUID(),null,null,null));var o=purchasing.save(null,new PurchaseInput(vendor.id,List.of(new PurchaseLineInput(p.id,10)),"Receipt test",null),"clerk");purchasing.act(o.id(),new PurchaseActionInput("SUBMIT","Ready"),"clerk");purchasing.act(o.id(),new PurchaseActionInput("APPROVE","Approved"),"manager");
+  var in=new ReceiptInput(o.lines().getFirst().id(),3,null,null,null,UUID.randomUUID().toString());var executor=Executors.newFixedThreadPool(3);try{Set<Long> ids=new HashSet<>();List<Future<Long>> fs=new ArrayList<>();for(int i=0;i<3;i++)fs.add(executor.submit(()->purchasing.receive(o.id(),in,"clerk").id()));for(var f:fs)ids.add(f.get());assertThat(ids).hasSize(1);assertThat(service.product(p.id).quantity()).isEqualTo(3);assertThat(batches.list(p.id,0,100).totalElements()).isEqualTo(1);}finally{executor.shutdownNow();}
+ }
+ @Test void disposalApprovalRechecksBatchRemainder(){Product p=fresh();service.move(movement(p,MovementType.STOCK_IN,6,UUID.randomUUID().toString()),"admin");var batch=batches.list(p.id,0,20).items().getFirst();var r=reviews.submit(new StockReviewInput("DISPOSAL",p.id,batch.id(),6,"Damaged"),"clerk");service.move(movement(p,MovementType.STOCK_OUT,1,UUID.randomUUID().toString()),"clerk");assertThatThrownBy(()->reviews.act(r.id(),new StockReviewAction("APPROVE","Checked"),"manager")).isInstanceOf(DomainException.class).hasMessageContaining("remainder");assertThat(service.product(p.id).quantity()).isEqualTo(5);}
+ @Test void countApprovalAndLongReasonRetainBoundedMovement(){Product p=fresh();var r=reviews.submit(new StockReviewInput("COUNT",p.id,null,2,"x".repeat(300)),"clerk");reviews.act(r.id(),new StockReviewAction("APPROVE","Checked"),"manager");assertThat(service.product(p.id).quantity()).isEqualTo(2);assertThat(service.history(p.id,0,20).items().getFirst().reason()).hasSize(300);}
  @Test void clerkCannotBypassAdjustmentApproval()throws Exception{Product p=fresh();mvc.perform(post("/api/transactions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content(mapper.writeValueAsString(movement(p,MovementType.ADJUSTMENT,3,UUID.randomUUID().toString())))).andExpect(status().isForbidden());mvc.perform(post("/api/stock-reviews/1/actions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content("{\"action\":\"APPROVE\",\"note\":\"Checked\"}")).andExpect(status().isForbidden());}
  @Test void purchasePartialReceiptReplayAndCancellationPreserveInventory(){
   Product p=fresh();var supplier=service.createSupplier(new SupplierInput("Vendor "+UUID.randomUUID(),null,null,null));

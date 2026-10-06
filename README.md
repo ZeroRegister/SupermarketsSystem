@@ -28,4 +28,6 @@ cd frontend && npm ci && npm run check && npm test && npm run build
 
 The MySQL/Redis integration smoke, browser journeys, benchmark and thesis build commands are documented in [reproducibility](docs/reproducibility.md). Documentation includes [requirements](docs/requirements.md), [API](docs/api.md), [architecture](docs/architecture.md), and [evaluation](docs/evaluation.md). Thesis source and its compiled submission PDF are under `thesis/` and `dist/` respectively; build the PDF using `thesis/build.sh`.
 
-Identity fields in the thesis intentionally remain placeholders pending institutional requirements. This is an educational demonstrator, not a procurement or accounting system.
+The inventory upgrade adds batch receipts, FEFO/FIFO dispatch, sellable balances, expiry and slow-stock rules, an auditable warning center, replenishment/purchase approval and partial receipt, and reviewed counts/disposal. See [upgrade rules](docs/warning-expansion.md) and [release history](CHANGELOG.md). It remains an educational demonstrator; purchasing handles stock documents, not payments or accounting.
+
+Identity fields in the thesis intentionally remain placeholders pending institutional requirements. The current thesis and screenshots describe the earlier release and have not yet been regenerated for this upgrade.

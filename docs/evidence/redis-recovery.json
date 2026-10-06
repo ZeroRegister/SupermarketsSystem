@@ -1,9 +1,9 @@
 {
-  "timestamp_utc": "2026-10-03T18:14:01Z",
-  "healthy_ms": 10.486749990377575,
-  "redis_unavailable_ms": 12.247208971530199,
-  "recovered_ms": 25.942749984096736,
-  "warning_count": 16,
+  "timestamp_utc": "2026-10-06T08:28:59Z",
+  "healthy_ms": 26.281208032742143,
+  "redis_unavailable_ms": 13.799082953482866,
+  "recovered_ms": 31.44045895896852,
+  "warning_count": 12,
   "same_database_result_during_outage": true,
   "recovered_service": true,
   "action": "stop and restart only the shelfwise Redis Compose service; MySQL remains running"
