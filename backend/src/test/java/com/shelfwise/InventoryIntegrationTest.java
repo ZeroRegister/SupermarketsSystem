@@ -29,6 +29,22 @@ class InventoryIntegrationTest {
  @DynamicPropertySource static void properties(DynamicPropertyRegistry r){r.add("spring.datasource.url",mysql::getJdbcUrl);r.add("spring.datasource.username",mysql::getUsername);r.add("spring.datasource.password",mysql::getPassword);r.add("spring.data.redis.host",redis::getHost);r.add("spring.data.redis.port",()->redis.getMappedPort(6379));r.add("shelfwise.demo-enabled",()->true);r.add("shelfwise.demo-password",()->"test-only-demo-password");}
  @Autowired InventoryService service; @Autowired ProductRepository products; @Autowired TransactionRepository transactions; @Autowired WarningRepository warnings;
  @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;
+ @Autowired WarningWorkflow workflow;
+ @Test void warningHandlingKeepsConditionAndAudit(){
+  Product p=fresh();var w=service.warningPage("OUT","open",0,100,false).items().stream().filter(x->x.productId().equals(p.id)).findFirst().orElseThrow();
+  var manager=service.userList().stream().filter(u->u.username().equals("manager")).findFirst().orElseThrow();
+  workflow.acknowledge(w.id(),"manager");
+  var assigned=workflow.act(w.id(),new WarningActionInput("ASSIGN",manager.id(),"Follow up delivery"),"admin");
+  assertThat(assigned.assignedTo()).isEqualTo("Jordan Lee");
+  assertThat(workflow.act(w.id(),new WarningActionInput("PROCESS",null,"Contacted supplier"),"manager").reviewStage()).isEqualTo(ReviewStage.PROCESSING);
+  assertThat(service.product(p.id).quantity()).isZero();
+  service.move(movement(p,MovementType.STOCK_IN,8,UUID.randomUUID().toString()),"admin");
+  assertThat(workflow.history(w.id())).extracting(WarningActionView::action).contains("CONFIRM","ASSIGN","PROCESS","RECOVER");
+  assertThatThrownBy(()->workflow.act(w.id(),new WarningActionInput("PROCESS",null,"Again"),"manager")).isInstanceOf(DomainException.class);
+  service.move(movement(p,MovementType.STOCK_OUT,8,UUID.randomUUID().toString()),"admin");
+  var newer=service.warningPage("OUT","open",0,100,false).items().stream().filter(x->x.productId().equals(p.id)).findFirst().orElseThrow();
+  assertThat(newer.previousId()).isEqualTo(w.id());assertThat(newer.reviewStage()).isEqualTo(ReviewStage.PENDING);
+ }
  Product fresh(){String n=UUID.randomUUID().toString().substring(0,8);var p=service.saveProduct(null,new ProductInput("TEST-"+n,null,"Test product "+n,"pcs",new BigDecimal("2.49"),2L,5L,null,null));return products.findById(p.id()).orElseThrow();}
  TransactionInput movement(Product p,MovementType type,long qty,String key){return new TransactionInput(p.id,type,qty,"Integration test",key);}
  @Test void emptySearchAndStablePagination()throws Exception{mvc.perform(get("/api/products?q=not-a-real-sku-zz").with(user("admin").roles("ADMIN"))).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));mvc.perform(get("/api/products?size=1000").with(user("admin").roles("ADMIN"))).andExpect(jsonPath("$.size").value(100));}

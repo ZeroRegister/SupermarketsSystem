@@ -9,6 +9,7 @@ enum Role { ADMIN, MANAGER, CLERK }
 enum MovementType { STOCK_IN, STOCK_OUT, ADJUSTMENT, STOCKTAKE }
 enum WarningType { LOW, OUT, RESTOCKED }
 enum WarningState { OPEN, RESOLVED }
+enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
 
 @Entity @Table(name="users") class UserAccount {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;
@@ -84,7 +85,20 @@ enum WarningState { OPEN, RESOLVED }
     @Column(nullable=false) Instant expiresAt;
     @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="acknowledged_by") UserAccount acknowledgedBy;
     Instant acknowledgedAt;
+    @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) ReviewStage reviewStage=ReviewStage.PENDING;
+    @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="assigned_to") UserAccount assignedTo;
+    Instant recoveredAt;
+    Long previousId;
     protected WarningEpisode(){}
+}
+
+@Entity @Table(name="warning_actions") class WarningAction {
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;
+    @ManyToOne(fetch=FetchType.EAGER,optional=false) @JoinColumn(name="warning_id") WarningEpisode warning;
+    @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="actor_id") UserAccount actor;
+    @Column(nullable=false,length=30) String action;
+    @Column(nullable=false,length=1000) String note;
+    @Column(nullable=false) Instant createdAt=Instant.now();
 }
 
 @Entity @Table(name="app_settings") class AppSetting {

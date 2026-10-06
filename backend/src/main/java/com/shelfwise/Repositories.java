@@ -28,6 +28,7 @@ interface WarningRepository extends JpaRepository<WarningEpisode,Long> {
  @Lock(LockModeType.PESSIMISTIC_WRITE)
  List<WarningEpisode> findByTypeAndStateAndExpiresAtBefore(WarningType type,WarningState state,Instant now);
  Optional<WarningEpisode> findFirstByProductIdAndStateOrderByCreatedAtDesc(Long productId,WarningState state);
+ Optional<WarningEpisode> findFirstByProductIdAndTypeOrderByCreatedAtDesc(Long productId,WarningType type);
  @Lock(LockModeType.PESSIMISTIC_WRITE) List<WarningEpisode> findByProductIdAndState(Long productId,WarningState state);
  Page<WarningEpisode> findAllByStateOrderByCreatedAtDesc(WarningState state,Pageable pageable);
  Page<WarningEpisode> findAllByOrderByCreatedAtDesc(Pageable pageable);
@@ -36,6 +37,9 @@ interface WarningRepository extends JpaRepository<WarningEpisode,Long> {
  @Query("select w from WarningEpisode w join fetch w.product where w.state=:state and w.type=com.shelfwise.WarningType.RESTOCKED and w.expiresAt > CURRENT_TIMESTAMP order by w.createdAt desc") Page<WarningEpisode> activeRestocked(@Param("state") WarningState state,Pageable page);
  Page<WarningEpisode> findByTypeAndStateOrderByCreatedAtDesc(WarningType type,WarningState state,Pageable pageable);
  Page<WarningEpisode> findByTypeOrderByCreatedAtDesc(WarningType type,Pageable pageable);
+}
+interface WarningActionRepository extends JpaRepository<WarningAction,Long> {
+ List<WarningAction> findByWarningIdOrderByCreatedAtAscIdAsc(Long warningId);
 }
 interface SettingRepository extends JpaRepository<AppSetting,String> {}
 interface CacheRevisionRepository extends JpaRepository<CacheRevision,Long> { @Modifying @Query("update CacheRevision c set c.revision=c.revision+1 where c.id=1") int increment(); }

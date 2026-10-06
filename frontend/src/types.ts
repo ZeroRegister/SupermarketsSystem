@@ -2,7 +2,8 @@ export type Role = 'ADMIN' | 'MANAGER' | 'CLERK'
 export interface User { id: number; username: string; displayName: string; role: Role; enabled: boolean; createdAt: string }
 export interface Product { id: number; sku: string; barcode: string | null; name: string; unit: string; price: number; quantity: number; safetyStock: number; reorderThreshold: number; category: string | null; supplier: string | null; active: boolean; updatedAt: string }
 export interface Transaction { id: number; productId: number; productName: string; type: 'STOCK_IN' | 'STOCK_OUT' | 'ADJUSTMENT' | 'STOCKTAKE'; delta: number; quantityBefore: number; quantityAfter: number; reason: string; actor: string; createdAt: string }
-export interface Warning { id: number; productId: number; sku: string; productName: string; type: 'LOW' | 'OUT' | 'RESTOCKED'; state: 'OPEN' | 'RESOLVED'; quantity: number; threshold: number; acknowledgedBy: string | null; acknowledgedAt: string | null; createdAt: string; expiresAt: string }
+export interface Warning { id: number; productId: number; sku: string; productName: string; type: 'LOW' | 'OUT' | 'RESTOCKED'; state: 'OPEN' | 'RESOLVED'; quantity: number; threshold: number; acknowledgedBy: string | null; acknowledgedAt: string | null; createdAt: string; expiresAt: string; reviewStage: 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'RECOVERED'; severity: string; assignedToId?: number; assignedTo?: string; recoveredAt?: string; previousId?: number }
+export interface WarningAction { id: number; action: string; note: string; actor: string; createdAt: string }
 export interface Page<T> { items: T[]; page: number; size: number; totalElements: number; totalPages: number }
 export interface Category { id: number; name: string; description: string; active: boolean }
 export interface Supplier { id: number; name: string; contactName: string; email: string; phone: string; active: boolean }

@@ -21,6 +21,7 @@ class InventoryService {
  private final UserRepository users; private final TransactionRepository transactions; private final WarningRepository warnings;
  private final SettingRepository settings; private final CacheRevisionRepository revisions; private final StringRedisTemplate redis;
  private final PasswordEncoder encoder; private final ShelfwiseProperties props; private final EntityManager em;
+ @org.springframework.beans.factory.annotation.Autowired private WarningWorkflow workflow;
  InventoryService(ProductRepository p,CategoryRepository c,SupplierRepository s,UserRepository u,TransactionRepository t,WarningRepository w,SettingRepository set,CacheRevisionRepository rev,StringRedisTemplate redis,PasswordEncoder encoder,ShelfwiseProperties props,EntityManager em){this.products=p;this.categories=c;this.suppliers=s;this.users=u;this.transactions=t;this.warnings=w;this.settings=set;this.revisions=rev;this.redis=redis;this.encoder=encoder;this.props=props;this.em=em;}
 
  @Transactional(readOnly=true) PageResult<ProductView> listProducts(String q,Long categoryId,String status,boolean archived,int page,int size,String sort,String direction){
@@ -82,7 +83,7 @@ class InventoryService {
   return response;
  }
  private PageResult<WarningView> decodePage(String json){try{return new com.fasterxml.jackson.databind.ObjectMapper().findAndRegisterModules().readValue(json,new com.fasterxml.jackson.core.type.TypeReference<PageResult<WarningView>>(){});}catch(Exception e){throw new IllegalStateException(e);}}
- @Transactional WarningView acknowledge(long id,String username){WarningEpisode w=warnings.lockById(id).orElseThrow(()->notFound("Warning not found"));if(w.acknowledgedBy!=null)return WarningView.of(w);w.acknowledgedBy=users.findByUsername(username).orElseThrow();w.acknowledgedAt=Instant.now();invalidate();return WarningView.of(w);}
+ @Transactional WarningView acknowledge(long id,String username){return workflow.acknowledge(id,username);}
  @Transactional(readOnly=true) DashboardView dashboard(){
   List<Product> all=products.findAllByActiveTrue();long low=all.stream().filter(p->p.quantity>0&&p.quantity<=p.reorderThreshold).count();long out=all.stream().filter(p->p.quantity==0).count();
   BigDecimal value=all.stream().map(p->p.price.multiply(BigDecimal.valueOf(p.quantity))).reduce(BigDecimal.ZERO,BigDecimal::add);
@@ -118,12 +119,12 @@ class InventoryService {
   for(Product p:products.findAll())updateWarning(p);
  }
  private void addProduct(String sku,String code,String name,String unit,double price,long qty,long threshold,Category c){Product p=new Product();p.sku=sku;p.barcode=code;p.name=name;p.unit=unit;p.price=BigDecimal.valueOf(price);p.quantity=qty;p.safetyStock=Math.min(qty/2,threshold);p.reorderThreshold=threshold;p.category=c;p=products.save(p);if(qty>0){InventoryTransaction t=new InventoryTransaction();t.product=p;t.actor=users.findByUsername("admin").orElseThrow();t.type=MovementType.STOCK_IN;t.delta=qty;t.quantityBefore=0;t.quantityAfter=qty;t.reason="Opening demonstration stock";t.idempotencyKey="seed-"+sku;transactions.save(t);}}
- @Transactional void cleanupExpiries(){var expired=warnings.findByTypeAndStateAndExpiresAtBefore(WarningType.RESTOCKED,WarningState.OPEN,Instant.now());for(WarningEpisode w:expired)w.state=WarningState.RESOLVED;if(!expired.isEmpty())invalidate();}
+ @Transactional void cleanupExpiries(){var expired=warnings.findByTypeAndStateAndExpiresAtBefore(WarningType.RESTOCKED,WarningState.OPEN,Instant.now());for(WarningEpisode w:expired)workflow.recover(w);if(!expired.isEmpty())invalidate();}
  @Transactional void updateWarning(Product p){List<WarningEpisode> open=warnings.findByProductIdAndState(p.id,WarningState.OPEN);WarningType next=p.quantity==0?WarningType.OUT:p.quantity<=p.reorderThreshold?WarningType.LOW:null;
-  if(!p.active){for(WarningEpisode w:open)w.state=WarningState.RESOLVED;return;}
-  if(next==null){boolean hadShortage=open.stream().anyMatch(w->w.type!=WarningType.RESTOCKED);for(WarningEpisode w:open)if(w.type!=WarningType.RESTOCKED)w.state=WarningState.RESOLVED;if(hadShortage&&open.stream().noneMatch(w->w.type==WarningType.RESTOCKED)){WarningEpisode w=new WarningEpisode();w.product=p;w.type=WarningType.RESTOCKED;w.observedQuantity=p.quantity;w.threshold=p.reorderThreshold;w.createdAt=Instant.now();w.expiresAt=w.createdAt.plus(Duration.ofHours(24));warnings.save(w);}return;}
-  for(WarningEpisode w:open)if(w.type!=next||w.type==WarningType.RESTOCKED)w.state=WarningState.RESOLVED;
-  if(open.stream().noneMatch(w->w.type==next&&w.state==WarningState.OPEN)){WarningEpisode w=new WarningEpisode();w.product=p;w.type=next;w.observedQuantity=p.quantity;w.threshold=p.reorderThreshold;w.createdAt=Instant.now();w.expiresAt=w.createdAt.plus(Duration.ofDays(3650));warnings.save(w);}
+  if(!p.active){for(WarningEpisode w:open)workflow.recover(w);return;}
+  if(next==null){boolean hadShortage=open.stream().anyMatch(w->w.type!=WarningType.RESTOCKED);for(WarningEpisode w:open)if(w.type!=WarningType.RESTOCKED)workflow.recover(w);if(hadShortage&&open.stream().noneMatch(w->w.type==WarningType.RESTOCKED)){WarningEpisode w=new WarningEpisode();w.product=p;w.type=WarningType.RESTOCKED;w.observedQuantity=p.quantity;w.threshold=p.reorderThreshold;w.createdAt=Instant.now();w.expiresAt=w.createdAt.plus(Duration.ofHours(24));warnings.save(w);workflow.created(w);}return;}
+  for(WarningEpisode w:open)if(w.type!=next||w.type==WarningType.RESTOCKED)workflow.recover(w);
+  if(open.stream().noneMatch(w->w.type==next&&w.state==WarningState.OPEN)){WarningEpisode w=new WarningEpisode();w.product=p;w.type=next;w.observedQuantity=p.quantity;w.threshold=p.reorderThreshold;w.createdAt=Instant.now();w.expiresAt=w.createdAt.plus(Duration.ofDays(3650));w.previousId=warnings.findFirstByProductIdAndTypeOrderByCreatedAtDesc(p.id,next).map(x->x.id).orElse(null);warnings.save(w);workflow.created(w);}
   else open.stream().filter(w->w.type==next&&w.state==WarningState.OPEN).findFirst().ifPresent(w->{w.observedQuantity=p.quantity;w.threshold=p.reorderThreshold;});
  }
  private void invalidate(){revisions.increment();}

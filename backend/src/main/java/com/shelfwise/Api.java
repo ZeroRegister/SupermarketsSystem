@@ -20,8 +20,12 @@ record ProductView(Long id,String sku,String barcode,String name,String unit,Big
 record TransactionView(Long id,Long productId,String productName,MovementType type,long delta,long quantityBefore,long quantityAfter,String reason,String actor,Instant createdAt) {
  static TransactionView of(InventoryTransaction t){return new TransactionView(t.id,t.product.id,t.product.name,t.type,t.delta,t.quantityBefore,t.quantityAfter,t.reason,t.actor.displayName,t.createdAt);}
 }
-record WarningView(Long id,Long productId,String sku,String productName,WarningType type,WarningState state,long quantity,long threshold,String acknowledgedBy,Instant acknowledgedAt,Instant createdAt,Instant expiresAt) {
- static WarningView of(WarningEpisode w){return new WarningView(w.id,w.product.id,w.product.sku,w.product.name,w.type,w.state,w.observedQuantity,w.threshold,w.acknowledgedBy==null?null:w.acknowledgedBy.displayName,w.acknowledgedAt,w.createdAt,w.expiresAt);}
+record WarningView(Long id,Long productId,String sku,String productName,WarningType type,WarningState state,long quantity,long threshold,String acknowledgedBy,Instant acknowledgedAt,Instant createdAt,Instant expiresAt,ReviewStage reviewStage,String severity,Long assignedToId,String assignedTo,Instant recoveredAt,Long previousId) {
+ static WarningView of(WarningEpisode w){return new WarningView(w.id,w.product.id,w.product.sku,w.product.name,w.type,w.state,w.observedQuantity,w.threshold,w.acknowledgedBy==null?null:w.acknowledgedBy.displayName,w.acknowledgedAt,w.createdAt,w.expiresAt,w.reviewStage,w.type==WarningType.OUT?"CRITICAL":w.type==WarningType.RESTOCKED?"INFO":w.observedQuantity<=w.product.safetyStock?"HIGH":"MEDIUM",w.assignedTo==null?null:w.assignedTo.id,w.assignedTo==null?null:w.assignedTo.displayName,w.recoveredAt,w.previousId);}
+}
+record WarningActionInput(@NotBlank @Pattern(regexp="ASSIGN|PROCESS|NOTE") String action,Long assigneeId,@NotBlank @Size(max=1000) String note) {}
+record WarningActionView(Long id,String action,String note,String actor,Instant createdAt) {
+ static WarningActionView of(WarningAction a){return new WarningActionView(a.id,a.action,a.note,a.actor==null?"System":a.actor.displayName,a.createdAt);}
 }
 record UserView(Long id,String username,String displayName,Role role,boolean enabled,Instant createdAt) {
  static UserView of(UserAccount u){return new UserView(u.id,u.username,u.displayName,u.role,u.enabled,u.createdAt);}

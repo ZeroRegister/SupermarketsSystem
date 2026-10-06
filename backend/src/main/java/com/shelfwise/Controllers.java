@@ -30,6 +30,10 @@ class ApiController {
  @GetMapping("/transactions") PageResult<TransactionView> transactions(@RequestParam(required=false)Long productId,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="20")int size){return service.history(productId,page,size);}
  @GetMapping("/warnings") PageResult<WarningView> warnings(@RequestParam(defaultValue="")String type,@RequestParam(defaultValue="open")String state,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="20")int size,@RequestParam(defaultValue="true")boolean cache){if(!type.isBlank()&&!Set.of("LOW","OUT","RESTOCKED").contains(type.toUpperCase()))throw new DomainException("VALIDATION","Unknown warning type",400);if(!Set.of("open","resolved","all").contains(state.toLowerCase()))throw new DomainException("VALIDATION","Unknown warning state",400);return service.warningPage(type,state,page,size,cache);}
  @PostMapping("/warnings/{id}/ack") WarningView acknowledge(@PathVariable long id,org.springframework.security.core.Authentication auth){return service.acknowledge(id,auth.getName());}
+ @org.springframework.beans.factory.annotation.Autowired private WarningWorkflow workflow;
+ @GetMapping("/warnings/assignees") List<UserView> assignees(){return workflow.assignees();}
+ @GetMapping("/warnings/{id}/history") List<WarningActionView> warningHistory(@PathVariable long id){return workflow.history(id);}
+ @PostMapping("/warnings/{id}/actions") WarningView warningAction(@PathVariable long id,@Valid @RequestBody WarningActionInput in,org.springframework.security.core.Authentication auth){return workflow.act(id,in,auth.getName());}
  @GetMapping("/dashboard") DashboardView dashboard(){return service.dashboard();}
  @GetMapping("/stock-summary") DashboardView stockSummary(){var d=service.dashboard();return new DashboardView(d.productCount(),d.lowStock(),d.outOfStock(),d.inventoryValue(),d.transactionCount(),d.activityDates(),d.activityCounts(),d.categoryMix(),d.urgentProducts(),List.of());}
  @GetMapping("/reports/summary") Map<String,Object> report(){return service.report();}
