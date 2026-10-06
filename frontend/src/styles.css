@@ -18,3 +18,16 @@
 .warning-row-icon .el-icon{width:auto;height:auto;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
 .warning-icon-out{color:#b85d68;background:#fae9ec}
 .warning-icon-low{color:#b47b2e;background:#fff2dd}
+
+/* Navigation hierarchy: group related tasks without adding visual noise. */
+.nav-group+.nav-group{margin-top:18px;padding-top:14px;border-top:1px solid #f0f2f6}
+.nav-section-label{display:block;margin:0 11px 7px;color:#a0a8b5;font-size:9px;font-weight:700;letter-spacing:1.15px;text-transform:uppercase}
+.nav-group .nav-item{margin-top:2px;margin-bottom:2px}
+@media(max-width:940px){
+  .nav-group+.nav-group{margin-top:10px;padding-top:8px;border-top:0}
+}
+@media(max-width:720px){
+  .nav-group{display:contents}
+  .nav-item{display:none}
+  .side-nav .nav-item.mobile-nav-visible{display:grid!important}
+}
