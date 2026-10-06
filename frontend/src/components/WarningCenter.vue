@@ -3,6 +3,8 @@ import { onMounted, ref, watch, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { api, warnings } from '../api'
 import type { Page, Warning, WarningAction, User } from '../types'
+import { useRouter } from 'vue-router'
+const router=useRouter()
 const page=ref<Page<Warning>>(), state=ref('open'), type=ref(''), index=ref(0), loading=ref(false), saving=ref(false)
 const selected=ref<Warning>(), history=ref<WarningAction[]>([]), assignees=ref<User[]>([]), open=ref(false), assignee=ref<number>(), note=ref('')
 const labels:Record<string,string>={OUT:'Out of stock',LOW:'Low stock',RESTOCKED:'Restocked',EXPIRING:'Near expiry',EXPIRED:'Expired',SLOW:'Slow-moving stock',PENDING:'Pending',CONFIRMED:'Confirmed',PROCESSING:'Processing',RECOVERED:'Recovered'}
@@ -28,6 +30,7 @@ async function act(action:string){if(!selected.value||saving.value)return;if(act
     <el-form label-position="top"><el-form-item label="Assigned team member"><el-select v-model="assignee" clearable :disabled="selected.state==='RESOLVED'"><el-option v-for="u in assignees" :key="u.id" :label="u.displayName" :value="u.id"/></el-select></el-form-item><el-form-item label="Handling note"><el-input v-model="note" type="textarea" :rows="3" maxlength="1000"/></el-form-item></el-form>
     <div class="feature-actions"><el-button v-if="selected.state==='OPEN'&&!selected.acknowledgedBy" :loading="saving" @click="act('CONFIRM')">Confirm</el-button><el-button v-if="selected.state==='OPEN'" :disabled="saving" @click="act('ASSIGN')">Save assignment</el-button><el-button v-if="selected.state==='OPEN'&&selected.reviewStage!=='PROCESSING'" type="primary" :disabled="saving" @click="act('PROCESS')">Start handling</el-button><el-button :disabled="saving" @click="act('NOTE')">Add note</el-button></div>
     <h3>History</h3><el-timeline><el-timeline-item v-for="a in history" :key="a.id" :timestamp="new Date(a.createdAt).toLocaleString()"><b>{{ a.actor }} · {{ a.action }}</b><div>{{ a.note }}</div></el-timeline-item></el-timeline>
+    <el-button v-if="selected.state==='OPEN'&&['OUT','LOW'].includes(selected.type)" @click="router.push({path:'/',query:{view:'purchases',productId:selected.productId,warningId:selected.id}})">Replenish stock</el-button>
    </template>
   </el-dialog>
   <el-dialog v-model="rulesOpen" title="Warning rules" width="520px"><el-form label-position="top"><el-form-item label="Near-expiry window (days)"><el-input-number v-model="policy.nearExpiryDays" :min="0" :max="365"/></el-form-item><el-form-item label="No-sales observation window (days)"><el-input-number v-model="policy.slowStockDays" :min="1" :max="3650"/></el-form-item><el-form-item label="Minimum sellable stock for slow-stock warning"><el-input-number v-model="policy.slowStockMinimum" :min="1" :max="1000000000"/></el-form-item><el-form-item label="Business time zone"><el-input v-model="policy.businessTimezone"/></el-form-item></el-form><div class="feature-facts"><span>Scheduled check: every {{ refreshStatus.intervalSeconds||30 }} seconds</span><span>Failed products: {{ refreshStatus.failedProducts||0 }}</span></div><template #footer><el-button @click="rulesOpen=false">Cancel</el-button><el-button type="primary" :loading="saving" @click="savePolicy">Save rules</el-button></template></el-dialog>

@@ -32,6 +32,28 @@ class InventoryIntegrationTest {
  @Autowired WarningWorkflow workflow;
  @Autowired BatchInventory batches;
  @Autowired WarningRules rules;
+ @Autowired Purchasing purchasing;
+ @Test void purchasePartialReceiptReplayAndCancellationPreserveInventory(){
+  Product p=fresh();var supplier=service.createSupplier(new SupplierInput("Vendor "+UUID.randomUUID(),null,null,null));
+  var o=purchasing.save(null,new PurchaseInput(supplier.id,List.of(new PurchaseLineInput(p.id,10)),"Replenish",null),"clerk");
+  purchasing.act(o.id(),new PurchaseActionInput("SUBMIT","Ready"),"clerk");purchasing.act(o.id(),new PurchaseActionInput("APPROVE","Checked"),"manager");
+  var s=purchasing.suggestions().stream().filter(x->x.productId().equals(p.id)).findFirst();assertThat(s).isEmpty();
+  var in=new ReceiptInput(o.lines().getFirst().id(),4,"po-batch",null,batches.today().plusDays(10),UUID.randomUUID().toString());
+  var a=purchasing.receive(o.id(),in,"clerk");assertThat(purchasing.receive(o.id(),in,"clerk").id()).isEqualTo(a.id());assertThat(a.quantity()).isEqualTo(4);
+  assertThat(service.product(p.id).quantity()).isEqualTo(4);assertThat(purchasing.get(o.id()).state()).isEqualTo(PurchaseState.PARTIAL);
+  assertThatThrownBy(()->purchasing.receive(o.id(),new ReceiptInput(in.lineId(),7,null,null,null,UUID.randomUUID().toString()),"clerk")).isInstanceOf(DomainException.class);
+  purchasing.act(o.id(),new PurchaseActionInput("CANCEL","Cancel unreceived remainder"),"manager");assertThat(purchasing.get(o.id()).lines().getFirst().remaining()).isZero();assertThat(service.product(p.id).quantity()).isEqualTo(4);
+  assertThat(purchasing.suggestions()).anyMatch(x->x.productId().equals(p.id)&&x.suggested()==6);
+ }
+ @Test void concurrentApprovalsPreventDuplicateReplenishment()throws Exception{
+  Product p=fresh();var vendor=service.createSupplier(new SupplierInput("Vendor "+UUID.randomUUID(),null,null,null));List<Long> ids=new ArrayList<>();
+  for(int i=0;i<2;i++){var o=purchasing.save(null,new PurchaseInput(vendor.id,List.of(new PurchaseLineInput(p.id,10)),"Replenish",null),"clerk");purchasing.act(o.id(),new PurchaseActionInput("SUBMIT","Ready"),"clerk");ids.add(o.id());}
+  var executor=Executors.newFixedThreadPool(2);try{List<Future<Boolean>> fs=new ArrayList<>();for(Long id:ids)fs.add(executor.submit(()->{try{purchasing.act(id,new PurchaseActionInput("APPROVE","Checked"),"manager");return true;}catch(DomainException e){return false;}}));int approved=0;for(var f:fs)if(f.get())approved++;assertThat(approved).isEqualTo(1);}finally{executor.shutdownNow();}
+ }
+ @Test void clerkCannotApprovePurchaseAndManagerCannotReceive()throws Exception{
+  mvc.perform(post("/api/purchases/1/actions").with(user("clerk").roles("CLERK")).with(csrf()).contentType("application/json").content("{\"action\":\"APPROVE\",\"note\":\"Checked\"}")).andExpect(status().isForbidden());
+  mvc.perform(post("/api/purchases/1/receipts").with(user("manager").roles("MANAGER")).with(csrf()).contentType("application/json").content("{}")).andExpect(status().isForbidden());
+ }
  @org.springframework.test.context.bean.override.mockito.MockitoSpyBean java.time.Clock clock;
  @Test void expiryDayIsSellableAndFollowingBusinessDayExpires(){
   org.mockito.Mockito.doReturn(Instant.parse("2026-04-01T15:59:50Z")).when(clock).instant();

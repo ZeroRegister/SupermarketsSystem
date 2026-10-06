@@ -27,3 +27,7 @@ Stock changes update warnings in the same MySQL transaction, so failed writes ca
 ## Slow-moving stock
 
 V5 introduces `SALE` separately from ordinary `STOCK_OUT`. Earlier dispatches are not retroactively relabeled as sales. A slow-stock event requires at least the configured sellable minimum, a product age covering the whole observation window, and no `SALE` since the start of the observation window in the business timezone. Default: 30 days and 10 units. Fresh catalogue entries are not immediately marked slow. Other receipts, transfers and adjustments are not sales. This is an explainable inactivity rule, not demand forecasting.
+
+## Purchasing
+
+V6 supports multi-product drafts, submission, rejection/editing, approval, partial receipts, completion and cancellation of the remainder. Approval is manager/admin-only and receiving is clerk/admin-only. Approval may be performed by the creator if their role permits it; this is the chosen small-store default. Product locks in ID order serialize concurrent approvals and receipts. Each approval rechecks sellable stock plus approved/partial pending units against the trigger and target. Draft/submitted/rejected/cancelled units never inflate stock position. Receipt replay validates the whole payload and creates one batch/movement atomically. Cancelling a partially received order retains all receipt history and physical stock. Ordinary receipts remain available for opening balances and non-purchase transfers; supplier purchases should use approved purchase receipts. No payment or settlement is provided.

@@ -32,6 +32,8 @@ class SecurityConfig {
       .requestMatchers(HttpMethod.GET,"/api/settings").authenticated()
       .requestMatchers("/api/users/**","/api/settings/**").hasRole("ADMIN")
       .requestMatchers(HttpMethod.PATCH,"/api/products/*/thresholds").hasAnyRole("ADMIN","MANAGER")
+      .requestMatchers(HttpMethod.PATCH,"/api/products/*/target").hasAnyRole("ADMIN","MANAGER")
+      .requestMatchers(HttpMethod.POST,"/api/purchases/*/receipts").hasAnyRole("ADMIN","CLERK")
       .requestMatchers(HttpMethod.POST,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
       .requestMatchers(HttpMethod.PUT,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")
       .requestMatchers(HttpMethod.DELETE,"/api/products/**","/api/categories/**","/api/suppliers/**").hasRole("ADMIN")

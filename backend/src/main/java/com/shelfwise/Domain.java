@@ -40,6 +40,7 @@ enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
     @Column(length=40) String phone;
     @Column(nullable=false) boolean active=true;
     protected Supplier(){}
+    @Column(nullable=false) int leadTimeDays=3;
 }
 
 @Entity @Table(name="products", indexes={@Index(name="idx_product_name",columnList="name"),@Index(name="idx_product_category",columnList="category_id"),@Index(name="idx_product_quantity",columnList="quantity")}) class Product {
@@ -53,6 +54,7 @@ enum ReviewStage { PENDING, CONFIRMED, PROCESSING, RECOVERED }
     @Column(nullable=false) long sellableQuantity=0;
     @Column(nullable=false) long safetyStock=0;
     @Column(nullable=false) long reorderThreshold=0;
+    @Column(nullable=false) long targetStock=1;
     @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="category_id") Category category;
     @ManyToOne(fetch=FetchType.EAGER) @JoinColumn(name="supplier_id") Supplier supplier;
     @Column(nullable=false) boolean active=true;
