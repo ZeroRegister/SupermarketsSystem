@@ -11,9 +11,9 @@ interface UserRepository extends JpaRepository<UserAccount,Long> { Optional<User
 interface CategoryRepository extends JpaRepository<Category,Long> { boolean existsByNameIgnoreCase(String name); }
 interface SupplierRepository extends JpaRepository<Supplier,Long> {}
 interface ProductRepository extends JpaRepository<Product,Long>, JpaSpecificationExecutor<Product> {
+ @Query("select p.id from Product p order by p.id") List<Long> allIds();
  @Lock(LockModeType.PESSIMISTIC_WRITE) @Query("select p from Product p where p.id=:id") Optional<Product> lockById(@Param("id") Long id);
  boolean existsBySkuIgnoreCaseAndIdNot(String sku,Long id); boolean existsByBarcodeIgnoreCaseAndIdNot(String barcode,Long id);
  List<Product> findAllByActiveTrue();
 }
 interface TransactionRepository extends JpaRepository<InventoryTransaction,Long> {
- @EntityGraph(attributePaths={"product","actor"})

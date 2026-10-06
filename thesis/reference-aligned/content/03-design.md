@@ -23,7 +23,7 @@ The server refinement in {fig:backend} maps security filters, controllers, the i
 The service is intentionally central to the current implementation. It contains catalogue, stock, warning, report and access operations. This concentration makes the coordinated write path visible, although a growing codebase would benefit from separating query and command responsibilities. Any later refactoring must preserve the effective transaction boundary; extracting a warning method into another service is insufficient if the invocation no longer participates in the stock transaction.
 ## Relational database design
 ### Overall relationships
-The relational model in {fig:er-overall} comprises eight tables. Products may reference a category and supplier. Inventory transactions require a product and actor. Warnings require a product and optionally reference a reviewer. Settings and cache revision are independent supporting tables. The schema does not contain purchase orders, sales orders, stores or permission-association tables because those objects are not part of the implemented boundary.
+The relational model in {fig:er-overall} is extended by eight migrations. Products may reference a category and supplier; batch balances attach to products; inventory transactions retain product and actor attribution; warnings can reference a reviewer; stock reviews and purchasing records retain their own request keys and action histories. Settings and cache revision remain supporting tables. The schema still excludes sales orders, accounting documents, stores and permission-association tables.
 @fig er-overall|diagrams/11-er-overall.png|Overall schema derived from the initial Flyway migration
 
 The reference-data relationships are nullable on the product side. A product can be unclassified or have no supplier; one category or supplier can be associated with many products. Actor relationships for movements are mandatory. Review attribution is nullable because an episode may not yet have been acknowledged. These distinctions are reflected by foreign keys and by the relationship notation in the figures.
@@ -49,7 +49,7 @@ The movement relationships in {fig:er-movements} connect the operational change 
 
 The ledger is retained by application behavior: there is no edit or delete endpoint for accepted movements. This is not a cryptographic tamper-evidence mechanism. Database administrators, backup tools and direct SQL have a different authority boundary. A production audit requirement would need to specify retention, access controls and possibly append-only or signed storage beyond this application-level history.
 ### Warning episodes and review attribution
-The warning model in {fig:er-warnings} stores severity, lifecycle state, observed quantity, threshold and timestamps. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.
+The warning model in {fig:er-warnings} stores type, lifecycle state, observed quantity, threshold and timestamps. Later migrations add rule-policy data for expiry and slow-moving evaluation. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.
 @fig er-warnings|diagrams/14-er-warnings.png|Warning episodes with optional reviewer attribution
 @schema warnings
 
@@ -67,7 +67,11 @@ The domain class diagram in {fig:domain-classes} shows the implemented Product, 
 
 The dependency diagram in {fig:service-classes} identifies InventoryService methods and the repository interfaces used by the stock and warning paths. A repository dependency does not transfer responsibility for an operation's overall consistency. For example, saving a transaction row is only one step: the service must also assign the quantity, evaluate warning state and advance revision before the encompassing transaction completes.
 @fig service-classes|diagrams/17-uml-service.png|Inventory service dependencies on repository interfaces
-## Transactional stock consistency
+## Batch allocation, warning policy and transactional stock consistency
+
+Batch receipts create dated inventory identities. Dispatch selects sellable batches by FEFO when expiry dates exist and uses FIFO as the deterministic fallback. Expired or quarantined batches remain physically present but are excluded from sellable quantity. The batch remainder is rechecked when disposal or review is approved, so an approval cannot remove stock that another transaction has already consumed.
+
+Expiry is evaluated using the configured business timezone and the documented inclusive boundary: a batch is sellable on its expiry date and expires on the following business date. Slow-moving detection uses sales-only movements, excluding receipts, adjustments and stocktakes from the sales signal. These policies are deliberately explicit because a generic quantity threshold cannot express product age or movement inactivity.
 ### Product locking and bounded arithmetic
 The server first loads the authenticated actor and acquires a product-row locking read. MySQL documents locking reads as a mechanism for reserving a row for coordinated updates until commit or rollback [@mysql-locks]. Spring Data JPA exposes repository-level lock modes through its locking facilities [@spring-locks]. Shelfwise uses these mechanisms at the product boundary instead of calculating a new quantity from a previously displayed value.
 
@@ -101,13 +105,15 @@ A cache fill that began before a write can complete under the old revision. A la
 
 The SQL filtering precedes pagination so totals correspond to the requested warning type and lifecycle selection. Page content, total elements and total pages are serialized together. Cache equivalence is therefore defined over the response contract, not merely over the first displayed row. Malformed cached JSON and broader database outages remain useful fault cases beyond the recorded Redis interruption.
 ## Permissions and request security
-The authorization matrix in {tab:role-matrix} is implemented by HTTP method and route patterns. Threshold changes have a narrower route so managers can alter stock policy without editing SKU, name or supplier. Posting a movement is allowed for administrators and clerks. Warnings and reports are allowed for administrators and managers. Staff accounts and settings changes are administrator operations.
+The authorization matrix in {tab:role-matrix} is implemented by HTTP method and route patterns. Threshold and replenishment-target changes have narrower routes so managers can alter policy without editing identity fields. Posting ordinary stock is allowed for administrators and clerks; adjustment, stocktake, count approval and disposal approval use the review workflow. Warnings, reports, purchase approval and warning policies are manager operations. Staff accounts and settings changes remain administrator operations.
 @table role-matrix|Server authorization matrix
 Operation | Administrator | Manager | Clerk
 Read inventory and movement history | Yes | Yes | Yes
-Post receipt dispatch adjustment or count | Yes | No | Yes
+Post receipt and dispatch | Yes | No | Yes
+Submit count or disposal review | Yes | No | Yes
+Approve review or purchase | Yes | Yes | No
 Create edit or archive product | Yes | No | No
-Update stock thresholds | Yes | Yes | No
+Update stock thresholds and target | Yes | Yes | No
 Read warning board and reports | Yes | Yes | No
 Acknowledge a warning | Yes | Yes | No
 Manage users and access | Yes | No | No
@@ -119,4 +125,6 @@ The request-security path in {fig:security} combines session identity, CSRF prot
 
 Password hashes use BCrypt, and session ID rotation occurs after authentication. Account access is reloaded from MySQL during later requests. These implemented measures do not supply rate limiting, MFA, password recovery or a completed penetration assessment. Production deployment would also require TLS and secure cookie configuration. The design chapter distinguishes those deployment obligations from the controls that are present in the source.
 ## Chapter summary
+
+The design now connects product quantity to dated batches, rule-specific warnings, review snapshots and purchase documents. The same principles remain: MySQL owns accepted facts, Redis accelerates reads, and server-side authorization protects every state transition.
 The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.

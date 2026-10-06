@@ -1,0 +1,33 @@
+ @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED) PurchaseView act(long id,PurchaseActionInput in,String username){
+  PurchaseOrder o=orders.locked(id).orElseThrow(()->error("Purchase not found",404));var items=lines.findByOrderIdOrderByProductId(id);
+  // Product locks are ordered, and serialize approval against other approvals and receipts.
+  for(PurchaseLine l:items){var p=products.lockById(l.product.id).orElseThrow();em.refresh(p);}
+  switch(in.action()){
+   case "SUBMIT" -> {if(o.state==PurchaseState.SUBMITTED)return view(o);if(o.state!=PurchaseState.DRAFT&&o.state!=PurchaseState.REJECTED)throw error("Purchase cannot be submitted in this state",409);o.state=PurchaseState.SUBMITTED;}
+   case "APPROVE" -> {if(o.state==PurchaseState.APPROVED)return view(o);if(o.state!=PurchaseState.SUBMITTED)throw error("Only submitted purchases can be approved",409);for(PurchaseLine l:items){Product p=l.product;inventory.refreshWarning(p.id);Suggestion s=suggestion(p);if(!p.active||l.quantity>s.suggested()||s.suggested()==0)throw error("Recheck replenishment: requested quantity exceeds current recommendation for "+p.name,409);}o.state=PurchaseState.APPROVED;o.reviewedBy=actor(username);o.reviewNote=in.note().trim();}
+   case "REJECT" -> {if(o.state==PurchaseState.REJECTED)return view(o);if(o.state!=PurchaseState.SUBMITTED)throw error("Only submitted purchases can be rejected",409);o.state=PurchaseState.REJECTED;o.reviewedBy=actor(username);o.reviewNote=in.note().trim();}
+   case "CANCEL" -> {if(o.state==PurchaseState.CANCELLED)return view(o);if(o.state==PurchaseState.COMPLETED)throw error("Completed purchases cannot be cancelled",409);o.state=PurchaseState.CANCELLED;}
+   default -> throw error("Unknown purchase action",400);
+  }o.updatedAt=clock.instant();log(o,username,in.action(),in.note().trim());return view(o);
+ }
+ @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED) ReceiptView receive(long id,ReceiptInput in,String username){
+  PurchaseOrder o=orders.locked(id).orElseThrow(()->error("Purchase not found",404));UserAccount actor=actor(username);String payload=id+"|"+in.lineId()+"|"+in.quantity()+"|"+Objects.toString(in.batchNumber(),"")+"|"+in.productionDate()+"|"+in.expiryDate();
+  var prior=receipts.findByActorIdAndRequestKey(actor.id,in.idempotencyKey());if(prior.isPresent()){if(!prior.get().payload.equals(payload))throw error("Receipt key used with a different payload",409);return receiptView(prior.get());}
+  if(o.state!=PurchaseState.APPROVED&&o.state!=PurchaseState.PARTIAL)throw error("Only approved purchases can receive stock",409);
+  var items=lines.findByOrderIdOrderByProductId(id);for(var l:items){var p=products.lockById(l.product.id).orElseThrow();em.refresh(p);}
+  PurchaseLine l=items.stream().filter(x->x.id.equals(in.lineId())).findFirst().orElseThrow(()->error("Purchase line not found",404));if(in.quantity()>l.quantity-l.received)throw error("Receipt exceeds remaining approved quantity",400);
+  var movement=inventory.move(new TransactionInput(l.product.id,MovementType.STOCK_IN,in.quantity(),"Purchase #"+id+" receipt", "po:"+UUID.nameUUIDFromBytes(in.idempotencyKey().getBytes(java.nio.charset.StandardCharsets.UTF_8)),in.batchNumber(),in.productionDate(),in.expiryDate(),null),username);
+  l.received+=in.quantity();o.state=items.stream().allMatch(x->x.received==x.quantity)?PurchaseState.COMPLETED:PurchaseState.PARTIAL;o.updatedAt=clock.instant();
+  PurchaseReceipt r=new PurchaseReceipt();r.order=o;r.line=l;r.actor=actor;r.requestKey=in.idempotencyKey();r.payload=payload;r.createdAt=clock.instant();r.transaction=transactions.findById(movement.id()).orElseThrow();receipts.saveAndFlush(r);log(o,username,"RECEIVE","Received "+in.quantity()+" units of "+l.product.name);return receiptView(r);
+ }
+ @Transactional(readOnly=true) PageResult<PurchaseView> list(int page,int size){return PageResult.of(orders.findAll(PageRequest.of(Math.max(0,page),Math.min(100,Math.max(1,size)),Sort.by(Sort.Direction.DESC,"id"))).map(this::view));}
+ @Transactional(readOnly=true) PurchaseView get(long id){return view(orders.findById(id).orElseThrow(()->error("Purchase not found",404)));}
+ @Transactional(readOnly=true) List<ReceiptView> receipts(long id){return receipts.findByOrderIdOrderByIdDesc(id).stream().map(this::receiptView).toList();}
+ @Transactional(readOnly=true) List<PurchaseActionView> history(long id){return actions.findByOrderIdOrderByIdDesc(id).stream().map(a->new PurchaseActionView(a.action,a.note,a.actor.displayName,a.createdAt)).toList();}
+ private PurchaseView view(PurchaseOrder o){return new PurchaseView(o.id,o.supplier.name,o.state,o.createdBy.displayName,o.reviewedBy==null?null:o.reviewedBy.displayName,o.reason,o.reviewNote,o.warning==null?null:o.warning.id,o.createdAt,lines.findByOrderIdOrderByProductId(o.id).stream().map(l->new PurchaseLineView(l.id,l.product.id,l.product.name,l.quantity,l.received,o.state==PurchaseState.CANCELLED?0:l.quantity-l.received)).toList());}
+ private ReceiptView receiptView(PurchaseReceipt r){return new ReceiptView(r.id,r.line.id,r.transaction.delta,r.transaction.id,r.actor.displayName,r.createdAt);}
+ private void log(PurchaseOrder o,String username,String action,String note){PurchaseAction a=new PurchaseAction();a.order=o;a.actor=actor(username);a.action=action;a.note=note;a.createdAt=clock.instant();actions.save(a);}
+ private UserAccount actor(String username){return users.findByUsername(username).filter(u->u.enabled).orElseThrow(()->error("User not found",404));}
+ private DomainException error(String m,int status){return new DomainException(status==409?"CONFLICT":status==404?"NOT_FOUND":"VALIDATION",m,status);}
+}
+

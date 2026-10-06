@@ -66,7 +66,7 @@ The service is intentionally central to the current implementation. It contains 
 
 \subsection{Overall relationships}
 
-The relational model in Figure~\ref{fig:er-overall} comprises eight tables. Products may reference a category and supplier. Inventory transactions require a product and actor. Warnings require a product and optionally reference a reviewer. Settings and cache revision are independent supporting tables. The schema does not contain purchase orders, sales orders, stores or permission-association tables because those objects are not part of the implemented boundary.
+The relational model in Figure~\ref{fig:er-overall} is extended by eight migrations. Products may reference a category and supplier; batch balances attach to products; inventory transactions retain product and actor attribution; warnings can reference a reviewer; stock reviews and purchasing records retain their own request keys and action histories. Settings and cache revision remain supporting tables. The schema still excludes sales orders, accounting documents, stores and permission-association tables.
 
 
 \begin{figure}[htbp]\centering
@@ -225,7 +225,7 @@ The ledger is retained by application behavior: there is no edit or delete endpo
 
 \subsection{Warning episodes and review attribution}
 
-The warning model in Figure~\ref{fig:er-warnings} stores severity, lifecycle state, observed quantity, threshold and timestamps. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.
+The warning model in Figure~\ref{fig:er-warnings} stores type, lifecycle state, observed quantity, threshold and timestamps. Later migrations add rule-policy data for expiry and slow-moving evaluation. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.
 
 
 \begin{figure}[htbp]\centering
@@ -323,7 +323,13 @@ The dependency diagram in Figure~\ref{fig:service-classes} identifies InventoryS
 
 \FloatBarrier
 
-\section{Transactional stock consistency}
+\section{Batch allocation, warning policy and transactional stock consistency}
+
+Batch receipts create dated inventory identities. Dispatch selects sellable batches by FEFO when expiry dates exist and uses FIFO as the deterministic fallback. Expired or quarantined batches remain physically present but are excluded from sellable quantity. The batch remainder is rechecked when disposal or review is approved, so an approval cannot remove stock that another transaction has already consumed.
+
+
+Expiry is evaluated using the configured business timezone and the documented inclusive boundary: a batch is sellable on its expiry date and expires on the following business date. Slow-moving detection uses sales-only movements, excluding receipts, adjustments and stocktakes from the sales signal. These policies are deliberately explicit because a generic quantity threshold cannot express product age or movement inactivity.
+
 
 \FloatBarrier
 
@@ -406,7 +412,7 @@ The SQL filtering precedes pagination so totals correspond to the requested warn
 
 \section{Permissions and request security}
 
-The authorization matrix in Table~\ref{tab:role-matrix} is implemented by HTTP method and route patterns. Threshold changes have a narrower route so managers can alter stock policy without editing SKU, name or supplier. Posting a movement is allowed for administrators and clerks. Warnings and reports are allowed for administrators and managers. Staff accounts and settings changes are administrator operations.
+The authorization matrix in Table~\ref{tab:role-matrix} is implemented by HTTP method and route patterns. Threshold and replenishment-target changes have narrower routes so managers can alter policy without editing identity fields. Posting ordinary stock is allowed for administrators and clerks; adjustment, stocktake, count approval and disposal approval use the review workflow. Warnings, reports, purchase approval and warning policies are manager operations. Staff accounts and settings changes remain administrator operations.
 
 
 \begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
@@ -420,9 +426,11 @@ The authorization matrix in Table~\ref{tab:role-matrix} is implemented by HTTP m
 \midrule\endhead
 \bottomrule\endfoot
 Read inventory and movement history & Yes & Yes & Yes \\
-Post receipt dispatch adjustment or count & Yes & No & Yes \\
+Post receipt and dispatch & Yes & No & Yes \\
+Submit count or disposal review & Yes & No & Yes \\
+Approve review or purchase & Yes & Yes & No \\
 Create edit or archive product & Yes & No & No \\
-Update stock thresholds & Yes & Yes & No \\
+Update stock thresholds and target & Yes & Yes & No \\
 Read warning board and reports & Yes & Yes & No \\
 Acknowledge a warning & Yes & Yes & No \\
 Manage users and access & Yes & No & No \\
@@ -445,4 +453,4 @@ Password hashes use BCrypt, and session ID rotation occurs after authentication.
 
 \section{Chapter summary}
 
-The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.
+The design now connects product quantity to dated batches, rule-specific warnings, review snapshots and purchase documents. The same principles remain: MySQL owns accepted facts, Redis accelerates reads, and server-side authorization protects every state transition. The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.

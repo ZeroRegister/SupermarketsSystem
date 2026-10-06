@@ -1,3 +1,7 @@
+ @org.springframework.beans.factory.annotation.Autowired private WarningRules warningRules;
+ @org.springframework.beans.factory.annotation.Autowired private Clock clock;
+ InventoryService(ProductRepository p,CategoryRepository c,SupplierRepository s,UserRepository u,TransactionRepository t,WarningRepository w,SettingRepository set,CacheRevisionRepository rev,StringRedisTemplate redis,PasswordEncoder encoder,ShelfwiseProperties props,EntityManager em){this.products=p;this.categories=c;this.suppliers=s;this.users=u;this.transactions=t;this.warnings=w;this.settings=set;this.revisions=rev;this.redis=redis;this.encoder=encoder;this.props=props;this.em=em;}
+
  @Transactional(readOnly=true) PageResult<ProductView> listProducts(String q,Long categoryId,String status,boolean archived,int page,int size,String sort,String direction){
   String field=Set.of("name","sku","quantity","price","updatedAt").contains(sort)?sort:"name";
   Sort order=Sort.by("desc".equalsIgnoreCase(direction)?Sort.Direction.DESC:Sort.Direction.ASC,field).and(Sort.by("id"));
@@ -7,10 +11,6 @@
    predicates.add(cb.equal(root.get("active"),!archived));
    if(q!=null&&!q.isBlank()){String like="%"+q.trim().toLowerCase(Locale.ROOT)+"%";predicates.add(cb.or(cb.like(cb.lower(root.get("name")),like),cb.like(cb.lower(root.get("sku")),like),cb.like(cb.lower(root.get("barcode")),like)));}
    if(categoryId!=null)predicates.add(cb.equal(root.get("category").get("id"),categoryId));
-   if("out".equals(status))predicates.add(cb.equal(root.get("quantity"),0L));
-   if("low".equals(status))predicates.add(cb.and(cb.greaterThan(root.get("quantity"),0L),cb.lessThanOrEqualTo(root.get("quantity"),root.get("reorderThreshold"))));
-   if("healthy".equals(status))predicates.add(cb.greaterThan(root.get("quantity"),root.get("reorderThreshold")));
-   return cb.and(predicates.toArray(jakarta.persistence.criteria.Predicate[]::new));
-  };
-  return PageResult.of(products.findAll(spec,pageable).map(ProductView::of));
- }
+   if("out".equals(status))predicates.add(cb.equal(root.get("sellableQuantity"),0L));
+   if("low".equals(status))predicates.add(cb.and(cb.greaterThan(root.get("sellableQuantity"),0L),cb.lessThanOrEqualTo(root.get("sellableQuantity"),root.get("reorderThreshold"))));
+   if("healthy".equals(status))predicates.add(cb.greaterThan(root.get("sellableQuantity"),root.get("reorderThreshold")));

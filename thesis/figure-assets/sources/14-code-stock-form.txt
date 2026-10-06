@@ -1,3 +1,3 @@
-async function openMovement(p?:Product){if(!productPage.value?.items?.length){try{productPage.value=await products({size:100})}catch{}}Object.assign(movementForm,{productId:p?.id,type:'STOCK_IN',quantity:1,reason:''});movementRequestKey.value=crypto.randomUUID();movementDialog.value=true}
-async function saveMovement(){if(!movementForm.productId||!movementForm.reason.trim())return ElMessage.warning('Select a product and record a reason.');if(saving.value)return;saving.value=true;try{await api.post('/transactions',{...movementForm,idempotencyKey:movementRequestKey.value});ElMessage.success('Stock activity recorded with an audit trail.');movementDialog.value=false;loadAll()}catch(e:any){ElMessage.error(e?.response?.data?.message||'Could not record this stock activity.')}finally{saving.value=false}}
-async function acknowledge(w:Warning){try{await api.post(`/warnings/${w.id}/ack`);ElMessage.success(`${w.productName} warning acknowledged.`);await loadAll()}catch(e:any){ElMessage.error(e?.response?.data?.message||'Could not acknowledge this warning.')}}
+ else if(section.value==='categories')categoryList.value=await categories()
+ else if(section.value==='suppliers')supplierList.value=await suppliers()
+ else if(section.value==='team')userList.value=await users()

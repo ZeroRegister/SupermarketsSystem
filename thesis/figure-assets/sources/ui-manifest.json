@@ -10,7 +10,7 @@
     "source": "frontend/src/views/LoginView.vue",
     "url": "http://localhost:5173/login",
     "note": "Left-hand preview is illustrative UI, not measured inventory.",
-    "capturedAt": "2026-10-05T12:26:29.172Z"
+    "capturedAt": "2026-10-06T15:59:28.833Z"
   },
   {
     "id": "02-dashboard",
@@ -23,7 +23,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=overview",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:31.310Z"
+    "capturedAt": "2026-10-06T15:59:30.754Z"
   },
   {
     "id": "03-inventory",
@@ -36,7 +36,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=inventory",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:32.174Z"
+    "capturedAt": "2026-10-06T15:59:31.560Z"
   },
   {
     "id": "04-catalogue",
@@ -49,7 +49,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=products",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:33.032Z"
+    "capturedAt": "2026-10-06T15:59:32.335Z"
   },
   {
     "id": "05-categories",
@@ -62,7 +62,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=categories",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:33.737Z"
+    "capturedAt": "2026-10-06T15:59:33.011Z"
   },
   {
     "id": "06-suppliers",
@@ -75,7 +75,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=suppliers",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:34.442Z"
+    "capturedAt": "2026-10-06T15:59:33.698Z"
   },
   {
     "id": "07-history",
@@ -88,7 +88,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=transactions",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:35.253Z"
+    "capturedAt": "2026-10-06T15:59:34.463Z"
   },
   {
     "id": "08-warnings",
@@ -101,7 +101,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=warnings",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:36.052Z"
+    "capturedAt": "2026-10-06T15:59:35.215Z"
   },
   {
     "id": "09-reports",
@@ -114,7 +114,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=reports",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:36.781Z"
+    "capturedAt": "2026-10-06T15:59:36.008Z"
   },
   {
     "id": "10-team",
@@ -127,7 +127,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=team",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:37.488Z"
+    "capturedAt": "2026-10-06T15:59:36.697Z"
   },
   {
     "id": "11-settings",
@@ -140,7 +140,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=settings",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:38.306Z"
+    "capturedAt": "2026-10-06T15:59:37.379Z"
   },
   {
     "id": "12-inventory-search",
@@ -153,7 +153,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=inventory",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:39.305Z"
+    "capturedAt": "2026-10-06T15:59:38.311Z"
   },
   {
     "id": "13-empty-search",
@@ -166,7 +166,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=inventory",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:39.636Z"
+    "capturedAt": "2026-10-06T15:59:38.660Z"
   },
   {
     "id": "14-add-product",
@@ -179,7 +179,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=products",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:40.500Z"
+    "capturedAt": "2026-10-06T15:59:39.434Z"
   },
   {
     "id": "15-edit-product",
@@ -192,7 +192,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=products",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:41.900Z"
+    "capturedAt": "2026-10-06T15:59:40.819Z"
   },
   {
     "id": "16-stock-receipt",
@@ -205,7 +205,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=transactions",
     "note": "Draft form only; no stock movement was submitted.",
-    "capturedAt": "2026-10-05T12:26:44.899Z"
+    "capturedAt": "2026-10-06T15:59:43.717Z"
   },
   {
     "id": "17-stock-dispatch",
@@ -218,7 +218,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=transactions",
     "note": "Draft form only; no stock movement was submitted.",
-    "capturedAt": "2026-10-05T12:26:45.413Z"
+    "capturedAt": "2026-10-06T15:59:44.214Z"
   },
   {
     "id": "18-stock-adjustment",
@@ -231,7 +231,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=transactions",
     "note": "Draft form only; no stock movement was submitted.",
-    "capturedAt": "2026-10-05T12:26:45.948Z"
+    "capturedAt": "2026-10-06T15:59:44.713Z"
   },
   {
     "id": "19-stocktake",
@@ -244,7 +244,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=transactions",
     "note": "Draft form only; no stock movement was submitted.",
-    "capturedAt": "2026-10-05T12:26:46.466Z"
+    "capturedAt": "2026-10-06T15:59:45.212Z"
   },
   {
     "id": "20-category-form",
@@ -257,7 +257,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=categories",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:47.992Z"
+    "capturedAt": "2026-10-06T15:59:46.724Z"
   },
   {
     "id": "21-supplier-form",
@@ -270,7 +270,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=suppliers",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:49.543Z"
+    "capturedAt": "2026-10-06T15:59:48.261Z"
   },
   {
     "id": "22-account-form",
@@ -283,7 +283,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=team",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:51.094Z"
+    "capturedAt": "2026-10-06T15:59:49.830Z"
   },
   {
     "id": "23-manager-thresholds",
@@ -296,7 +296,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=inventory",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:54.566Z"
+    "capturedAt": "2026-10-06T15:59:53.002Z"
   },
   {
     "id": "24-manager-workspace",
@@ -309,7 +309,46 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=warnings",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:56.195Z"
+    "capturedAt": "2026-10-06T15:59:54.556Z"
+  },
+  {
+    "id": "28-batches",
+    "title": "Batch inventory with sellable balances and expiry state",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/28-batches.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=batches",
+    "note": "",
+    "capturedAt": "2026-10-06T15:59:55.994Z"
+  },
+  {
+    "id": "29-purchasing",
+    "title": "Replenishment suggestions and purchasing workflow",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/29-purchasing.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=purchases",
+    "note": "",
+    "capturedAt": "2026-10-06T15:59:56.721Z"
+  },
+  {
+    "id": "30-stock-reviews",
+    "title": "Snapshot-based stock review queue",
+    "chapter": 4,
+    "type": "ui",
+    "files": [
+      "ui/30-stock-reviews.png"
+    ],
+    "source": "frontend/src/views/WorkspaceView.vue",
+    "url": "http://localhost:5173/?view=reviews",
+    "note": "",
+    "capturedAt": "2026-10-06T15:59:57.422Z"
   },
   {
     "id": "25-clerk-workspace",
@@ -322,7 +361,7 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=transactions",
     "note": "",
-    "capturedAt": "2026-10-05T12:26:58.741Z"
+    "capturedAt": "2026-10-06T15:59:59.247Z"
   },
   {
     "id": "26-mobile-login",
@@ -335,7 +374,7 @@
     "source": "frontend/src/views/LoginView.vue",
     "url": "http://localhost:5173/login",
     "note": "Responsive Web interface, not a native mobile application.",
-    "capturedAt": "2026-10-05T12:26:59.964Z"
+    "capturedAt": "2026-10-06T16:00:00.413Z"
   },
   {
     "id": "27-mobile-inventory",
@@ -348,6 +387,6 @@
     "source": "frontend/src/views/WorkspaceView.vue",
     "url": "http://localhost:5173/?view=inventory",
     "note": "Responsive Web interface, not a native mobile application.",
-    "capturedAt": "2026-10-05T12:27:01.936Z"
+    "capturedAt": "2026-10-06T16:00:02.157Z"
   }
 ]

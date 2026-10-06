@@ -1,11 +1,11 @@
+  Product saved=products.saveAndFlush(p); updateWarning(saved);invalidate();return ProductView.of(saved);
+ }
+ @Transactional void archiveProduct(long id){Product p=products.lockById(id).orElseThrow(()->notFound("Product not found"));p.active=false;p.updatedAt=Instant.now();updateWarning(p);invalidate();}
+ @Transactional ProductView thresholds(long id,ThresholdInput in){if(in.safetyStock()>in.reorderThreshold())throw bad("Safety stock must not exceed reorder threshold");Product p=products.lockById(id).orElseThrow(()->notFound("Product not found"));p.safetyStock=in.safetyStock();p.reorderThreshold=in.reorderThreshold();if(p.targetStock<=p.reorderThreshold)p.targetStock=Math.min(1_000_000_000L,Math.max(p.reorderThreshold+1,p.reorderThreshold*2));p.updatedAt=Instant.now();updateWarning(p);invalidate();return ProductView.of(p);}
  @Transactional(isolation=org.springframework.transaction.annotation.Isolation.READ_COMMITTED) TransactionView move(TransactionInput in,String username){
   UserAccount actor=users.findByUsername(username).orElseThrow(()->notFound("User not found"));
   Product p=products.lockById(in.productId()).orElseThrow(()->notFound("Product not found"));if(!p.active)throw bad("Archived products cannot receive stock movements");
   var prior=transactions.findByActorIdAndIdempotencyKey(actor.id,in.idempotencyKey());
-  if(prior.isPresent()){InventoryTransaction t=prior.get();boolean sameQuantity=in.type()==MovementType.STOCKTAKE?t.quantityAfter==in.quantity():t.delta==signedDelta(in);if(!t.product.id.equals(in.productId())||t.type!=in.type()||!sameQuantity||!t.reason.equals(in.reason().trim()))throw conflict("Idempotency key was already used with a different request");return TransactionView.of(t);}
+  if(prior.isPresent()){InventoryTransaction t=prior.get();boolean sameQuantity=in.type()==MovementType.STOCKTAKE?t.quantityAfter==in.quantity():t.delta==signedDelta(in);if(!t.product.id.equals(in.productId())||t.type!=in.type()||!sameQuantity||!t.reason.equals(in.reason().trim())||!t.requestMetadata.equals(in.metadata()))throw conflict("Idempotency key was already used with a different request");return TransactionView.of(t);}
   long delta=in.type()==MovementType.STOCKTAKE?in.quantity()-p.quantity:signedDelta(in);if(in.type()==MovementType.STOCKTAKE&&(in.quantity()<0||in.quantity()>1_000_000_000L))throw bad("Stocktake quantity must be between zero and 1,000,000,000");if(delta==0&&in.type()!=MovementType.STOCKTAKE)throw bad("Movement quantity must be non-zero");long after;
   try{after=Math.addExact(p.quantity,delta);}catch(ArithmeticException e){throw bad("Quantity is outside the supported range");}
-  if(after<0)throw bad("Insufficient stock: available quantity is "+p.quantity);if(after>1_000_000_000L)throw bad("Maximum stock quantity exceeded");
-  InventoryTransaction t=new InventoryTransaction();t.product=p;t.actor=actor;t.type=in.type();t.delta=delta;t.quantityBefore=p.quantity;t.quantityAfter=after;t.reason=in.reason().trim();t.idempotencyKey=in.idempotencyKey();
-  p.quantity=after;p.updatedAt=Instant.now();transactions.saveAndFlush(t);updateWarning(p);invalidate();return TransactionView.of(t);
- }

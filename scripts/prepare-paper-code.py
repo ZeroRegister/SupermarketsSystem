@@ -38,6 +38,7 @@ test='backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java';lines=(
 excerpt('12-code-concurrency-tests','Concurrent dispatch and identical-submission tests',test,start,start+1,chapter=5)
 excerpt('13-code-boundary-tests','Frontend zero and threshold equality tests','frontend/src/inventory.spec.ts',1,21,'typescript',5)
 excerpt('14-code-stock-form','Stock form request key and submission guard','frontend/src/views/WorkspaceView.vue',65,67,'typescript')
+purchase='backend/src/main/java/com/shelfwise/Purchasing.java';plines=(ROOT/purchase).read_text().splitlines();pstart=next(i+1 for i,l in enumerate(plines) if 'PurchaseView act(' in l);excerpt('15-code-purchasing','Purchase approval and partial receipt service path',purchase,pstart,min(pstart+32,len(plines)),'java',4)
 # Real test output, not a simulated terminal.
 def logview(id,title,source,lines,chapter=5):
  raw='\n'.join(lines);(OUT/'sources'/f'{id}.txt').write_text(raw+'\n');safe=html.escape(raw)

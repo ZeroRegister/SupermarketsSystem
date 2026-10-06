@@ -4,7 +4,7 @@
 
 \section{Assignment and acceptance approach}
 
-The assignment is to implement the inventory workflow identified in Chapter 1 as an inspectable single-store application. A requirement is treated as complete when its intended actor, server operation, data effect and acceptance evidence can be identified. A screen that appears to offer an operation is insufficient if the corresponding server permission or transactional behavior is absent. Conversely, a correct API is insufficient if the interface presents an absolute count as a relative change.
+The assignment is to implement the inventory workflow identified in Chapter 1 as an inspectable single-store application. A requirement is treated as complete when its intended actor, server operation, data effect and acceptance evidence can be identified. The expanded release also treats an approved workflow as incomplete until its replay, stale-snapshot and cross-state behavior is defined. A screen that appears to offer an operation is insufficient if the corresponding server permission or transactional behavior is absent. Conversely, a correct API is insufficient if the interface presents an absolute count as a relative change.
 
 
 Requirements are grouped into identity, catalogue, stock operations, inventory inspection, warning review, reporting and administration. Correctness requirements cut across these groups. Retry behavior belongs to stock operations, but it also depends on the request key retained by the browser. Cache fallback belongs to warning retrieval, but it depends on durable database ownership. This grouping makes the later traceability table useful as a map across implementation layers.
@@ -31,6 +31,10 @@ R8 & Present stock reports and selected-page export & Server aggregates rendered
 R9 & Manage users roles and store preferences & Administrator boundary next-request access and last-admin guard \\
 R10 & Resist duplicate and concurrent stock submission & Exact replay changed-payload conflict and concurrent tests \\
 R11 & Preserve warning results without Redis & Cache bypass comparison and recorded outage equivalence \\
+R12 & Track batch balances and apply FEFO/FIFO allocation & Receipt replay, expiry boundaries and batch dispatch tests \\
+R13 & Detect expiry and slow-moving conditions & Business-timezone and sales-only warning tests \\
+R14 & Manage replenishment and purchase approval & Suggestion quantities, approval recheck, partial receipt and cancellation tests \\
+R15 & Review counts and disposal with a snapshot & Stale snapshot, approval and idempotent review tests \\
 \end{longtable}\endgroup
 
 \FloatBarrier
@@ -84,7 +88,7 @@ An exact replay must return the original transaction identifier without applying
 
 \subsection{Warning and reporting requirements}
 
-A zero balance must be classified as OUT, including when the threshold is also zero. A positive balance equal to the reorder threshold must be LOW. A healthy replenishment must resolve the shortage and create a recovery episode. Continued low stock within the same severity must not erase its reviewer. Changing threshold policy must reevaluate warning state because the interpretation can change without a movement.
+A zero sellable balance must be classified as OUT, including when the threshold is also zero. A positive balance equal to the reorder threshold must be LOW. Batch expiry changes sellable quantity at the configured business-day boundary, while physical quantity remains available for disposal. A healthy replenishment must resolve the shortage and create a recovery episode. Slow-moving detection uses sales-only movements over a configured window. Continued low stock within the same severity must not erase its reviewer. Changing threshold policy or warning policy must reevaluate the relevant episode.
 
 
 Reporting must describe the recorded stock state, not invent business indicators. Inventory value uses current price, the activity trend counts movements by UTC date and category mix uses current quantity totals. Acknowledgement must record who reviewed an episode while leaving stock unchanged. The application must preserve this distinction in labels, API operations and database relationships.
@@ -133,7 +137,7 @@ Maintainability & Explicit layers schema and reproducible dependencies & Source 
 Odoo's documented replenishment workflow uses minimum and maximum stock quantities to determine when and how much to replenish \citep{odoo}. This is relevant because it connects a stock boundary with an operational response rather than merely displaying a low-stock color. The documentation describes a broader inventory and purchasing environment than the one implemented in Shelfwise.
 
 
-Shelfwise adopts the need for an explicit quantity boundary but stops at review. A shortage episode creates attention for an authorized user; it does not create a purchase order or compute supplier lead time. Its reorder threshold is a manually maintained rule, and its safety stock is an urgency value within that rule. This narrower scope makes the transition and acknowledgement behavior testable without introducing unimplemented purchasing claims.
+Shelfwise adopts the explicit quantity boundary and extends it into a bounded purchasing workflow. A shortage or replenishment suggestion can seed a draft purchase, but submission, approval and receipt remain separate audited actions. Approval rechecks the current suggestion, and partial receipts create batch-aware stock movements without claiming supplier payment or lead-time optimization.
 
 
 \FloatBarrier
@@ -167,9 +171,9 @@ A full enterprise resource planning system can integrate purchasing, warehouse l
 \midrule\endhead
 \bottomrule\endfoot
 Shared stock worksheet & Simple deployment and direct visibility & Requires added controls for concurrency roles and attributed changes \\
-Documented Odoo replenishment & Quantity policies connected to replenishment & Broader purchasing scope than the implemented review-only workflow \\
+Documented Odoo replenishment & Quantity policies connected to replenishment & Broader enterprise and supplier scope \\
 Documented ERPNext ledger & Retained posting and correction explanations & Broader document accounting and reposting mechanisms \\
-Shelfwise bounded application & Explicit stock transaction warning review and tests & No purchasing checkout forecasting batches or store-user study \\
+Shelfwise bounded application & Batch-aware stock, warning rules, review and purchase approval with tests & No checkout integration, accounting, multi-store isolation or store-user study \\
 \end{longtable}\endgroup
 
 \FloatBarrier
@@ -203,7 +207,7 @@ The API follows resource-oriented JSON routes, but it uses server sessions. Fiel
 
 \subsection{Development and verification tooling}
 
-Docker Compose supplies the pinned MySQL and Redis services for local execution. Maven builds the backend, while Vite provides frontend development and production assets. Testcontainers supplies disposable service instances for backend integration tests \citep{testcontainers}. Vitest checks presentation boundaries, and Playwright is used for browser journeys and interface capture. Each tool has a particular verification purpose; none replaces an operational user study or a production security assessment.
+Docker Compose now packages the complete local and release deployment: MySQL and Redis are infrastructure services, Spring Boot is built into a Java runtime image, and the Vue bundle is served by Nginx. A GitHub Actions workflow publishes the frontend and backend images and mirrors pinned MySQL and Redis images to GHCR for Windows delivery. Maven, Vite, Testcontainers, Vitest and Playwright retain their development and verification roles. Each tool has a particular purpose; none replaces an operational user study or production security assessment.
 
 
 \begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}

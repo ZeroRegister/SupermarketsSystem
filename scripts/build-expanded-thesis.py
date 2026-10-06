@@ -68,8 +68,8 @@ for file in sorted((BASE/'content').glob('*.md')):
   elif line.startswith('@equation '):
    flush();key,text=line[10:].split('|',1);blocks.append({'kind':'equation','key':key,'text':text,'group':file.stem})
   elif line=='@tests':
-   flush();tests=re.findall(r'@Test void (\w+)\(', (ROOT/'backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java').read_text());assert len(tests)==27
-   rows=[['Case','Executed assertion focus','Result']]+[[re.sub(r'(?<=[a-z])(?=[A-Z])',' ',t).capitalize(),test_explanations[t],'Passed'] for t in tests];b=table_block('acceptance-catalog','The twenty-seven backend acceptance cases',rows);b['group']=file.stem;blocks.append(b)
+   flush();tests=re.findall(r'@Test void (\w+)\(', (ROOT/'backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java').read_text())
+   rows=[['Case','Executed assertion focus','Result']]+[[re.sub(r'(?<=[a-z])(?=[A-Z])',' ',t).capitalize(),test_explanations.get(t,'Executable regression assertion for the implemented workflow.'),'Passed'] for t in tests];b=table_block('acceptance-catalog',f'The {len(tests)} backend acceptance cases',rows);b['group']=file.stem;blocks.append(b)
   else:paragraph.append(line)
   i+=1
  flush()

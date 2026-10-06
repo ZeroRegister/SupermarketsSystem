@@ -1,35 +1,59 @@
 <?xml version='1.0' encoding='utf-8'?>
 <mxfile host="drawio" version="26.1.1">
-  <diagram name="Implemented local deployment topology">
+  <diagram name="Windows release deployment topology">
     <mxGraphModel grid="1" gridSize="10" page="0" background="#ffffff">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="2" value="Browser" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="40" y="40" width="300" height="70" />
+        <mxCell id="2" value="Windows browser" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#e8eefb;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="50" width="260" height="80" />
         </mxCell>
-        <mxCell id="3" value="Vite dev server&#10;localhost:5173" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="40" y="230" width="300" height="100" />
+        <mxCell id="3" value="shelfwise-frontend&#10;Nginx container&#10;127.0.0.1:5173" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#e8eefb;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="250" width="320" height="120" />
         </mxCell>
-        <mxCell id="4" value="Spring Boot / Java 21&#10;localhost:8080" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="40" y="460" width="300" height="100" />
+        <mxCell id="4" value="shelfwise-backend&#10;Spring Boot / Java 21&#10;private Compose network" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#e7f3ed;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="500" y="250" width="360" height="120" />
         </mxCell>
-        <mxCell id="5" value="Docker Compose: MySQL 8.4&#10;localhost:3307 → 3306&#10;mysql-data persistent volume" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=cylinder3;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="530" y="350" width="420" height="120" />
+        <mxCell id="5" value="shelfwise-mysql&#10;MySQL 8.4&#10;mysql-data volume" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=cylinder3;fillColor=#e7f3ed;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="360" y="520" width="330" height="110" />
         </mxCell>
-        <mxCell id="6" value="Docker Compose: Redis 7.4&#10;localhost:6380 → 6379&#10;Optional volatile cache" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=cylinder3;" vertex="1" parent="1">
-          <mxGeometry as="geometry" x="530" y="620" width="420" height="120" />
+        <mxCell id="6" value="shelfwise-redis&#10;Redis 7.4&#10;volatile cache" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;shape=cylinder3;fillColor=#fff3dc;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="760" y="520" width="300" height="110" />
         </mxCell>
-        <mxCell id="7" value="HTTP" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="2" target="3">
+        <mxCell id="7" value="GHCR&#10;frontend / backend&#10;MySQL / Redis mirrors" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#f0eafa;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="470" y="740" width="360" height="100" />
+        </mxCell>
+        <mxCell id="8" value="Docker Hub fallback&#10;official MySQL / Redis" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#fff3dc;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="880" y="740" width="300" height="100" />
+        </mxCell>
+        <mxCell id="9" value="http://localhost:5173" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="2" target="3">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="8" value="/api proxy" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="3" target="4">
+        <mxCell id="10" value="/api proxy" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="3" target="4">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="9" value="JDBC / transactions" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" edge="1" parent="1" source="4" target="5">
+        <mxCell id="11" value="JDBC" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="4" target="5">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="10" value="cache reads / best effort writes" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=1;exitY=0.75;entryX=0;entryY=0.5;" edge="1" parent="1" source="4" target="6">
+        <mxCell id="12" value="cache" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="4" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="13" value="pull" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;dashed=1;exitX=0.2;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="7" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="14" value="pull" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;dashed=1;exitX=0.8;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="7" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="15" value="primary pull" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;dashed=1;exitX=0.5;exitY=0;entryX=0.2;entryY=1;" edge="1" parent="1" source="7" target="5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="16" value="primary pull" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;dashed=1;exitX=0.7;exitY=0;entryX=0.8;entryY=1;" edge="1" parent="1" source="7" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="17" value="fallback" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;dashed=1;exitX=0.2;exitY=0;entryX=0.8;entryY=1;" edge="1" parent="1" source="8" target="5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="18" value="fallback" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;dashed=1;exitX=0.8;exitY=0;entryX=0.2;entryY=1;" edge="1" parent="1" source="8" target="6">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
       </root>

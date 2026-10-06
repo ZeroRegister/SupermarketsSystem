@@ -1,6 +1,6 @@
 # System implementation
 ## Project organization and development baseline
-The implemented repository contains backend, frontend, scripts, documentation and thesis materials. The backend is built with Maven and Java 21. The browser application uses the pinned dependencies in its package manifest and lockfile. MySQL and Redis are started through Docker Compose. The thesis figures are maintained with their editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.
+The implemented repository contains backend, frontend, Dockerfiles, Compose manifests, scripts, documentation and thesis materials. The backend is built with Maven and Java 21 in a multi-stage image. The browser application uses the pinned dependencies in its package manifest and lockfile, is built by Node.js and is served by Nginx in the release image. MySQL and Redis run as Compose services; a release Compose file can pull all four images from GHCR. The thesis figures are maintained with editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.
 
 Backend domain entities, request and response records, repository interfaces, controllers, the inventory service and security configuration are kept in the com.shelfwise package. The organization is compact rather than a separate class file for every domain object. It exposes the main consistency path in one service but would need further decomposition as more workflows are added. The frontend similarly uses a login view and a substantial workspace view with several operational sections.
 
@@ -13,6 +13,9 @@ Authentication | /api/auth/login and /api/auth/me | Establish and inspect the se
 Catalogue | /api/products and /api/products/{id} | Product identity and filtered inventory
 Threshold policy | /api/products/{id}/thresholds | Manager-accessible policy update
 Reference data | /api/categories and /api/suppliers | Product grouping and partner directory
+Batch inventory | /api/batches and /api/batches/{id}/control | Batch balances, sellable quantity and quarantine
+Purchasing | /api/replenishment and /api/purchases | Suggestions, drafts, approval and receipts
+Stock reviews | /api/stock-reviews and action resources | Snapshot-based count and disposal review
 Movement ledger | /api/transactions | Accepted stock commands and history
 Warnings | /api/warnings and /api/warnings/{id}/ack | Episode retrieval and reviewer attribution
 Reporting | /api/dashboard and /api/reports/summary | Recorded stock summaries
@@ -62,7 +65,7 @@ The category page in {fig:categories-ui} groups products through named categorie
 @fig categories-ui|ui/05-categories.png|Category administration and links to grouped inventory
 @fig category-form-ui|ui/20-category-form.png|Category creation form captured without submission
 
-The supplier directory in {fig:suppliers-ui} provides partner names and available contact details. The form in {fig:supplier-form-ui} creates descriptive supplier data. Neither interface generates a delivery, purchase order or payment obligation. A product can reference a supplier, but actual received stock is still recorded through the stock activity path.
+The supplier directory in {fig:suppliers-ui} provides partner names and available contact details. The form in {fig:supplier-form-ui} creates descriptive supplier data. The supplier directory remains descriptive, while the Purchasing view turns a replenishment suggestion into a draft purchase document. Approval and receipt are separate actions; a receipt creates a batch-aware stock movement, while payment and supplier settlement remain outside the implementation.
 @fig suppliers-ui|ui/06-suppliers.png|Supplier directory with descriptive partner information
 @fig supplier-form-ui|ui/21-supplier-form.png|Supplier creation fields for name and contact information
 ## Audited stock operations
@@ -111,6 +114,18 @@ The cache implementation in {fig:cache-code} incorporates the durable revision i
 
 The manager workspace in {fig:manager-ui} exposes warning review without administrator account controls. The threshold edit form in {fig:threshold-ui} disables descriptive product fields for that role. Its narrower PATCH endpoint prevents the manager from changing SKU or price through the threshold operation even if a client attempts to send additional catalogue data.
 @fig manager-ui|ui/24-manager-workspace.png|Manager workspace for warning inspection and review
+
+## Batch inventory, purchasing and stock reviews
+The batch page in {fig:batches-ui} exposes physical and sellable balances, expiry dates and quarantine state. It makes the distinction between what is present in the stockroom and what can be dispatched visible to the user.
+@fig batches-ui|ui/28-batches.png|Batch inventory view with sellable balance and expiry information
+
+The Purchasing view in {fig:purchasing-ui} combines replenishment suggestions with purchase documents. Its table keeps the trigger, target, pending position and suggested quantity visible together; the corrected header layout prevents English labels from breaking into isolated characters.
+@fig purchasing-ui|ui/29-purchasing.png|Replenishment suggestions and purchase workflow interface
+@fig purchasing-code|code/15-code-purchasing.png|Purchase approval and partial receipt service path
+
+The Stock reviews view in {fig:reviews-ui} separates a physical count or disposal request from immediate stock mutation. A manager approves the snapshot after the service rechecks the current product or batch state.
+@fig reviews-ui|ui/30-stock-reviews.png|Snapshot-based stock count and disposal review interface
+@fig batch-workflow|diagrams/27-batch-fefo.png|Batch receipt, FEFO/FIFO allocation and review-controlled disposal
 @fig threshold-ui|ui/23-manager-thresholds.png|Threshold-only product edit form presented to a manager
 ## Reports and administration
 The reports view in {fig:reports-ui} presents the value estimate, active products, low and out-of-stock counts, movements and category mix. Its explanatory labels state that current quantity times current price is an estimate and that movement dates use UTC. These qualifications identify what the graphic represents before a reader attempts to interpret a trend as sales or profit.
@@ -132,12 +147,12 @@ Phone-sized access uses the same browser application and backend. The login inte
 The inventory image in {fig:phone-inventory-ui} is a full-page capture of the responsive page, including content that a user reaches by scrolling. Wide table content is confined to its own container. The capture check confirms that the document itself does not overflow the 390-pixel viewport. It does not establish usability on every device, touch target compliance or assistive-technology compatibility.
 @fig phone-inventory-ui|ui/27-mobile-inventory.png|Full-page responsive Web inventory capture at 390 CSS pixels
 ## Version control and local deployment
-The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend currently identifies itself as version 0.1.0-SNAPSHOT and the frontend as 0.1.0. This thesis does not infer a production release process from those identifiers.
+The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend and frontend source manifests remain versioned independently, while the release deployment uses Git tags and GHCR image tags such as v1.2.2. This thesis distinguishes reproducible image delivery from a fully hardened production release process.
 
-The topology in {fig:deployment} shows the implemented development arrangement. Vite serves the browser client on port 5173 and proxies API requests to Spring Boot on port 8080. Docker Compose publishes MySQL on the host's loopback port 3307 and Redis on loopback port 6380. The Vite development server is configured to listen on all interfaces; the loopback restriction shown for database services should not be generalized to every development process.
-@fig deployment|diagrams/24-deployment.png|Implemented development processes and container service ports
+The topology in {fig:deployment} shows the release arrangement. A browser connects to the Nginx frontend container on port 5173; Nginx proxies `/api` and `/actuator` to the Spring Boot backend container. The backend connects to MySQL and Redis on the private Compose network. Development mode still supports Vite and host-run Java, but the deliverable for Windows uses prebuilt frontend and backend images. GHCR stores the application images and mirrored infrastructure images, while the MySQL named volume remains local to the deployment host.
+@fig deployment|diagrams/24-deployment.png|Windows release topology with GHCR images and Docker Hub fallback
 
-The Compose source in {fig:compose-code} supplies explicit images, environment-variable requirements, health checks and the MySQL named volume. It does not embed the local passwords into the thesis. Redis persistence is disabled because the cached responses are disposable. MySQL data must be retained and backed up independently of the application process.
+The Compose source in {fig:compose-code} supplies build-time Dockerfiles for development and a release manifest with prebuilt image references, environment-variable requirements, health checks, service dependencies and the MySQL named volume. The Windows helper first pulls from GHCR and falls back to official Docker Hub MySQL and Redis images if the GHCR infrastructure mirror is unavailable. It does not embed passwords. Redis persistence is disabled because cached responses are disposable; MySQL data must be retained and backed up independently of the application images.
 @fig compose-code|code/11-code-deployment.png|Container configuration using environment references and durable MySQL storage
 
 A production deployment would serve built assets through an appropriate Web server, terminate TLS, enable secure session cookies, keep database services private and define backups and restore drills. Multiple application nodes would also require session affinity or shared session storage. Those operations are future deployment requirements. The tested local development topology should not be presented as a complete hardened production platform.

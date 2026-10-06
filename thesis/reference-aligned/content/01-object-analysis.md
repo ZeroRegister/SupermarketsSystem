@@ -4,23 +4,23 @@ A supermarket inventory system records the relationship between identifiable pro
 
 The current balance and the movement history serve complementary purposes. A balance answers a short operational question: how much of this product is recorded now? History answers a longer explanatory question: which accepted changes produced that balance? A system that stores only the balance cannot reconstruct an omitted reason or distinguish a double submission from two deliveries. A system that stores only events can explain changes but may require additional work to present fast, filtered inventory pages. Shelfwise stores the balance and its accepted movement records together.
 
-The application uses product identity, category, supplier, unit and current price as descriptive context. SKU is a required unique identifier, and barcode is optional. The unit label describes how staff interpret a whole-number quantity. A label of kg does not introduce decimal weighing support: the current implementation still stores an integer. This distinction is relevant for fresh produce because a deployable weighing workflow would require fractional units and a defined rounding policy.
+The application uses product identity, category, supplier, unit and current price as descriptive context. SKU is a required unique identifier, and barcode is optional. Stock received through a purchase can carry a batch number, production date and expiry date. The unit label still describes a whole-number quantity: a label of kg does not introduce decimal weighing support. Sellable quantity excludes expired and quarantined batches, while physical quantity remains useful for disposal and reconciliation. A deployable weighing workflow would require fractional units and a defined rounding policy.
 
 Inventory value is a presentation estimate obtained by multiplying each active product's current quantity by its current unit price. It is not supplier cost, historical cost of goods sold or an accounting valuation. The distinction prevents a convenient dashboard number from being used as evidence of financial correctness. The store currency preference changes the displayed currency code and symbol; it does not convert stored prices.
 ## Operational problems and system boundary
 Manual stock work can fail in several different ways. A delivery may be entered twice after a slow response. Two dispatches may each use an old balance. A correction may be applied as a relative change when the staff member intended an absolute count. A manager may acknowledge a warning while the item is still out of stock. These are different problems, and their controls must preserve their meanings rather than translate them all into a generic update operation.
 
-The system boundary includes product and reference-data administration, searchable inventory, receiving, dispatch, adjustment, stocktake, shortage warnings, review attribution, summary reports and staff access. It excludes payment processing, supplier invoicing, automatic orders, stock allocation to customer reservations, batches, expiry dates and multiple stores. These exclusions are deliberate boundaries of the current implementation. For example, available quantity is not reduced by an unimplemented reservation, and a supplier record is not evidence that a purchase order exists.
+The system boundary includes product and reference-data administration, searchable inventory, receiving, dispatch, adjustment, stocktake, batch control, expiry and slow-moving warnings, warning review, replenishment suggestions, purchase drafts and approval, partial receipts, disposal/count reviews, reports and staff access. It excludes payment processing, supplier invoicing, checkout integration, customer reservations and multiple stores. A supplier record remains descriptive until a purchase document is created, and a purchase document remains a stock workflow until a receipt is accepted.
 
 The selected store is a software case study using fictitious demonstration records. The work does not measure shelf availability or employee productivity in an operating supermarket. The practical motivation is the need for traceable inventory work; the evaluation measures software behavior under specified scenarios. This keeps the business context connected to a defensible engineering claim.
 @table scope|Implemented domain and excluded extensions
 Aspect | Implemented meaning | Extension outside the current boundary
 Store organization | One shared store workspace | Tenant and branch isolation
 Quantity | Bounded integer balance | Decimal weights and unit conversion
-Stock operation | Receive dispatch adjustment stocktake | Checkout and reserved stock
-Supplier | Product partner and contact directory | Orders invoices and settlement
-Warning | Manual quantity thresholds and episodes | Demand forecasting and automatic purchasing
-Financial display | Current price multiplied by quantity | Accounting cost and profit
+Stock operation | Receive dispatch adjustment stocktake with batch-aware receipt and dispatch | Checkout and reserved stock
+Supplier | Product partner, replenishment suggestion and purchase workflow | Invoices and settlement
+Warning | Quantity, expiry, slow-moving and recovery episodes with review | Demand forecasting and automatic purchasing
+Financial display | Current price multiplied by sellable quantity as a presentation estimate | Accounting cost and profit
 Phone access | Responsive browser interface | Native Android or iOS application
 ## Construction of the conceptual model
 The overall model in {fig:functions} divides the system into identity and access, catalogue management, stock activity, warnings and reporting. These modules correspond to different responsibilities but share a product identity. Catalogue work defines what a product is and how it is classified. Stock work changes a bounded quantity. Warning work interprets a policy boundary and records review. Reporting summarizes the accepted facts for inspection.
@@ -48,12 +48,21 @@ The stock use cases in {fig:uc-stock} show that administrators and clerks can po
 
 A reason is mandatory for every accepted movement. Actor identity is derived from authentication. The timestamp is assigned by the server. These fields are not ornamental metadata: they are the minimum explanation available when a quantity is later questioned. A new correction should create another record rather than erase an earlier accepted movement.
 ### Warning and recovery model
-A warning is a persisted episode connected to a product. OUT means the balance is zero. LOW means the balance is positive and at or below the reorder threshold. A healthy balance is above that threshold. Safety stock marks urgency within the low-stock interpretation; it does not create a separate warning type. When a shortage becomes healthy, the application resolves the shortage and creates a time-limited RESTOCKED episode.
+A warning is a persisted episode connected to a product and a rule interpretation. OUT and LOW describe sellable quantity; EXPIRING and EXPIRED describe batch dates; SLOW describes a sales-only movement rule; RESTOCKED records a recovery interval. The business timezone controls the date boundary for expiry. A healthy replenishment can resolve a shortage and create a time-limited RESTOCKED episode. Warning acknowledgement remains independent from all of these conditions.
 
 Acknowledgement records a reviewer and review time. It neither changes quantity nor resolves the shortage. The distinction is important after partial replenishment: a reviewed product may still be LOW, and the existing episode can retain its reviewer. A transition from LOW to OUT, or from OUT to LOW, creates a new severity episode and resolves the old one.
 @fig uc-warning|diagrams/04-uc-warning.png|Warning inspection and acknowledgement use cases
 
-The episode model supports both current attention and historical explanation. Open warnings tell the manager what currently needs review. Resolved records show that a shortage or recovery interval ended. The dashboard and warning board are views of these records, not independent sources of stock truth.
+The episode model supports both current attention and historical explanation. Open warnings tell the manager what currently needs review. Resolved records show that a shortage or recovery interval ended. The dashboard and warning board are views of these records, not independent sources of stock truth. Replenishment suggestions use sellable quantity, pending approved quantity and target stock; they do not silently create an order.
+@fig warning-rules|diagrams/25-warning-rules.png|Warning rule evaluation across batches expiry sales history and threshold policy
+
+### Batch and purchasing objects
+A batch is the inventory identity used when a receipt carries production or expiry metadata. Physical quantity and sellable quantity are maintained separately. FEFO selects the earliest eligible expiry date; FIFO provides deterministic ordering when dates are absent. Quarantine is an explicit control state for a batch and does not erase its movement history.
+
+A replenishment suggestion is derived from sellable quantity, pending purchase position, trigger threshold and target stock. A purchase document moves through DRAFT, SUBMITTED, APPROVED or REJECTED, and can be PARTIAL, COMPLETED or CANCELLED after receipt activity. This workflow turns a warning into a reviewable decision without claiming that the system has sent an external supplier order.
+@fig purchasing-workflow|diagrams/26-purchasing-workflow.png|Replenishment suggestion through purchase approval and partial receipt
+
+A stock review records a count or disposal intention against a quantity snapshot. Approval rechecks that snapshot and batch remainder before applying the resulting movement. This prevents a delayed approval from overwriting a later receipt or dispatch.
 ### Reporting model
 Reporting presents active-product counts, shortage counts, the current-price value estimate, movement totals, recent activity and category mix. The seven-day activity chart counts recorded movements by UTC date. It is not a sales chart: receiving, adjustment and stocktake can also contribute entries. The category chart groups current unit counts, which are useful within this demonstration but do not normalize different physical units.
 @fig uc-report|diagrams/05-uc-report.png|Inventory reporting and current-page export use cases

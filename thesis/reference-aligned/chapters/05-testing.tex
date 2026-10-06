@@ -43,7 +43,7 @@ The prototype uses fictitious records and local services. Tests can provide stro
 The backend test class uses Testcontainers to create MySQL and Redis instances for the test execution. Its dynamic properties direct the Spring application to those instances. This is valuable because locking, uniqueness and persistence behavior involve the actual database rather than an in-memory substitute. It does not mean that every production database setting or fault mode is reproduced.
 
 
-The 27 cases cover authentication, CSRF, role restrictions, catalogue validation, quantity changes, audit history, retry behavior, concurrency, shortage transitions, review and account safeguards. The result in Figure~\ref{fig:backend-result} reports zero failures, errors and skipped tests. A passing suite means that those executable assertions held in this run. It is not a numerical code-coverage percentage or a proof that all possible requests are correct.
+The current integration suite contains 46 cases covering authentication, CSRF, role restrictions, catalogue validation, quantity changes, audit history, retry behavior, concurrency, shortage transitions, batch allocation, expiry policy, slow-moving detection, purchase approval, partial receipts, stock reviews and account safeguards. The result in Figure~\ref{fig:backend-result} reports zero failures, errors and skipped tests for the recorded run. A passing suite means that those executable assertions held in this run. It is not a numerical code-coverage percentage or a proof that all possible requests are correct.
 
 
 \begin{figure}[htbp]\centering
@@ -104,10 +104,23 @@ The tests do not establish fairness, sustained throughput or behavior under ever
 
 \subsection{Warning and review assertions}
 
-The threshold test verifies OUT at zero and LOW at exact positive equality. Healthy replenishment removes the active shortage and creates RESTOCKED. A review test verifies that acknowledgement becomes visible through the cache and leaves quantity zero. The concurrent-review case expects both responses to expose the same first reviewer. Archive cases confirm that the product rejects movements and its open warnings are resolved.
+The threshold test verifies OUT at zero and LOW at exact positive equality. Healthy replenishment removes the active shortage and creates RESTOCKED. Expiry tests verify the inclusive expiry-day boundary under the configured timezone, and slow-moving tests verify that sales-only history forms one continuous event. A review test verifies that acknowledgement becomes visible through the cache and leaves quantity zero. The concurrent-review case expects both responses to expose the same first reviewer. Archive cases confirm that the product rejects movements and its open warnings are resolved.
 
 
-The test named for restocked expiry and new shortage exercises renewed shortage after replenishment. It does not advance a clock through twenty-four hours. Its supported conclusion is that a new shortage closes the active recovery episode and opens OUT. Time-based expiry, periodic cleanup and a cached page around the expiry boundary remain incompletely evaluated. This distinction prevents a descriptive test name from becoming stronger evidence than its assertions provide.
+The recovery test named for restocked expiry and new shortage exercises renewed shortage after replenishment. Separate expiry tests exercise business-day boundaries, invalid timezone rejection and expiry-aware sellable balances. They do not establish a long-running scheduler reliability distribution. The supported conclusion is that the implemented rules agree at the tested boundaries; broader clock, cache and operational scheduling workloads remain future work.
+
+
+\FloatBarrier
+
+\section{Batch, purchasing and review workflow testing}
+
+The expanded backend cases exercise receipt metadata replay, concurrent receipts, FEFO/FIFO batch allocation, exclusion of expired or quarantined batches, and disposal approval after a batch remainder changes. These assertions connect physical stock to sellable stock rather than checking only a product-level integer.
+
+
+Purchase tests cover multi-line draft creation, rejection and edit, completion, partial receipt, receipt replay, cancellation and concurrent approval. Approval rechecks the current replenishment suggestion before accepting a quantity. A receipt is therefore both a purchasing event and an audited stock movement; replay must not create a second batch or movement.
+
+
+Stock-review tests cover count and disposal submissions, stale snapshots, idempotent submissions, long bounded reasons and role denials. The approval path applies a movement only after the stored snapshot or batch remainder is still valid. These cases are stronger evidence for the expanded workflow than a screenshot of a review button, but they remain synthetic single-store scenarios.
 
 
 \FloatBarrier
@@ -287,7 +300,7 @@ A separate persistence record compares selected product and transaction rows aro
 
 \section{Traceability and validity of the conclusions}
 
-The acceptance evidence is strongest where a requirement has a direct assertion. Non-negative concurrent stock has a final balance and a success-count check. Exact replay has an identifier and quantity check. Acknowledgement has a reviewer and unchanged-stock check. Weaker or absent evidence is identified separately, including complete expiry timing, sustained multi-user workload and operational usability.
+The acceptance evidence is strongest where a requirement has a direct assertion. Non-negative concurrent stock has a final balance and a success-count check. Exact replay has an identifier and quantity check. Batch allocation has sellable-balance and remainder checks. Purchase approval has recheck, receipt and replay assertions. Acknowledgement and review have reviewer or snapshot checks. Weaker or absent evidence is identified separately, including sustained multi-user workload, external supplier integration and operational usability.
 
 
 Internal validity is limited by the particular test scenarios and the execution environment. External validity is limited by demonstration data and the single-store boundary. Construct validity depends on using the intended metric: movement counts are not sales, current-price value is not profit, and response latency under one sequential query is not throughput capacity. The thesis maintains those distinctions throughout its figures and result tables.

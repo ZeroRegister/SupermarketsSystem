@@ -42,16 +42,16 @@ Status | Meaning in the application | Client interpretation
 This catalog names the 27 executable backend cases and states the behavior their assertions address. It is provided to make a passed count interpretable. The wording of a test name is not itself an assertion; the renewed-shortage case is consequently described according to its executed operations rather than as a complete time-expiry experiment.
 @tests
 
-The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. New batch, fractional-unit or purchasing features would require new acceptance scenarios in addition to the present catalog.
+The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. Batch allocation, expiry, slow-moving, purchasing and review cases are included in the current suite; fractional units, multi-store isolation and external point-of-sale reconciliation would require additional scenarios.
 ## Appendix C Reproduction and evidence locations
-The application is reproduced by installing the pinned project baseline, preparing local environment values, starting the Compose services and running the backend and browser client. The backend wrapper reads the repository's local environment and selects the local Java and Maven installations when present. The frontend wrapper selects the project Node baseline. Secrets remain in the local environment and are not included in this document.
+The application can be reproduced either from source or from prebuilt images. Source development uses the pinned Java, Maven and Node baselines; release deployment uses Docker Desktop, `.env.release`, `docker-compose.release.yml` and the Windows helper script. Secrets remain in local environment files and are not included in this document.
 
 Backend integration tests use the current Docker socket for Testcontainers. On the recorded Colima host, DOCKER_HOST points to its Unix socket. This is an execution-environment setting, not a business parameter. Frontend unit tests run through the pinned package scripts. The earlier operational browser script posts a demonstration receipt and review, whereas the expanded capture script opens draft forms without submitting business changes.
 @table reproduce|Reproduction actions and their artifacts
 Action | Repository entry point | Inspectable result
-Start local infrastructure | docker-compose.yml | MySQL and Redis health checks
-Run backend | scripts/backend.sh spring-boot:run | Migrated schema and API health
-Run browser client | scripts/frontend.sh run dev | Responsive application on development port
+Start full container stack | docker-compose.yml or docker-compose.release.yml | Four healthy services and frontend on port 5173
+Run release deployment | scripts/start-release.ps1 | GHCR pull with Docker Hub fallback and healthy frontend
+Run browser client in source mode | scripts/frontend.sh run dev | Responsive application on development port
 Backend integration suite | scripts/backend.sh test | Surefire result and test log
 Frontend unit suite | scripts/frontend.sh test | Three boundary-test results
 Operational browser journey | scripts/browser-smoke.mjs | Earlier write review and navigation evidence
@@ -59,6 +59,6 @@ Expanded interface capture | scripts/capture-paper-ui.mjs | Screens and capture 
 Cache benchmark | scripts/benchmark.py | Workload environment and raw latency samples
 Failure and persistence checks | scripts/fault-recovery.py and persistence-snapshot.py | Recovery and selected-row equality records
 Figure drawing | scripts/prepare-paper-diagrams.py | Editable diagrams and image exports
-Thesis assembly | scripts/build-expanded-thesis.py | Editable LaTeX manuscript and compiled PDF
+Thesis assembly | scripts/build-expanded-thesis.py and thesis/reference-aligned/build.sh | Editable LaTeX manuscript and compiled PDF
 
 The figure collection includes a manifest of image dimensions, source paths, capture dates and content hashes. Code images preserve the original source line locations and exact excerpt text. The current result logs and historical raw measurements remain separate. These artifacts allow a reader to identify what was drawn, what was captured and what was measured, without treating every image as equivalent evidence.

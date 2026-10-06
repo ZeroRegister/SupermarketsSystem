@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="26.1.1">
+  <diagram name="Warning rule evaluation model">
+    <mxGraphModel grid="1" gridSize="10" page="0" background="#ffffff">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" value="Product state" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#e8eefb;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="30" width="300" height="70" />
+        </mxCell>
+        <mxCell id="3" value="Sellable quantity&#10;physical minus expired/quarantined" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#e7f3ed;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="220" width="330" height="90" />
+        </mxCell>
+        <mxCell id="4" value="Expiry rule&#10;business timezone and date boundary" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#fff3dc;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="820" y="220" width="330" height="90" />
+        </mxCell>
+        <mxCell id="5" value="Sales-only history&#10;slow-moving window" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#f0eafa;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="60" y="440" width="330" height="90" />
+        </mxCell>
+        <mxCell id="6" value="Threshold policy&#10;LOW / OUT / RESTOCKED" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#fff0e9;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="820" y="440" width="330" height="90" />
+        </mxCell>
+        <mxCell id="7" value="Warning episode&#10;type + state + reviewer" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fillColor=#fff0e9;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="430" y="680" width="300" height="100" />
+        </mxCell>
+        <mxCell id="8" value="batch balances" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="2" target="3">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="9" value="batch dates" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="2" target="4">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="10" value="stock-out history" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="2" target="5">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="11" value="quantity" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="3" target="6">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="12" value="EXPIRING / EXPIRED" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="4" target="7">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="13" value="SLOW" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="5" target="7">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="14" value="LOW / OUT / RESTOCKED" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;" edge="1" parent="1" source="6" target="7">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

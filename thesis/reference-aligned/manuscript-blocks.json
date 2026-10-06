@@ -54,7 +54,7 @@
   },
   {
     "kind": "p",
-    "text": "The deliverables comprise the Vue 3 browser application, Spring Boot service, MySQL schema, optional Redis warning-page cache, deployment configuration, executable tests, captured interfaces and this thesis. The application supports one store, integer quantities, manual thresholds and three fixed roles. The phone-sized interface is the responsive Web application. Native mobile applications, embedded device firmware, checkout, procurement settlement, batch tracking and multi-store isolation are outside the implemented scope.",
+    "text": "The deliverables comprise the Vue 3 browser application, Spring Boot service, MySQL schema, Redis warning-page cache, Docker Compose deployment, executable tests, captured interfaces and this thesis. The application supports one store, integer sellable quantities, batch receipts, FEFO/FIFO dispatch, expiry and slow-moving warnings, replenishment suggestions, purchase approval and partial receipts, reviewed counts and disposal, and three fixed roles. The phone-sized interface is the responsive Web application; no native Android or iOS application and no embedded firmware are delivered. Checkout, payment settlement, supplier invoicing and multi-store isolation remain outside the implemented scope.",
     "group": "00-front"
   },
   {
@@ -67,7 +67,7 @@
   },
   {
     "kind": "p",
-    "text": "The project work comprises domain modeling, requirement analysis, architecture and schema design, backend and frontend implementation, security configuration, local deployment and evidence-based evaluation. The documented tests include 27 backend integration cases, three frontend unit cases, an earlier browser acceptance journey and the later figure-capture verification. Performance and recovery observations are drawn from dated local records. This scope describes the available project work rather than a real-store trial or a production deployment.",
+    "text": "The project work comprises domain modeling, requirement analysis, architecture and schema design, backend and frontend implementation, security configuration, local deployment and evidence-based evaluation. The documented tests include the current backend integration suite, frontend boundary tests, an earlier browser acceptance journey and the later figure-capture verification. Performance and recovery observations are drawn from dated local records. This scope describes the available project work rather than a real-store trial or a production deployment.",
     "group": "00-front"
   },
   {
@@ -99,7 +99,7 @@
   },
   {
     "kind": "p",
-    "text": "The application combines a Vue 3 and TypeScript browser client with a Spring Boot and Java 21 server. MySQL stores products, users, stock movements, warning episodes and settings. Redis provides an optional warning-page cache. Accepted inventory changes acquire a product row lock, validate an actor-scoped idempotency key, check quantity bounds, write the before-and-after audit record, update warning episodes and advance the cache revision within one database transaction. Three fixed roles divide administration, managerial review and operational stock work. Session authentication, CSRF protection and server-side authorization protect the request path.",
+    "text": "The application combines a Vue 3 and TypeScript browser client with a Spring Boot and Java 21 server. MySQL stores products, users, stock movements, batches, warning episodes, stock reviews and purchasing records. Redis provides a revision-keyed warning-page cache. Accepted stock changes acquire a product row lock, validate an actor-scoped idempotency key, check quantity bounds, allocate dispatches by FEFO where batch data exists, update warning episodes and advance the cache revision within a transaction. Expiry rules use the configured business timezone, slow-moving rules inspect sales-only history, and purchasing separates draft, submission, managerial approval and partial receipt. Three fixed roles divide administration, managerial review and operational stock work. Session authentication, CSRF protection and server-side authorization protect the request path.",
     "group": "00-front"
   },
   {
@@ -109,7 +109,7 @@
   },
   {
     "kind": "p",
-    "text": "The result is a runnable system in which stock changes, shortage transitions and human review remain distinct and inspectable. The study is limited by demonstration data, integer quantities, manual replenishment policies, one application node and the absence of a store-user study. The design provides a basis for later work on point-of-sale integration, fractional units, batch traceability, deployment hardening and operational evaluation.",
+    "text": "The result is a runnable system in which stock changes, batch allocation, warning transitions, purchasing decisions and human review remain distinct and inspectable. The study is limited by demonstration data, integer quantities, manually maintained thresholds and suppliers, one application node and the absence of a store-user study. The design provides a basis for later work on point-of-sale integration, fractional units, multi-store isolation, external supplier integration and operational evaluation.",
     "group": "00-front"
   },
   {
@@ -133,7 +133,7 @@
   },
   {
     "kind": "p",
-    "text": "The engineering problem is therefore broader than product creation and retrieval. A client can submit twice, two staff members can dispatch from the same product balance, a warning can remain below its threshold after a partial replenishment, and a cached page can outlive the write that should replace it. Each case can produce a believable interface while the underlying meaning is wrong. Shelfwise is organized around explicit treatment of these cases rather than around a large list of retail features.",
+    "text": "The engineering problem is therefore broader than product creation and retrieval. A client can submit twice, two staff members can dispatch from the same product balance, an expired batch can be physically present but unsellable, a recovery warning can be confused with a shortage, a purchase can be received twice, and a cached page can outlive the write that should replace it. Each case can produce a believable interface while the underlying meaning is wrong. Shelfwise is organized around explicit treatment of these cases rather than around a large list of retail features.",
     "group": "00-front"
   },
   {
@@ -148,7 +148,7 @@
   },
   {
     "kind": "p",
-    "text": "The implementation is a modular monolith. A single Spring Boot process owns stock transactions, while a Vue client presents the workflow. MySQL is authoritative and Redis is disposable. This arrangement keeps the transaction boundary visible and fits the single-store scope. Its limitations are consequential: it does not establish a distributed inventory platform, an accounting ledger or an automatic purchasing system. The later discussion identifies how those extensions would change the entities, policies and evaluation workload.",
+    "text": "The implementation is a modular monolith packaged as a four-service Docker Compose deployment. A Spring Boot container owns stock, warning, review and purchasing transactions, while an Nginx container serves the compiled Vue client and proxies API requests. MySQL is authoritative and Redis is disposable. Batch inventory, warning policies and purchasing workflows are implemented within the same transaction-aware service boundary. This arrangement fits the single-store scope; it does not establish a distributed inventory platform, accounting ledger or point-of-sale system.",
     "group": "00-front"
   },
   {
@@ -180,7 +180,7 @@
   },
   {
     "kind": "p",
-    "text": "The application uses product identity, category, supplier, unit and current price as descriptive context. SKU is a required unique identifier, and barcode is optional. The unit label describes how staff interpret a whole-number quantity. A label of kg does not introduce decimal weighing support: the current implementation still stores an integer. This distinction is relevant for fresh produce because a deployable weighing workflow would require fractional units and a defined rounding policy.",
+    "text": "The application uses product identity, category, supplier, unit and current price as descriptive context. SKU is a required unique identifier, and barcode is optional. Stock received through a purchase can carry a batch number, production date and expiry date. The unit label still describes a whole-number quantity: a label of kg does not introduce decimal weighing support. Sellable quantity excludes expired and quarantined batches, while physical quantity remains useful for disposal and reconciliation. A deployable weighing workflow would require fractional units and a defined rounding policy.",
     "group": "01-object-analysis"
   },
   {
@@ -203,7 +203,7 @@
   },
   {
     "kind": "p",
-    "text": "The system boundary includes product and reference-data administration, searchable inventory, receiving, dispatch, adjustment, stocktake, shortage warnings, review attribution, summary reports and staff access. It excludes payment processing, supplier invoicing, automatic orders, stock allocation to customer reservations, batches, expiry dates and multiple stores. These exclusions are deliberate boundaries of the current implementation. For example, available quantity is not reduced by an unimplemented reservation, and a supplier record is not evidence that a purchase order exists.",
+    "text": "The system boundary includes product and reference-data administration, searchable inventory, receiving, dispatch, adjustment, stocktake, batch control, expiry and slow-moving warnings, warning review, replenishment suggestions, purchase drafts and approval, partial receipts, disposal/count reviews, reports and staff access. It excludes payment processing, supplier invoicing, checkout integration, customer reservations and multiple stores. A supplier record remains descriptive until a purchase document is created, and a purchase document remains a stock workflow until a receipt is accepted.",
     "group": "01-object-analysis"
   },
   {
@@ -233,22 +233,22 @@
       ],
       [
         "Stock operation",
-        "Receive dispatch adjustment stocktake",
+        "Receive dispatch adjustment stocktake with batch-aware receipt and dispatch",
         "Checkout and reserved stock"
       ],
       [
         "Supplier",
-        "Product partner and contact directory",
-        "Orders invoices and settlement"
+        "Product partner, replenishment suggestion and purchase workflow",
+        "Invoices and settlement"
       ],
       [
         "Warning",
-        "Manual quantity thresholds and episodes",
+        "Quantity, expiry, slow-moving and recovery episodes with review",
         "Demand forecasting and automatic purchasing"
       ],
       [
         "Financial display",
-        "Current price multiplied by quantity",
+        "Current price multiplied by sellable quantity as a presentation estimate",
         "Accounting cost and profit"
       ],
       [
@@ -397,7 +397,7 @@
   },
   {
     "kind": "p",
-    "text": "A warning is a persisted episode connected to a product. OUT means the balance is zero. LOW means the balance is positive and at or below the reorder threshold. A healthy balance is above that threshold. Safety stock marks urgency within the low-stock interpretation; it does not create a separate warning type. When a shortage becomes healthy, the application resolves the shortage and creates a time-limited RESTOCKED episode.",
+    "text": "A warning is a persisted episode connected to a product and a rule interpretation. OUT and LOW describe sellable quantity; EXPIRING and EXPIRED describe batch dates; SLOW describes a sales-only movement rule; RESTOCKED records a recovery interval. The business timezone controls the date boundary for expiry. A healthy replenishment can resolve a shortage and create a time-limited RESTOCKED episode. Warning acknowledgement remains independent from all of these conditions.",
     "group": "01-object-analysis"
   },
   {
@@ -415,7 +415,46 @@
   },
   {
     "kind": "p",
-    "text": "The episode model supports both current attention and historical explanation. Open warnings tell the manager what currently needs review. Resolved records show that a shortage or recovery interval ended. The dashboard and warning board are views of these records, not independent sources of stock truth.",
+    "text": "The episode model supports both current attention and historical explanation. Open warnings tell the manager what currently needs review. Resolved records show that a shortage or recovery interval ended. The dashboard and warning board are views of these records, not independent sources of stock truth. Replenishment suggestions use sellable quantity, pending approved quantity and target stock; they do not silently create an order.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "warning-rules",
+    "asset": "diagrams/25-warning-rules.png",
+    "caption": "Warning rule evaluation across batches expiry sales history and threshold policy",
+    "group": "01-object-analysis",
+    "number": "1.5"
+  },
+  {
+    "kind": "heading",
+    "level": 3,
+    "text": "Batch and purchasing objects",
+    "group": "01-object-analysis",
+    "display": "1.3.4 Batch and purchasing objects",
+    "bookmark": "head16"
+  },
+  {
+    "kind": "p",
+    "text": "A batch is the inventory identity used when a receipt carries production or expiry metadata. Physical quantity and sellable quantity are maintained separately. FEFO selects the earliest eligible expiry date; FIFO provides deterministic ordering when dates are absent. Quarantine is an explicit control state for a batch and does not erase its movement history.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "p",
+    "text": "A replenishment suggestion is derived from sellable quantity, pending purchase position, trigger threshold and target stock. A purchase document moves through DRAFT, SUBMITTED, APPROVED or REJECTED, and can be PARTIAL, COMPLETED or CANCELLED after receipt activity. This workflow turns a warning into a reviewable decision without claiming that the system has sent an external supplier order.",
+    "group": "01-object-analysis"
+  },
+  {
+    "kind": "fig",
+    "key": "purchasing-workflow",
+    "asset": "diagrams/26-purchasing-workflow.png",
+    "caption": "Replenishment suggestion through purchase approval and partial receipt",
+    "group": "01-object-analysis",
+    "number": "1.6"
+  },
+  {
+    "kind": "p",
+    "text": "A stock review records a count or disposal intention against a quantity snapshot. Approval rechecks that snapshot and batch remainder before applying the resulting movement. This prevents a delayed approval from overwriting a later receipt or dispatch.",
     "group": "01-object-analysis"
   },
   {
@@ -423,8 +462,8 @@
     "level": 3,
     "text": "Reporting model",
     "group": "01-object-analysis",
-    "display": "1.3.4 Reporting model",
-    "bookmark": "head16"
+    "display": "1.3.5 Reporting model",
+    "bookmark": "head17"
   },
   {
     "kind": "p",
@@ -437,7 +476,7 @@
     "asset": "diagrams/05-uc-report.png",
     "caption": "Inventory reporting and current-page export use cases",
     "group": "01-object-analysis",
-    "number": "1.5"
+    "number": "1.7"
   },
   {
     "kind": "p",
@@ -449,8 +488,8 @@
     "level": 3,
     "text": "Identity and administration model",
     "group": "01-object-analysis",
-    "display": "1.3.5 Identity and administration model",
-    "bookmark": "head17"
+    "display": "1.3.6 Identity and administration model",
+    "bookmark": "head18"
   },
   {
     "kind": "p",
@@ -463,7 +502,7 @@
     "asset": "diagrams/06-uc-access.png",
     "caption": "Identity and administrative use cases",
     "group": "01-object-analysis",
-    "number": "1.6"
+    "number": "1.8"
   },
   {
     "kind": "p",
@@ -476,7 +515,7 @@
     "text": "Domain invariants and representative scenarios",
     "group": "01-object-analysis",
     "display": "1.4 Domain invariants and representative scenarios",
-    "bookmark": "head18"
+    "bookmark": "head19"
   },
   {
     "kind": "p",
@@ -505,7 +544,7 @@
     "text": "Chapter summary",
     "group": "01-object-analysis",
     "display": "1.5 Chapter summary",
-    "bookmark": "head19"
+    "bookmark": "head20"
   },
   {
     "kind": "p",
@@ -519,7 +558,7 @@
     "group": "02-assignment",
     "display": "2 Requirements and technology selection",
     "chapter": 2,
-    "bookmark": "head20"
+    "bookmark": "head21"
   },
   {
     "kind": "heading",
@@ -527,11 +566,11 @@
     "text": "Assignment and acceptance approach",
     "group": "02-assignment",
     "display": "2.1 Assignment and acceptance approach",
-    "bookmark": "head21"
+    "bookmark": "head22"
   },
   {
     "kind": "p",
-    "text": "The assignment is to implement the inventory workflow identified in Chapter 1 as an inspectable single-store application. A requirement is treated as complete when its intended actor, server operation, data effect and acceptance evidence can be identified. A screen that appears to offer an operation is insufficient if the corresponding server permission or transactional behavior is absent. Conversely, a correct API is insufficient if the interface presents an absolute count as a relative change.",
+    "text": "The assignment is to implement the inventory workflow identified in Chapter 1 as an inspectable single-store application. A requirement is treated as complete when its intended actor, server operation, data effect and acceptance evidence can be identified. The expanded release also treats an approved workflow as incomplete until its replay, stale-snapshot and cross-state behavior is defined. A screen that appears to offer an operation is insufficient if the corresponding server permission or transactional behavior is absent. Conversely, a correct API is insufficient if the interface presents an absolute count as a relative change.",
     "group": "02-assignment"
   },
   {
@@ -603,6 +642,26 @@
         "R11",
         "Preserve warning results without Redis",
         "Cache bypass comparison and recorded outage equivalence"
+      ],
+      [
+        "R12",
+        "Track batch balances and apply FEFO/FIFO allocation",
+        "Receipt replay, expiry boundaries and batch dispatch tests"
+      ],
+      [
+        "R13",
+        "Detect expiry and slow-moving conditions",
+        "Business-timezone and sales-only warning tests"
+      ],
+      [
+        "R14",
+        "Manage replenishment and purchase approval",
+        "Suggestion quantities, approval recheck, partial receipt and cancellation tests"
+      ],
+      [
+        "R15",
+        "Review counts and disposal with a snapshot",
+        "Stale snapshot, approval and idempotent review tests"
       ]
     ],
     "group": "02-assignment",
@@ -614,7 +673,7 @@
     "text": "Functional requirements",
     "group": "02-assignment",
     "display": "2.2 Functional requirements",
-    "bookmark": "head22"
+    "bookmark": "head23"
   },
   {
     "kind": "heading",
@@ -622,7 +681,7 @@
     "text": "Authentication and role-specific access",
     "group": "02-assignment",
     "display": "2.2.1 Authentication and role-specific access",
-    "bookmark": "head23"
+    "bookmark": "head24"
   },
   {
     "kind": "p",
@@ -648,7 +707,7 @@
     "text": "Catalogue and inventory inspection",
     "group": "02-assignment",
     "display": "2.2.2 Catalogue and inventory inspection",
-    "bookmark": "head24"
+    "bookmark": "head25"
   },
   {
     "kind": "p",
@@ -679,7 +738,7 @@
     "text": "Stock operation requirements",
     "group": "02-assignment",
     "display": "2.2.3 Stock operation requirements",
-    "bookmark": "head25"
+    "bookmark": "head26"
   },
   {
     "kind": "p",
@@ -697,11 +756,11 @@
     "text": "Warning and reporting requirements",
     "group": "02-assignment",
     "display": "2.2.4 Warning and reporting requirements",
-    "bookmark": "head26"
+    "bookmark": "head27"
   },
   {
     "kind": "p",
-    "text": "A zero balance must be classified as OUT, including when the threshold is also zero. A positive balance equal to the reorder threshold must be LOW. A healthy replenishment must resolve the shortage and create a recovery episode. Continued low stock within the same severity must not erase its reviewer. Changing threshold policy must reevaluate warning state because the interpretation can change without a movement.",
+    "text": "A zero sellable balance must be classified as OUT, including when the threshold is also zero. A positive balance equal to the reorder threshold must be LOW. Batch expiry changes sellable quantity at the configured business-day boundary, while physical quantity remains available for disposal. A healthy replenishment must resolve the shortage and create a recovery episode. Slow-moving detection uses sales-only movements over a configured window. Continued low stock within the same severity must not erase its reviewer. Changing threshold policy or warning policy must reevaluate the relevant episode.",
     "group": "02-assignment"
   },
   {
@@ -715,7 +774,7 @@
     "text": "Non-functional requirements and quality boundaries",
     "group": "02-assignment",
     "display": "2.3 Non-functional requirements and quality boundaries",
-    "bookmark": "head27"
+    "bookmark": "head28"
   },
   {
     "kind": "p",
@@ -787,7 +846,7 @@
     "text": "Analysis of related inventory systems",
     "group": "02-assignment",
     "display": "2.4 Analysis of related inventory systems",
-    "bookmark": "head28"
+    "bookmark": "head29"
   },
   {
     "kind": "heading",
@@ -795,7 +854,7 @@
     "text": "Reordering rules in Odoo",
     "group": "02-assignment",
     "display": "2.4.1 Reordering rules in Odoo",
-    "bookmark": "head29"
+    "bookmark": "head30"
   },
   {
     "kind": "p",
@@ -804,7 +863,7 @@
   },
   {
     "kind": "p",
-    "text": "Shelfwise adopts the need for an explicit quantity boundary but stops at review. A shortage episode creates attention for an authorized user; it does not create a purchase order or compute supplier lead time. Its reorder threshold is a manually maintained rule, and its safety stock is an urgency value within that rule. This narrower scope makes the transition and acknowledgement behavior testable without introducing unimplemented purchasing claims.",
+    "text": "Shelfwise adopts the explicit quantity boundary and extends it into a bounded purchasing workflow. A shortage or replenishment suggestion can seed a draft purchase, but submission, approval and receipt remain separate audited actions. Approval rechecks the current suggestion, and partial receipts create batch-aware stock movements without claiming supplier payment or lead-time optimization.",
     "group": "02-assignment"
   },
   {
@@ -813,7 +872,7 @@
     "text": "Retained ledger explanations in ERPNext",
     "group": "02-assignment",
     "display": "2.4.2 Retained ledger explanations in ERPNext",
-    "bookmark": "head30"
+    "bookmark": "head31"
   },
   {
     "kind": "p",
@@ -831,7 +890,7 @@
     "text": "Spreadsheet and broader enterprise alternatives",
     "group": "02-assignment",
     "display": "2.4.3 Spreadsheet and broader enterprise alternatives",
-    "bookmark": "head31"
+    "bookmark": "head32"
   },
   {
     "kind": "p",
@@ -861,7 +920,7 @@
       [
         "Documented Odoo replenishment",
         "Quantity policies connected to replenishment",
-        "Broader purchasing scope than the implemented review-only workflow"
+        "Broader enterprise and supplier scope"
       ],
       [
         "Documented ERPNext ledger",
@@ -870,8 +929,8 @@
       ],
       [
         "Shelfwise bounded application",
-        "Explicit stock transaction warning review and tests",
-        "No purchasing checkout forecasting batches or store-user study"
+        "Batch-aware stock, warning rules, review and purchase approval with tests",
+        "No checkout integration, accounting, multi-store isolation or store-user study"
       ]
     ],
     "group": "02-assignment",
@@ -883,7 +942,7 @@
     "text": "Technology selection and comparative analysis",
     "group": "02-assignment",
     "display": "2.5 Technology selection and comparative analysis",
-    "bookmark": "head32"
+    "bookmark": "head33"
   },
   {
     "kind": "heading",
@@ -891,7 +950,7 @@
     "text": "Backend and persistence",
     "group": "02-assignment",
     "display": "2.5.1 Backend and persistence",
-    "bookmark": "head33"
+    "bookmark": "head34"
   },
   {
     "kind": "p",
@@ -914,7 +973,7 @@
     "text": "Frontend and communication",
     "group": "02-assignment",
     "display": "2.5.2 Frontend and communication",
-    "bookmark": "head34"
+    "bookmark": "head35"
   },
   {
     "kind": "p",
@@ -932,11 +991,11 @@
     "text": "Development and verification tooling",
     "group": "02-assignment",
     "display": "2.5.3 Development and verification tooling",
-    "bookmark": "head35"
+    "bookmark": "head36"
   },
   {
     "kind": "p",
-    "text": "Docker Compose supplies the pinned MySQL and Redis services for local execution. Maven builds the backend, while Vite provides frontend development and production assets. Testcontainers supplies disposable service instances for backend integration tests [@testcontainers]. Vitest checks presentation boundaries, and Playwright is used for browser journeys and interface capture. Each tool has a particular verification purpose; none replaces an operational user study or a production security assessment.",
+    "text": "Docker Compose now packages the complete local and release deployment: MySQL and Redis are infrastructure services, Spring Boot is built into a Java runtime image, and the Vue bundle is served by Nginx. A GitHub Actions workflow publishes the frontend and backend images and mirrors pinned MySQL and Redis images to GHCR for Windows delivery. Maven, Vite, Testcontainers, Vitest and Playwright retain their development and verification roles. Each tool has a particular purpose; none replaces an operational user study or production security assessment.",
     "group": "02-assignment"
   },
   {
@@ -999,7 +1058,7 @@
     "text": "Chapter summary",
     "group": "02-assignment",
     "display": "2.6 Chapter summary",
-    "bookmark": "head36"
+    "bookmark": "head37"
   },
   {
     "kind": "p",
@@ -1013,7 +1072,7 @@
     "group": "03-design",
     "display": "3 System design",
     "chapter": 3,
-    "bookmark": "head37"
+    "bookmark": "head38"
   },
   {
     "kind": "heading",
@@ -1021,7 +1080,7 @@
     "text": "Architecture and ownership of state",
     "group": "03-design",
     "display": "3.1 Architecture and ownership of state",
-    "bookmark": "head38"
+    "bookmark": "head39"
   },
   {
     "kind": "p",
@@ -1057,7 +1116,7 @@
     "text": "Refinement of the browser and server architecture",
     "group": "03-design",
     "display": "3.2 Refinement of the browser and server architecture",
-    "bookmark": "head39"
+    "bookmark": "head40"
   },
   {
     "kind": "heading",
@@ -1065,7 +1124,7 @@
     "text": "Browser modules and state",
     "group": "03-design",
     "display": "3.2.1 Browser modules and state",
-    "bookmark": "head40"
+    "bookmark": "head41"
   },
   {
     "kind": "p",
@@ -1096,7 +1155,7 @@
     "text": "Server layers and transaction ownership",
     "group": "03-design",
     "display": "3.2.2 Server layers and transaction ownership",
-    "bookmark": "head41"
+    "bookmark": "head42"
   },
   {
     "kind": "p",
@@ -1122,7 +1181,7 @@
     "text": "Relational database design",
     "group": "03-design",
     "display": "3.3 Relational database design",
-    "bookmark": "head42"
+    "bookmark": "head43"
   },
   {
     "kind": "heading",
@@ -1130,11 +1189,11 @@
     "text": "Overall relationships",
     "group": "03-design",
     "display": "3.3.1 Overall relationships",
-    "bookmark": "head43"
+    "bookmark": "head44"
   },
   {
     "kind": "p",
-    "text": "The relational model in {fig:er-overall} comprises eight tables. Products may reference a category and supplier. Inventory transactions require a product and actor. Warnings require a product and optionally reference a reviewer. Settings and cache revision are independent supporting tables. The schema does not contain purchase orders, sales orders, stores or permission-association tables because those objects are not part of the implemented boundary.",
+    "text": "The relational model in {fig:er-overall} is extended by eight migrations. Products may reference a category and supplier; batch balances attach to products; inventory transactions retain product and actor attribution; warnings can reference a reviewer; stock reviews and purchasing records retain their own request keys and action histories. Settings and cache revision remain supporting tables. The schema still excludes sales orders, accounting documents, stores and permission-association tables.",
     "group": "03-design"
   },
   {
@@ -1156,7 +1215,7 @@
     "text": "Users and access data",
     "group": "03-design",
     "display": "3.3.2 Users and access data",
-    "bookmark": "head44"
+    "bookmark": "head45"
   },
   {
     "kind": "p",
@@ -1239,7 +1298,7 @@
     "text": "Catalogue and reference tables",
     "group": "03-design",
     "display": "3.3.3 Catalogue and reference tables",
-    "bookmark": "head45"
+    "bookmark": "head46"
   },
   {
     "kind": "p",
@@ -1486,7 +1545,7 @@
     "text": "Inventory movement ledger",
     "group": "03-design",
     "display": "3.3.4 Inventory movement ledger",
-    "bookmark": "head46"
+    "bookmark": "head47"
   },
   {
     "kind": "p",
@@ -1598,11 +1657,11 @@
     "text": "Warning episodes and review attribution",
     "group": "03-design",
     "display": "3.3.5 Warning episodes and review attribution",
-    "bookmark": "head47"
+    "bookmark": "head48"
   },
   {
     "kind": "p",
-    "text": "The warning model in {fig:er-warnings} stores severity, lifecycle state, observed quantity, threshold and timestamps. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.",
+    "text": "The warning model in {fig:er-warnings} stores type, lifecycle state, observed quantity, threshold and timestamps. Later migrations add rule-policy data for expiry and slow-moving evaluation. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.",
     "group": "03-design"
   },
   {
@@ -1710,7 +1769,7 @@
     "text": "Supporting settings and revision data",
     "group": "03-design",
     "display": "3.3.6 Supporting settings and revision data",
-    "bookmark": "head48"
+    "bookmark": "head49"
   },
   {
     "kind": "p",
@@ -1796,7 +1855,7 @@
     "text": "UML classes and repository dependencies",
     "group": "03-design",
     "display": "3.4 UML classes and repository dependencies",
-    "bookmark": "head49"
+    "bookmark": "head50"
   },
   {
     "kind": "p",
@@ -1827,10 +1886,20 @@
   {
     "kind": "heading",
     "level": 2,
-    "text": "Transactional stock consistency",
+    "text": "Batch allocation, warning policy and transactional stock consistency",
     "group": "03-design",
-    "display": "3.5 Transactional stock consistency",
-    "bookmark": "head50"
+    "display": "3.5 Batch allocation, warning policy and transactional stock consistency",
+    "bookmark": "head51"
+  },
+  {
+    "kind": "p",
+    "text": "Batch receipts create dated inventory identities. Dispatch selects sellable batches by FEFO when expiry dates exist and uses FIFO as the deterministic fallback. Expired or quarantined batches remain physically present but are excluded from sellable quantity. The batch remainder is rechecked when disposal or review is approved, so an approval cannot remove stock that another transaction has already consumed.",
+    "group": "03-design"
+  },
+  {
+    "kind": "p",
+    "text": "Expiry is evaluated using the configured business timezone and the documented inclusive boundary: a batch is sellable on its expiry date and expires on the following business date. Slow-moving detection uses sales-only movements, excluding receipts, adjustments and stocktakes from the sales signal. These policies are deliberately explicit because a generic quantity threshold cannot express product age or movement inactivity.",
+    "group": "03-design"
   },
   {
     "kind": "heading",
@@ -1838,7 +1907,7 @@
     "text": "Product locking and bounded arithmetic",
     "group": "03-design",
     "display": "3.5.1 Product locking and bounded arithmetic",
-    "bookmark": "head51"
+    "bookmark": "head52"
   },
   {
     "kind": "p",
@@ -1861,7 +1930,7 @@
     "text": "Idempotency and retry scope",
     "group": "03-design",
     "display": "3.5.2 Idempotency and retry scope",
-    "bookmark": "head52"
+    "bookmark": "head53"
   },
   {
     "kind": "p",
@@ -1923,7 +1992,7 @@
     "text": "Warning lifecycle design",
     "group": "03-design",
     "display": "3.6 Warning lifecycle design",
-    "bookmark": "head53"
+    "bookmark": "head54"
   },
   {
     "kind": "p",
@@ -1954,7 +2023,7 @@
     "text": "Revision-based cache design",
     "group": "03-design",
     "display": "3.7 Revision-based cache design",
-    "bookmark": "head54"
+    "bookmark": "head55"
   },
   {
     "kind": "p",
@@ -1985,11 +2054,11 @@
     "text": "Permissions and request security",
     "group": "03-design",
     "display": "3.8 Permissions and request security",
-    "bookmark": "head55"
+    "bookmark": "head56"
   },
   {
     "kind": "p",
-    "text": "The authorization matrix in {tab:role-matrix} is implemented by HTTP method and route patterns. Threshold changes have a narrower route so managers can alter stock policy without editing SKU, name or supplier. Posting a movement is allowed for administrators and clerks. Warnings and reports are allowed for administrators and managers. Staff accounts and settings changes are administrator operations.",
+    "text": "The authorization matrix in {tab:role-matrix} is implemented by HTTP method and route patterns. Threshold and replenishment-target changes have narrower routes so managers can alter policy without editing identity fields. Posting ordinary stock is allowed for administrators and clerks; adjustment, stocktake, count approval and disposal approval use the review workflow. Warnings, reports, purchase approval and warning policies are manager operations. Staff accounts and settings changes remain administrator operations.",
     "group": "03-design"
   },
   {
@@ -2010,10 +2079,22 @@
         "Yes"
       ],
       [
-        "Post receipt dispatch adjustment or count",
+        "Post receipt and dispatch",
         "Yes",
         "No",
         "Yes"
+      ],
+      [
+        "Submit count or disposal review",
+        "Yes",
+        "No",
+        "Yes"
+      ],
+      [
+        "Approve review or purchase",
+        "Yes",
+        "Yes",
+        "No"
       ],
       [
         "Create edit or archive product",
@@ -2022,7 +2103,7 @@
         "No"
       ],
       [
-        "Update stock thresholds",
+        "Update stock thresholds and target",
         "Yes",
         "Yes",
         "No"
@@ -2085,11 +2166,11 @@
     "text": "Chapter summary",
     "group": "03-design",
     "display": "3.9 Chapter summary",
-    "bookmark": "head56"
+    "bookmark": "head57"
   },
   {
     "kind": "p",
-    "text": "The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.",
+    "text": "The design now connects product quantity to dated batches, rule-specific warnings, review snapshots and purchase documents. The same principles remain: MySQL owns accepted facts, Redis accelerates reads, and server-side authorization protects every state transition. The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.",
     "group": "03-design"
   },
   {
@@ -2099,7 +2180,7 @@
     "group": "04-implementation",
     "display": "4 System implementation",
     "chapter": 4,
-    "bookmark": "head57"
+    "bookmark": "head58"
   },
   {
     "kind": "heading",
@@ -2107,11 +2188,11 @@
     "text": "Project organization and development baseline",
     "group": "04-implementation",
     "display": "4.1 Project organization and development baseline",
-    "bookmark": "head58"
+    "bookmark": "head59"
   },
   {
     "kind": "p",
-    "text": "The implemented repository contains backend, frontend, scripts, documentation and thesis materials. The backend is built with Maven and Java 21. The browser application uses the pinned dependencies in its package manifest and lockfile. MySQL and Redis are started through Docker Compose. The thesis figures are maintained with their editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.",
+    "text": "The implemented repository contains backend, frontend, Dockerfiles, Compose manifests, scripts, documentation and thesis materials. The backend is built with Maven and Java 21 in a multi-stage image. The browser application uses the pinned dependencies in its package manifest and lockfile, is built by Node.js and is served by Nginx in the release image. MySQL and Redis run as Compose services; a release Compose file can pull all four images from GHCR. The thesis figures are maintained with editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.",
     "group": "04-implementation"
   },
   {
@@ -2130,7 +2211,7 @@
     "text": "API routes and interface navigation",
     "group": "04-implementation",
     "display": "4.2 API routes and interface navigation",
-    "bookmark": "head59"
+    "bookmark": "head60"
   },
   {
     "kind": "p",
@@ -2166,6 +2247,21 @@
         "Reference data",
         "/api/categories and /api/suppliers",
         "Product grouping and partner directory"
+      ],
+      [
+        "Batch inventory",
+        "/api/batches and /api/batches/{id}/control",
+        "Batch balances, sellable quantity and quarantine"
+      ],
+      [
+        "Purchasing",
+        "/api/replenishment and /api/purchases",
+        "Suggestions, drafts, approval and receipts"
+      ],
+      [
+        "Stock reviews",
+        "/api/stock-reviews and action resources",
+        "Snapshot-based count and disposal review"
       ],
       [
         "Movement ledger",
@@ -2228,7 +2324,7 @@
     "text": "Authentication and session implementation",
     "group": "04-implementation",
     "display": "4.3 Authentication and session implementation",
-    "bookmark": "head60"
+    "bookmark": "head61"
   },
   {
     "kind": "p",
@@ -2288,7 +2384,7 @@
     "text": "Overview and inventory inspection",
     "group": "04-implementation",
     "display": "4.4 Overview and inventory inspection",
-    "bookmark": "head61"
+    "bookmark": "head62"
   },
   {
     "kind": "p",
@@ -2340,7 +2436,7 @@
     "text": "Catalogue administration",
     "group": "04-implementation",
     "display": "4.5 Catalogue administration",
-    "bookmark": "head62"
+    "bookmark": "head63"
   },
   {
     "kind": "p",
@@ -2404,7 +2500,7 @@
   },
   {
     "kind": "p",
-    "text": "The supplier directory in {fig:suppliers-ui} provides partner names and available contact details. The form in {fig:supplier-form-ui} creates descriptive supplier data. Neither interface generates a delivery, purchase order or payment obligation. A product can reference a supplier, but actual received stock is still recorded through the stock activity path.",
+    "text": "The supplier directory in {fig:suppliers-ui} provides partner names and available contact details. The form in {fig:supplier-form-ui} creates descriptive supplier data. The supplier directory remains descriptive, while the Purchasing view turns a replenishment suggestion into a draft purchase document. Approval and receipt are separate actions; a receipt creates a batch-aware stock movement, while payment and supplier settlement remain outside the implementation.",
     "group": "04-implementation"
   },
   {
@@ -2429,7 +2525,7 @@
     "text": "Audited stock operations",
     "group": "04-implementation",
     "display": "4.6 Audited stock operations",
-    "bookmark": "head63"
+    "bookmark": "head64"
   },
   {
     "kind": "heading",
@@ -2437,7 +2533,7 @@
     "text": "Locking and coordination",
     "group": "04-implementation",
     "display": "4.6.1 Locking and coordination",
-    "bookmark": "head64"
+    "bookmark": "head65"
   },
   {
     "kind": "p",
@@ -2497,7 +2593,7 @@
     "text": "Receipt and dispatch forms",
     "group": "04-implementation",
     "display": "4.6.2 Receipt and dispatch forms",
-    "bookmark": "head65"
+    "bookmark": "head66"
   },
   {
     "kind": "p",
@@ -2531,7 +2627,7 @@
     "text": "Adjustment and physical count forms",
     "group": "04-implementation",
     "display": "4.6.3 Adjustment and physical count forms",
-    "bookmark": "head66"
+    "bookmark": "head67"
   },
   {
     "kind": "p",
@@ -2578,7 +2674,7 @@
     "text": "Attributed history",
     "group": "04-implementation",
     "display": "4.6.4 Attributed history",
-    "bookmark": "head67"
+    "bookmark": "head68"
   },
   {
     "kind": "p",
@@ -2612,7 +2708,7 @@
     "text": "Warning review and cached retrieval",
     "group": "04-implementation",
     "display": "4.7 Warning review and cached retrieval",
-    "bookmark": "head68"
+    "bookmark": "head69"
   },
   {
     "kind": "p",
@@ -2667,20 +2763,83 @@
     "number": "4.31"
   },
   {
+    "kind": "heading",
+    "level": 2,
+    "text": "Batch inventory, purchasing and stock reviews",
+    "group": "04-implementation",
+    "display": "4.8 Batch inventory, purchasing and stock reviews",
+    "bookmark": "head70"
+  },
+  {
+    "kind": "p",
+    "text": "The batch page in {fig:batches-ui} exposes physical and sellable balances, expiry dates and quarantine state. It makes the distinction between what is present in the stockroom and what can be dispatched visible to the user.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "batches-ui",
+    "asset": "ui/28-batches.png",
+    "caption": "Batch inventory view with sellable balance and expiry information",
+    "group": "04-implementation",
+    "number": "4.32"
+  },
+  {
+    "kind": "p",
+    "text": "The Purchasing view in {fig:purchasing-ui} combines replenishment suggestions with purchase documents. Its table keeps the trigger, target, pending position and suggested quantity visible together; the corrected header layout prevents English labels from breaking into isolated characters.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "purchasing-ui",
+    "asset": "ui/29-purchasing.png",
+    "caption": "Replenishment suggestions and purchase workflow interface",
+    "group": "04-implementation",
+    "number": "4.33"
+  },
+  {
+    "kind": "fig",
+    "key": "purchasing-code",
+    "asset": "code/15-code-purchasing.png",
+    "caption": "Purchase approval and partial receipt service path",
+    "group": "04-implementation",
+    "number": "4.34"
+  },
+  {
+    "kind": "p",
+    "text": "The Stock reviews view in {fig:reviews-ui} separates a physical count or disposal request from immediate stock mutation. A manager approves the snapshot after the service rechecks the current product or batch state.",
+    "group": "04-implementation"
+  },
+  {
+    "kind": "fig",
+    "key": "reviews-ui",
+    "asset": "ui/30-stock-reviews.png",
+    "caption": "Snapshot-based stock count and disposal review interface",
+    "group": "04-implementation",
+    "number": "4.35"
+  },
+  {
+    "kind": "fig",
+    "key": "batch-workflow",
+    "asset": "diagrams/27-batch-fefo.png",
+    "caption": "Batch receipt, FEFO/FIFO allocation and review-controlled disposal",
+    "group": "04-implementation",
+    "number": "4.36"
+  },
+  {
     "kind": "fig",
     "key": "threshold-ui",
     "asset": "ui/23-manager-thresholds.png",
     "caption": "Threshold-only product edit form presented to a manager",
     "group": "04-implementation",
-    "number": "4.32"
+    "number": "4.37"
   },
   {
     "kind": "heading",
     "level": 2,
     "text": "Reports and administration",
     "group": "04-implementation",
-    "display": "4.8 Reports and administration",
-    "bookmark": "head69"
+    "display": "4.9 Reports and administration",
+    "bookmark": "head71"
   },
   {
     "kind": "p",
@@ -2693,7 +2852,7 @@
     "asset": "ui/09-reports.png",
     "caption": "Implemented reporting view with explicit definitions of its metrics",
     "group": "04-implementation",
-    "number": "4.33"
+    "number": "4.38"
   },
   {
     "kind": "p",
@@ -2706,7 +2865,7 @@
     "asset": "ui/10-team.png",
     "caption": "Staff administration with role and enabled-account controls",
     "group": "04-implementation",
-    "number": "4.34"
+    "number": "4.39"
   },
   {
     "kind": "fig",
@@ -2714,7 +2873,7 @@
     "asset": "ui/22-account-form.png",
     "caption": "New staff-account form with role selection",
     "group": "04-implementation",
-    "number": "4.35"
+    "number": "4.40"
   },
   {
     "kind": "p",
@@ -2727,7 +2886,7 @@
     "asset": "ui/11-settings.png",
     "caption": "Store preferences and the display-only currency setting",
     "group": "04-implementation",
-    "number": "4.36"
+    "number": "4.41"
   },
   {
     "kind": "p",
@@ -2740,15 +2899,15 @@
     "asset": "ui/25-clerk-workspace.png",
     "caption": "Clerk stock-activity workspace with role-appropriate controls",
     "group": "04-implementation",
-    "number": "4.37"
+    "number": "4.42"
   },
   {
     "kind": "heading",
     "level": 2,
     "text": "Responsive Web behavior",
     "group": "04-implementation",
-    "display": "4.9 Responsive Web behavior",
-    "bookmark": "head70"
+    "display": "4.10 Responsive Web behavior",
+    "bookmark": "head72"
   },
   {
     "kind": "p",
@@ -2761,7 +2920,7 @@
     "asset": "ui/26-mobile-login.png",
     "caption": "Responsive Web sign-in at a phone-sized viewport",
     "group": "04-implementation",
-    "number": "4.38"
+    "number": "4.43"
   },
   {
     "kind": "p",
@@ -2774,37 +2933,37 @@
     "asset": "ui/27-mobile-inventory.png",
     "caption": "Full-page responsive Web inventory capture at 390 CSS pixels",
     "group": "04-implementation",
-    "number": "4.39"
+    "number": "4.44"
   },
   {
     "kind": "heading",
     "level": 2,
     "text": "Version control and local deployment",
     "group": "04-implementation",
-    "display": "4.10 Version control and local deployment",
-    "bookmark": "head71"
+    "display": "4.11 Version control and local deployment",
+    "bookmark": "head73"
   },
   {
     "kind": "p",
-    "text": "The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend currently identifies itself as version 0.1.0-SNAPSHOT and the frontend as 0.1.0. This thesis does not infer a production release process from those identifiers.",
+    "text": "The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend and frontend source manifests remain versioned independently, while the release deployment uses Git tags and GHCR image tags such as v1.2.2. This thesis distinguishes reproducible image delivery from a fully hardened production release process.",
     "group": "04-implementation"
   },
   {
     "kind": "p",
-    "text": "The topology in {fig:deployment} shows the implemented development arrangement. Vite serves the browser client on port 5173 and proxies API requests to Spring Boot on port 8080. Docker Compose publishes MySQL on the host's loopback port 3307 and Redis on loopback port 6380. The Vite development server is configured to listen on all interfaces; the loopback restriction shown for database services should not be generalized to every development process.",
+    "text": "The topology in {fig:deployment} shows the release arrangement. A browser connects to the Nginx frontend container on port 5173; Nginx proxies `/api` and `/actuator` to the Spring Boot backend container. The backend connects to MySQL and Redis on the private Compose network. Development mode still supports Vite and host-run Java, but the deliverable for Windows uses prebuilt frontend and backend images. GHCR stores the application images and mirrored infrastructure images, while the MySQL named volume remains local to the deployment host.",
     "group": "04-implementation"
   },
   {
     "kind": "fig",
     "key": "deployment",
     "asset": "diagrams/24-deployment.png",
-    "caption": "Implemented development processes and container service ports",
+    "caption": "Windows release topology with GHCR images and Docker Hub fallback",
     "group": "04-implementation",
-    "number": "4.40"
+    "number": "4.45"
   },
   {
     "kind": "p",
-    "text": "The Compose source in {fig:compose-code} supplies explicit images, environment-variable requirements, health checks and the MySQL named volume. It does not embed the local passwords into the thesis. Redis persistence is disabled because the cached responses are disposable. MySQL data must be retained and backed up independently of the application process.",
+    "text": "The Compose source in {fig:compose-code} supplies build-time Dockerfiles for development and a release manifest with prebuilt image references, environment-variable requirements, health checks, service dependencies and the MySQL named volume. The Windows helper first pulls from GHCR and falls back to official Docker Hub MySQL and Redis images if the GHCR infrastructure mirror is unavailable. It does not embed passwords. Redis persistence is disabled because cached responses are disposable; MySQL data must be retained and backed up independently of the application images.",
     "group": "04-implementation"
   },
   {
@@ -2813,7 +2972,7 @@
     "asset": "code/11-code-deployment.png",
     "caption": "Container configuration using environment references and durable MySQL storage",
     "group": "04-implementation",
-    "number": "4.41"
+    "number": "4.46"
   },
   {
     "kind": "p",
@@ -2825,8 +2984,8 @@
     "level": 2,
     "text": "Chapter summary",
     "group": "04-implementation",
-    "display": "4.11 Chapter summary",
-    "bookmark": "head72"
+    "display": "4.12 Chapter summary",
+    "bookmark": "head74"
   },
   {
     "kind": "p",
@@ -2840,7 +2999,7 @@
     "group": "05-testing",
     "display": "5 System testing and evaluation",
     "chapter": 5,
-    "bookmark": "head73"
+    "bookmark": "head75"
   },
   {
     "kind": "heading",
@@ -2848,7 +3007,7 @@
     "text": "Evaluation questions and evidence organization",
     "group": "05-testing",
     "display": "5.1 Evaluation questions and evidence organization",
-    "bookmark": "head74"
+    "bookmark": "head76"
   },
   {
     "kind": "p",
@@ -2920,7 +3079,7 @@
     "text": "Backend integration testing",
     "group": "05-testing",
     "display": "5.2 Backend integration testing",
-    "bookmark": "head75"
+    "bookmark": "head77"
   },
   {
     "kind": "heading",
@@ -2928,7 +3087,7 @@
     "text": "Environment and case coverage",
     "group": "05-testing",
     "display": "5.2.1 Environment and case coverage",
-    "bookmark": "head76"
+    "bookmark": "head78"
   },
   {
     "kind": "p",
@@ -2937,7 +3096,7 @@
   },
   {
     "kind": "p",
-    "text": "The 27 cases cover authentication, CSRF, role restrictions, catalogue validation, quantity changes, audit history, retry behavior, concurrency, shortage transitions, review and account safeguards. The result in {fig:backend-result} reports zero failures, errors and skipped tests. A passing suite means that those executable assertions held in this run. It is not a numerical code-coverage percentage or a proof that all possible requests are correct.",
+    "text": "The current integration suite contains 46 cases covering authentication, CSRF, role restrictions, catalogue validation, quantity changes, audit history, retry behavior, concurrency, shortage transitions, batch allocation, expiry policy, slow-moving detection, purchase approval, partial receipts, stock reviews and account safeguards. The result in {fig:backend-result} reports zero failures, errors and skipped tests for the recorded run. A passing suite means that those executable assertions held in this run. It is not a numerical code-coverage percentage or a proof that all possible requests are correct.",
     "group": "05-testing"
   },
   {
@@ -3013,7 +3172,7 @@
     "text": "Negative-stock and audit consistency",
     "group": "05-testing",
     "display": "5.2.2 Negative-stock and audit consistency",
-    "bookmark": "head77"
+    "bookmark": "head79"
   },
   {
     "kind": "p",
@@ -3031,7 +3190,7 @@
     "text": "Duplicate and concurrent requests",
     "group": "05-testing",
     "display": "5.2.3 Duplicate and concurrent requests",
-    "bookmark": "head78"
+    "bookmark": "head80"
   },
   {
     "kind": "p",
@@ -3062,16 +3221,39 @@
     "text": "Warning and review assertions",
     "group": "05-testing",
     "display": "5.2.4 Warning and review assertions",
-    "bookmark": "head79"
+    "bookmark": "head81"
   },
   {
     "kind": "p",
-    "text": "The threshold test verifies OUT at zero and LOW at exact positive equality. Healthy replenishment removes the active shortage and creates RESTOCKED. A review test verifies that acknowledgement becomes visible through the cache and leaves quantity zero. The concurrent-review case expects both responses to expose the same first reviewer. Archive cases confirm that the product rejects movements and its open warnings are resolved.",
+    "text": "The threshold test verifies OUT at zero and LOW at exact positive equality. Healthy replenishment removes the active shortage and creates RESTOCKED. Expiry tests verify the inclusive expiry-day boundary under the configured timezone, and slow-moving tests verify that sales-only history forms one continuous event. A review test verifies that acknowledgement becomes visible through the cache and leaves quantity zero. The concurrent-review case expects both responses to expose the same first reviewer. Archive cases confirm that the product rejects movements and its open warnings are resolved.",
     "group": "05-testing"
   },
   {
     "kind": "p",
-    "text": "The test named for restocked expiry and new shortage exercises renewed shortage after replenishment. It does not advance a clock through twenty-four hours. Its supported conclusion is that a new shortage closes the active recovery episode and opens OUT. Time-based expiry, periodic cleanup and a cached page around the expiry boundary remain incompletely evaluated. This distinction prevents a descriptive test name from becoming stronger evidence than its assertions provide.",
+    "text": "The recovery test named for restocked expiry and new shortage exercises renewed shortage after replenishment. Separate expiry tests exercise business-day boundaries, invalid timezone rejection and expiry-aware sellable balances. They do not establish a long-running scheduler reliability distribution. The supported conclusion is that the implemented rules agree at the tested boundaries; broader clock, cache and operational scheduling workloads remain future work.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "heading",
+    "level": 2,
+    "text": "Batch, purchasing and review workflow testing",
+    "group": "05-testing",
+    "display": "5.3 Batch, purchasing and review workflow testing",
+    "bookmark": "head82"
+  },
+  {
+    "kind": "p",
+    "text": "The expanded backend cases exercise receipt metadata replay, concurrent receipts, FEFO/FIFO batch allocation, exclusion of expired or quarantined batches, and disposal approval after a batch remainder changes. These assertions connect physical stock to sellable stock rather than checking only a product-level integer.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "Purchase tests cover multi-line draft creation, rejection and edit, completion, partial receipt, receipt replay, cancellation and concurrent approval. Approval rechecks the current replenishment suggestion before accepting a quantity. A receipt is therefore both a purchasing event and an audited stock movement; replay must not create a second batch or movement.",
+    "group": "05-testing"
+  },
+  {
+    "kind": "p",
+    "text": "Stock-review tests cover count and disposal submissions, stale snapshots, idempotent submissions, long bounded reasons and role denials. The approval path applies a movement only after the stored snapshot or batch remainder is still valid. These cases are stronger evidence for the expanded workflow than a screenshot of a review button, but they remain synthetic single-store scenarios.",
     "group": "05-testing"
   },
   {
@@ -3079,16 +3261,16 @@
     "level": 2,
     "text": "Frontend and browser testing",
     "group": "05-testing",
-    "display": "5.3 Frontend and browser testing",
-    "bookmark": "head80"
+    "display": "5.4 Frontend and browser testing",
+    "bookmark": "head83"
   },
   {
     "kind": "heading",
     "level": 3,
     "text": "Threshold presentation",
     "group": "05-testing",
-    "display": "5.3.1 Threshold presentation",
-    "bookmark": "head81"
+    "display": "5.4.1 Threshold presentation",
+    "bookmark": "head84"
   },
   {
     "kind": "p",
@@ -3121,8 +3303,8 @@
     "level": 3,
     "text": "Earlier operational browser journey",
     "group": "05-testing",
-    "display": "5.3.2 Earlier operational browser journey",
-    "bookmark": "head82"
+    "display": "5.4.2 Earlier operational browser journey",
+    "bookmark": "head85"
   },
   {
     "kind": "p",
@@ -3147,8 +3329,8 @@
     "level": 3,
     "text": "Expanded capture verification",
     "group": "05-testing",
-    "display": "5.3.3 Expanded capture verification",
-    "bookmark": "head83"
+    "display": "5.4.3 Expanded capture verification",
+    "bookmark": "head86"
   },
   {
     "kind": "p",
@@ -3173,16 +3355,16 @@
     "level": 2,
     "text": "Performance test of the warning query",
     "group": "05-testing",
-    "display": "5.4 Performance test of the warning query",
-    "bookmark": "head84"
+    "display": "5.5 Performance test of the warning query",
+    "bookmark": "head87"
   },
   {
     "kind": "heading",
     "level": 3,
     "text": "Workload and measurement procedure",
     "group": "05-testing",
-    "display": "5.4.1 Workload and measurement procedure",
-    "bookmark": "head85"
+    "display": "5.5.1 Workload and measurement procedure",
+    "bookmark": "head88"
   },
   {
     "kind": "p",
@@ -3253,8 +3435,8 @@
     "level": 3,
     "text": "Descriptive latency results",
     "group": "05-testing",
-    "display": "5.4.2 Descriptive latency results",
-    "bookmark": "head86"
+    "display": "5.5.2 Descriptive latency results",
+    "bookmark": "head89"
   },
   {
     "kind": "p",
@@ -3335,8 +3517,8 @@
     "level": 3,
     "text": "Interpretation and remaining performance work",
     "group": "05-testing",
-    "display": "5.4.3 Interpretation and remaining performance work",
-    "bookmark": "head87"
+    "display": "5.5.3 Interpretation and remaining performance work",
+    "bookmark": "head90"
   },
   {
     "kind": "p",
@@ -3353,8 +3535,8 @@
     "level": 2,
     "text": "Recorded failure and persistence checks",
     "group": "05-testing",
-    "display": "5.5 Recorded failure and persistence checks",
-    "bookmark": "head88"
+    "display": "5.6 Recorded failure and persistence checks",
+    "bookmark": "head91"
   },
   {
     "kind": "p",
@@ -3405,12 +3587,12 @@
     "level": 2,
     "text": "Traceability and validity of the conclusions",
     "group": "05-testing",
-    "display": "5.6 Traceability and validity of the conclusions",
-    "bookmark": "head89"
+    "display": "5.7 Traceability and validity of the conclusions",
+    "bookmark": "head92"
   },
   {
     "kind": "p",
-    "text": "The acceptance evidence is strongest where a requirement has a direct assertion. Non-negative concurrent stock has a final balance and a success-count check. Exact replay has an identifier and quantity check. Acknowledgement has a reviewer and unchanged-stock check. Weaker or absent evidence is identified separately, including complete expiry timing, sustained multi-user workload and operational usability.",
+    "text": "The acceptance evidence is strongest where a requirement has a direct assertion. Non-negative concurrent stock has a final balance and a success-count check. Exact replay has an identifier and quantity check. Batch allocation has sellable-balance and remainder checks. Purchase approval has recheck, receipt and replay assertions. Acknowledgement and review have reviewer or snapshot checks. Weaker or absent evidence is identified separately, including sustained multi-user workload, external supplier integration and operational usability.",
     "group": "05-testing"
   },
   {
@@ -3428,8 +3610,8 @@
     "level": 2,
     "text": "Chapter summary",
     "group": "05-testing",
-    "display": "5.7 Chapter summary",
-    "bookmark": "head90"
+    "display": "5.8 Chapter summary",
+    "bookmark": "head93"
   },
   {
     "kind": "p",
@@ -3443,7 +3625,7 @@
     "group": "06-conclusion",
     "display": "Conclusion",
     "chapter": "A",
-    "bookmark": "head91"
+    "bookmark": "head94"
   },
   {
     "kind": "p",
@@ -3457,7 +3639,7 @@
   },
   {
     "kind": "p",
-    "text": "The second question concerned the interpretation of shortage and recovery. The system distinguishes OUT, LOW and a time-limited RESTOCKED episode while storing acknowledgement separately. A review records the first reviewer without changing quantity. The tests support zero and equality boundaries, healthy replenishment, renewed shortage, archival and concurrent acknowledgement. Complete time-based expiry and cached visibility at that boundary remain useful additional cases. The distinction between review and replenishment is nevertheless preserved in the implemented model and user-facing controls.",
+    "text": "The second question concerned the interpretation of shortage and recovery. The system distinguishes OUT, LOW, EXPIRING, EXPIRED, SLOW and a time-limited RESTOCKED episode while storing acknowledgement separately. A review records the first reviewer without changing quantity. The tests support zero and equality boundaries, healthy replenishment, renewed shortage, archival and concurrent acknowledgement. Complete time-based expiry and cached visibility at that boundary remain useful additional cases. The distinction between review and replenishment is nevertheless preserved in the implemented model and user-facing controls.",
     "group": "06-conclusion"
   },
   {
@@ -3477,12 +3659,12 @@
   },
   {
     "kind": "p",
-    "text": "Future development should first resolve domain limits that affect actual store use. Fractional quantities need exact unit and rounding policies. Batch and expiry tracking need additional stock identities. A point-of-sale integration needs external event identity, retry behavior and reconciliation. Purchasing requires supplier terms and order lifecycle data. These additions should extend the ledger and acceptance catalog before they add dashboard claims.",
+    "text": "Future development should first resolve domain limits that affect actual store use. Fractional quantities need exact unit and rounding policies. A point-of-sale integration needs external event identity, retry behavior and reconciliation. Purchasing needs supplier terms, lead-time data and external order integration. Multi-store isolation and shared session storage require wider deployment boundaries. These additions should extend the ledger and acceptance catalog before they add dashboard claims.",
     "group": "06-conclusion"
   },
   {
     "kind": "p",
-    "text": "Operational evaluation should then examine staff workflows, wider concurrent workloads, cache-expiry boundaries, cross-product key races, database deadlocks and restore drills. Frontend decomposition and service refactoring can improve maintenance, provided that the effective transaction and permission boundaries remain intact. The present application supplies a tested baseline for that work, with its limits stated alongside its supported results.",
+    "text": "Operational evaluation should then examine staff workflows, wider concurrent workloads, cache-expiry boundaries, cross-product key races, database deadlocks and restore drills. Frontend decomposition and service refactoring can improve maintenance, provided that the effective transaction and permission boundaries remain intact. The present application supplies a containerized and tested baseline for that work, with its limits stated alongside its supported results.",
     "group": "06-conclusion"
   },
   {
@@ -3492,7 +3674,7 @@
     "group": "07-appendices",
     "display": "Appendices",
     "chapter": "A",
-    "bookmark": "head92"
+    "bookmark": "head95"
   },
   {
     "kind": "heading",
@@ -3500,7 +3682,7 @@
     "text": "Appendix A API and response contracts",
     "group": "07-appendices",
     "display": "Appendix A API and response contracts",
-    "bookmark": "head93"
+    "bookmark": "head96"
   },
   {
     "kind": "p",
@@ -3718,7 +3900,7 @@
     "text": "Appendix B Backend acceptance catalog",
     "group": "07-appendices",
     "display": "Appendix B Backend acceptance catalog",
-    "bookmark": "head94"
+    "bookmark": "head97"
   },
   {
     "kind": "p",
@@ -3728,12 +3910,102 @@
   {
     "kind": "table",
     "key": "acceptance-catalog",
-    "caption": "The twenty-seven backend acceptance cases",
+    "caption": "The 45 backend acceptance cases",
     "rows": [
       [
         "Case",
         "Executed assertion focus",
         "Result"
+      ],
+      [
+        "Approved disposal clears batch warning and replay does not repeat",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Stale stock count cannot overwrite concurrent receipt",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Repeated review submission retains one snapshot",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Scheduled no op does not invalidate cache",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Multi line purchase rejection edit and completion",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Concurrent receipt replay creates one batch",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Disposal approval rechecks batch remainder",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Count approval and long reason retain bounded movement",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Clerk cannot bypass adjustment approval",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Purchase partial receipt replay and cancellation preserve inventory",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Concurrent approvals prevent duplicate replenishment",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Clerk cannot approve purchase and manager cannot receive",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Expiry day is sellable and following business day expires",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Invalid timezone does not change policy",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Slow stock uses sales only and preserves one continuous event",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Batch dispatch uses fefo and excludes expired or quarantined",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Receipt replay checks batch metadata and rolls back invalid dates",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
+      ],
+      [
+        "Warning handling keeps condition and audit",
+        "Executable regression assertion for the implemented workflow.",
+        "Passed"
       ],
       [
         "Empty search and stable pagination",
@@ -3876,7 +4148,7 @@
   },
   {
     "kind": "p",
-    "text": "The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. New batch, fractional-unit or purchasing features would require new acceptance scenarios in addition to the present catalog.",
+    "text": "The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. Batch allocation, expiry, slow-moving, purchasing and review cases are included in the current suite; fractional units, multi-store isolation and external point-of-sale reconciliation would require additional scenarios.",
     "group": "07-appendices"
   },
   {
@@ -3885,11 +4157,11 @@
     "text": "Appendix C Reproduction and evidence locations",
     "group": "07-appendices",
     "display": "Appendix C Reproduction and evidence locations",
-    "bookmark": "head95"
+    "bookmark": "head98"
   },
   {
     "kind": "p",
-    "text": "The application is reproduced by installing the pinned project baseline, preparing local environment values, starting the Compose services and running the backend and browser client. The backend wrapper reads the repository's local environment and selects the local Java and Maven installations when present. The frontend wrapper selects the project Node baseline. Secrets remain in the local environment and are not included in this document.",
+    "text": "The application can be reproduced either from source or from prebuilt images. Source development uses the pinned Java, Maven and Node baselines; release deployment uses Docker Desktop, `.env.release`, `docker-compose.release.yml` and the Windows helper script. Secrets remain in local environment files and are not included in this document.",
     "group": "07-appendices"
   },
   {
@@ -3908,17 +4180,17 @@
         "Inspectable result"
       ],
       [
-        "Start local infrastructure",
-        "docker-compose.yml",
-        "MySQL and Redis health checks"
+        "Start full container stack",
+        "docker-compose.yml or docker-compose.release.yml",
+        "Four healthy services and frontend on port 5173"
       ],
       [
-        "Run backend",
-        "scripts/backend.sh spring-boot:run",
-        "Migrated schema and API health"
+        "Run release deployment",
+        "scripts/start-release.ps1",
+        "GHCR pull with Docker Hub fallback and healthy frontend"
       ],
       [
-        "Run browser client",
+        "Run browser client in source mode",
         "scripts/frontend.sh run dev",
         "Responsive application on development port"
       ],
@@ -3959,7 +4231,7 @@
       ],
       [
         "Thesis assembly",
-        "scripts/build-expanded-thesis.py",
+        "scripts/build-expanded-thesis.py and thesis/reference-aligned/build.sh",
         "Editable LaTeX manuscript and compiled PDF"
       ]
     ],

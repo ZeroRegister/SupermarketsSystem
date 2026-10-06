@@ -4,7 +4,7 @@
 
 \section{Project organization and development baseline}
 
-The implemented repository contains backend, frontend, scripts, documentation and thesis materials. The backend is built with Maven and Java 21. The browser application uses the pinned dependencies in its package manifest and lockfile. MySQL and Redis are started through Docker Compose. The thesis figures are maintained with their editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.
+The implemented repository contains backend, frontend, Dockerfiles, Compose manifests, scripts, documentation and thesis materials. The backend is built with Maven and Java 21 in a multi-stage image. The browser application uses the pinned dependencies in its package manifest and lockfile, is built by Node.js and is served by Nginx in the release image. MySQL and Redis run as Compose services; a release Compose file can pull all four images from GHCR. The thesis figures are maintained with editable sources and provenance so that interface evidence can be connected to a particular source revision and capture time.
 
 
 Backend domain entities, request and response records, repository interfaces, controllers, the inventory service and security configuration are kept in the com.shelfwise package. The organization is compact rather than a separate class file for every domain object. It exposes the main consistency path in one service but would need further decomposition as more workflows are added. The frontend similarly uses a login view and a substantial workspace view with several operational sections.
@@ -34,6 +34,9 @@ Authentication & \path|/api/auth/login and /api/auth/me| & Establish and inspect
 Catalogue & \path|/api/products and /api/products/{id}| & Product identity and filtered inventory \\
 Threshold policy & \path|/api/products/{id}/thresholds| & Manager-accessible policy update \\
 Reference data & \path|/api/categories and /api/suppliers| & Product grouping and partner directory \\
+Batch inventory & \path|/api/batches and /api/batches/{id}/control| & Batch balances, sellable quantity and quarantine \\
+Purchasing & \path|/api/replenishment and /api/purchases| & Suggestions, drafts, approval and receipts \\
+Stock reviews & \path|/api/stock-reviews and action resources| & Snapshot-based count and disposal review \\
 Movement ledger & \path|/api/transactions| & Accepted stock commands and history \\
 Warnings & \path|/api/warnings and /api/warnings/{id}/ack| & Episode retrieval and reviewer attribution \\
 Reporting & \path|/api/dashboard and /api/reports/summary| & Recorded stock summaries \\
@@ -167,7 +170,7 @@ The category page in Figure~\ref{fig:categories-ui} groups products through name
 \caption{Category creation form captured without submission}\label{fig:category-form-ui}
 \end{figure}
 
-The supplier directory in Figure~\ref{fig:suppliers-ui} provides partner names and available contact details. The form in Figure~\ref{fig:supplier-form-ui} creates descriptive supplier data. Neither interface generates a delivery, purchase order or payment obligation. A product can reference a supplier, but actual received stock is still recorded through the stock activity path.
+The supplier directory in Figure~\ref{fig:suppliers-ui} provides partner names and available contact details. The form in Figure~\ref{fig:supplier-form-ui} creates descriptive supplier data. The supplier directory remains descriptive, while the Purchasing view turns a replenishment suggestion into a draft purchase document. Approval and receipt are separate actions; a receipt creates a batch-aware stock movement, while payment and supplier settlement remain outside the implementation.
 
 
 \begin{figure}[htbp]\centering
@@ -324,6 +327,44 @@ The manager workspace in Figure~\ref{fig:manager-ui} exposes warning review with
 \caption{Manager workspace for warning inspection and review}\label{fig:manager-ui}
 \end{figure}
 
+\FloatBarrier
+
+\section{Batch inventory, purchasing and stock reviews}
+
+The batch page in Figure~\ref{fig:batches-ui} exposes physical and sellable balances, expiry dates and quarantine state. It makes the distinction between what is present in the stockroom and what can be dispatched visible to the user.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/28-batches.png}
+\caption{Batch inventory view with sellable balance and expiry information}\label{fig:batches-ui}
+\end{figure}
+
+The Purchasing view in Figure~\ref{fig:purchasing-ui} combines replenishment suggestions with purchase documents. Its table keeps the trigger, target, pending position and suggested quantity visible together; the corrected header layout prevents English labels from breaking into isolated characters.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/29-purchasing.png}
+\caption{Replenishment suggestions and purchase workflow interface}\label{fig:purchasing-ui}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]{../figure-assets/code/15-code-purchasing.png}
+\caption{Purchase approval and partial receipt service path}\label{fig:purchasing-code}
+\end{figure}
+
+The Stock reviews view in Figure~\ref{fig:reviews-ui} separates a physical count or disposal request from immediate stock mutation. A manager approves the snapshot after the service rechecks the current product or batch state.
+
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/30-stock-reviews.png}
+\caption{Snapshot-based stock count and disposal review interface}\label{fig:reviews-ui}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/27-batch-fefo.png}
+\caption{Batch receipt, FEFO/FIFO allocation and review-controlled disposal}\label{fig:batch-workflow}
+\end{figure}
+
 \begin{figure}[htbp]\centering
 \includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/ui/23-manager-thresholds.png}
 \caption{Threshold-only product edit form presented to a manager}\label{fig:threshold-ui}
@@ -394,18 +435,18 @@ The inventory image in Figure~\ref{fig:phone-inventory-ui} is a full-page captur
 
 \section{Version control and local deployment}
 
-The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend currently identifies itself as version 0.1.0-SNAPSHOT and the frontend as 0.1.0. This thesis does not infer a production release process from those identifiers.
+The repository pins runtime and dependency baselines and excludes local secrets, service data, dependencies and compiler intermediates. Version control records code and document changes, while figure provenance records the source revision and capture time. The backend and frontend source manifests remain versioned independently, while the release deployment uses Git tags and GHCR image tags such as v1.2.2. This thesis distinguishes reproducible image delivery from a fully hardened production release process.
 
 
-The topology in Figure~\ref{fig:deployment} shows the implemented development arrangement. Vite serves the browser client on port 5173 and proxies API requests to Spring Boot on port 8080. Docker Compose publishes MySQL on the host's loopback port 3307 and Redis on loopback port 6380. The Vite development server is configured to listen on all interfaces; the loopback restriction shown for database services should not be generalized to every development process.
+The topology in Figure~\ref{fig:deployment} shows the release arrangement. A browser connects to the Nginx frontend container on port 5173; Nginx proxies `/api` and `/actuator` to the Spring Boot backend container. The backend connects to MySQL and Redis on the private Compose network. Development mode still supports Vite and host-run Java, but the deliverable for Windows uses prebuilt frontend and backend images. GHCR stores the application images and mirrored infrastructure images, while the MySQL named volume remains local to the deployment host.
 
 
 \begin{figure}[htbp]\centering
 \includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/24-deployment.png}
-\caption{Implemented development processes and container service ports}\label{fig:deployment}
+\caption{Windows release topology with GHCR images and Docker Hub fallback}\label{fig:deployment}
 \end{figure}
 
-The Compose source in Figure~\ref{fig:compose-code} supplies explicit images, environment-variable requirements, health checks and the MySQL named volume. It does not embed the local passwords into the thesis. Redis persistence is disabled because the cached responses are disposable. MySQL data must be retained and backed up independently of the application process.
+The Compose source in Figure~\ref{fig:compose-code} supplies build-time Dockerfiles for development and a release manifest with prebuilt image references, environment-variable requirements, health checks, service dependencies and the MySQL named volume. The Windows helper first pulls from GHCR and falls back to official Docker Hub MySQL and Redis images if the GHCR infrastructure mirror is unavailable. It does not embed passwords. Redis persistence is disabled because cached responses are disposable; MySQL data must be retained and backed up independently of the application images.
 
 
 \begin{figure}[htbp]\centering

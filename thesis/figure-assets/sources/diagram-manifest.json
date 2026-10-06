@@ -105,13 +105,14 @@
   },
   {
     "id": "08-runtime-architecture",
-    "title": "Layered runtime architecture",
+    "title": "Containerized runtime architecture",
     "chapter": 3,
     "type": "diagram",
     "source": [
-      "docs/architecture.md",
-      "frontend/package.json",
-      "backend/pom.xml"
+      "docker-compose.yml",
+      "backend/Dockerfile",
+      "frontend/Dockerfile",
+      "docker-compose.release.yml"
     ],
     "files": [
       "diagrams/08-runtime-architecture.drawio",
@@ -339,18 +340,63 @@
   },
   {
     "id": "24-deployment",
-    "title": "Implemented local deployment topology",
+    "title": "Windows release deployment topology",
     "chapter": 4,
     "type": "diagram",
     "source": [
-      "docker-compose.yml",
-      "frontend/vite.config.ts",
-      "backend/src/main/resources/application.yml"
+      "docker-compose.release.yml",
+      "scripts/start-release.ps1",
+      ".env.release.example"
     ],
     "files": [
       "diagrams/24-deployment.drawio",
       "diagrams/24-deployment.png",
       "diagrams/24-deployment.svg"
+    ]
+  },
+  {
+    "id": "25-warning-rules",
+    "title": "Warning rule evaluation model",
+    "chapter": 2,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/WarningRules.java",
+      "backend/src/main/java/com/shelfwise/InventoryService.java"
+    ],
+    "files": [
+      "diagrams/25-warning-rules.drawio",
+      "diagrams/25-warning-rules.png",
+      "diagrams/25-warning-rules.svg"
+    ]
+  },
+  {
+    "id": "26-purchasing-workflow",
+    "title": "Replenishment and purchase workflow",
+    "chapter": 2,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/Purchasing.java",
+      "frontend/src/components/PurchasingView.vue"
+    ],
+    "files": [
+      "diagrams/26-purchasing-workflow.drawio",
+      "diagrams/26-purchasing-workflow.png",
+      "diagrams/26-purchasing-workflow.svg"
+    ]
+  },
+  {
+    "id": "27-batch-fefo",
+    "title": "Batch receipt and FEFO/FIFO allocation",
+    "chapter": 3,
+    "type": "diagram",
+    "source": [
+      "backend/src/main/java/com/shelfwise/BatchInventory.java",
+      "backend/src/main/java/com/shelfwise/Purchasing.java"
+    ],
+    "files": [
+      "diagrams/27-batch-fefo.drawio",
+      "diagrams/27-batch-fefo.png",
+      "diagrams/27-batch-fefo.svg"
     ]
   }
 ]
