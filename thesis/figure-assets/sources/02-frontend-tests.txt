@@ -3,5 +3,5 @@
  RUN  v5.0.3 /Users/fch/Documents/ChatGPT/SupermarketsSystem/frontend
  Test Files  1 passed (1)
       Tests  3 passed (3)
-   Start at  20:11:36
-   Duration  639ms (environment 88%, transform 9%, import 2%, worker 1%)
+   Start at  00:47:55
+   Duration  527ms (environment 89%, transform 8%, import 2%, tests 1%, worker 1%)

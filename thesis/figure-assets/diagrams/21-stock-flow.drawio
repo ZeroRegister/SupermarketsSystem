@@ -5,37 +5,37 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="2" value="Authenticated ADMIN or CLERK submits movement" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;ellipse;" vertex="1" parent="1">
+        <mxCell id="2" value="Authenticated ADMIN or CLERK submits movement" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;ellipse;fontSize=22;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="40" width="560" height="80" />
         </mxCell>
-        <mxCell id="3" value="Acquire product lock and reject archived products" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="3" value="Acquire product lock and reject archived products" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fontSize=22;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="180" width="560" height="80" />
         </mxCell>
-        <mxCell id="4" value="Check actor + request key&#10;Equal replay returns existing result; mismatch returns 409" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="4" value="Check actor + request key&#10;Equal replay returns existing result; mismatch returns 409" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fontSize=22;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="320" width="560" height="80" />
         </mxCell>
-        <mxCell id="5" value="Derive signed delta or absolute stocktake delta&#10;Check 0 ≤ new quantity ≤ 1,000,000,000" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="5" value="Derive signed delta or absolute stocktake delta&#10;Check 0 ≤ new quantity ≤ 1,000,000,000" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fontSize=22;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="460" width="560" height="80" />
         </mxCell>
-        <mxCell id="6" value="Write product quantity and immutable movement audit&#10;Update warning episodes and increment cache revision" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;" vertex="1" parent="1">
+        <mxCell id="6" value="Write product quantity and immutable movement audit&#10;Update warning episodes and increment cache revision" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;fontSize=22;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="600" width="560" height="80" />
         </mxCell>
-        <mxCell id="7" value="Commit transaction and return movement view&#10;Any exception rolls back the transaction" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;ellipse;" vertex="1" parent="1">
+        <mxCell id="7" value="Commit transaction and return movement view&#10;Any exception rolls back the transaction" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;rounded=0;fillColor=#ffffff;ellipse;fontSize=22;" vertex="1" parent="1">
           <mxGeometry as="geometry" x="60" y="740" width="560" height="80" />
         </mxCell>
-        <mxCell id="8" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="2" target="3">
+        <mxCell id="8" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="2" target="3">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="9" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="3" target="4">
+        <mxCell id="9" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="3" target="4">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="10" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="4" target="5">
+        <mxCell id="10" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="4" target="5">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="11" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="5" target="6">
+        <mxCell id="11" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="5" target="6">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
-        <mxCell id="12" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=16;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="6" target="7">
+        <mxCell id="12" value="" style="whiteSpace=wrap;html=1;fontFamily=Arial;fontSize=22;fontColor=#111111;strokeColor=#333333;strokeWidth=1.3;edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;fontSize=13;whiteSpace=nowrap;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="6" target="7">
           <mxGeometry as="geometry" relative="1" />
         </mxCell>
       </root>

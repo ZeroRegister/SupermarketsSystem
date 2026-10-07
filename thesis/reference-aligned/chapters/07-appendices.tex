@@ -8,12 +8,12 @@
 
 \addcontentsline{toc}{section}{Appendix A API and response contracts}
 
-The following catalog records the implemented route families at the source revision used by this thesis. Roles refer to ADMIN, MANAGER and CLERK. Authenticated GET access to category and supplier lists does not imply catalogue write access. An inventory request identifies the stock intention, while the returned movement supplies the authoritative actor and quantities.
+This appendix lists the HTTP routes at the source revision used in this thesis: Table~\ref{tab:api-catalog} covers the core routes and Table~\ref{tab:extension-api} the batch, warning, purchasing and review routes; roles refer to ADMIN, MANAGER and CLERK. Read access to the category and supplier lists for every signed-in user does not imply catalog write access. A stock request expresses only the intended change, while the returned movement carries the authoritative actor and quantities.
 
 
 \begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.135\textwidth}>{\raggedright\arraybackslash}p{0.297\textwidth}>{\raggedright\arraybackslash}p{0.216\textwidth}>{\raggedright\arraybackslash}p{0.252\textwidth}}
-\caption{Implemented HTTP route catalog}\label{tab:api-catalog}\\
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.108\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.207\textwidth}>{\raggedright\arraybackslash}p{0.315\textwidth}}
+\caption{Core HTTP route catalog}\label{tab:api-catalog}\\
 \toprule
 \textbf{Method} & \textbf{Path} & \textbf{Allowed callers} & \textbf{Meaning} \\
 \midrule\endfirsthead
@@ -21,54 +21,90 @@ The following catalog records the implemented route families at the source revis
 \textbf{Method} & \textbf{Path} & \textbf{Allowed callers} & \textbf{Meaning} \\
 \midrule\endhead
 \bottomrule\endfoot
-GET & \path|/api/auth/csrf| & Anonymous or signed in & Obtain CSRF token \\
-POST & \path|/api/auth/login| & Anonymous with CSRF & Authenticate and create session \\
-GET & \path|/api/auth/me| & Signed in & Current account \\
-POST & \path|/api/auth/logout| & Signed in with CSRF & End session \\
-GET & \path|/api/products| & Signed in & Filtered bounded inventory page \\
-GET & \path|/api/products/{id}| & Signed in & Product detail \\
-POST & \path|/api/products| & Administrator & Create zero-stock catalogue record \\
-PUT & \path|/api/products/{id}| & Administrator & Edit identity and policy \\
-DELETE & \path|/api/products/{id}| & Administrator & Archive product \\
-PATCH & \path|/api/products/{id}/thresholds| & Administrator or manager & Update threshold policy \\
-GET & \path|/api/categories and /api/suppliers| & Signed in & Reference directory \\
-POST PUT DELETE & Category and supplier resources & Administrator & Maintain reference records \\
-GET & \path|/api/transactions| & Signed in & Movement history optionally by product \\
-POST & \path|/api/transactions| & Administrator or clerk & Submit audited stock intention \\
-GET & \path|/api/warnings| & Administrator or manager & Filtered warning page \\
-POST & \path|/api/warnings/{id}/ack| & Administrator or manager & Preserve first reviewer \\
-GET & \path|/api/dashboard and /api/reports/summary| & Administrator or manager & Stock aggregates \\
-GET & \path|/api/stock-summary| & Signed in & Summary view without warning items \\
-GET POST PATCH & \path|/api/users and access resources| & Administrator & Accounts roles and enabled state \\
-GET & \path|/api/settings| & Signed in & Current display preferences \\
-PUT & \path|/api/settings| & Administrator & Store name and display currency \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/auth/csrf|\allowbreak{}\allowbreak{} & \leavevmode{}Anonymous or signed in & \leavevmode{}Obtain CSRF token \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/auth/login|\allowbreak{}\allowbreak{} & \leavevmode{}Anonymous with CSRF & \leavevmode{}Authenticate and create session \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/auth/me|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Current account \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/auth/logout|\allowbreak{}\allowbreak{} & \leavevmode{}Any caller with CSRF & \leavevmode{}End session; returns 204 \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/products|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Filtered bounded inventory page \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/products/{id}|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Product detail \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/products|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator & \leavevmode{}Create zero-stock catalog record \\
+\leavevmode{}PUT & \leavevmode{}\allowbreak{}\path|/api/products/{id}|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator & \leavevmode{}Edit identity and policy \\
+\leavevmode{}DELETE & \leavevmode{}\allowbreak{}\path|/api/products/{id}|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator & \leavevmode{}Archive product \\
+\leavevmode{}PATCH & \leavevmode{}\allowbreak{}\path|/api/products/{id}/thresholds|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator or manager & \leavevmode{}Update threshold policy \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/categories|\allowbreak{} and \path|/api/suppliers|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Reference directory \\
+\leavevmode{}POST PUT DELETE & \leavevmode{}Category and supplier resources & \leavevmode{}Administrator & \leavevmode{}Maintain reference records \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/transactions|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Movement history optionally by product \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/transactions|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator or clerk & \leavevmode{}Receipt, dispatch or SALE; direct correction and count are administrator-only \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/warnings|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator or manager & \leavevmode{}Filtered warning page \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/warnings/{id}/ack|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator or manager & \leavevmode{}Preserve first reviewer \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/dashboard|\allowbreak{} and \path|/api/reports/summary|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator or manager & \leavevmode{}Stock aggregates \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/stock-summary|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Summary view without warning items \\
+\leavevmode{}GET POST PATCH & \leavevmode{}\allowbreak{}\path|/api/users|\allowbreak{} and access resources & \leavevmode{}Administrator & \leavevmode{}Accounts, roles and enabled state \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/settings|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Current display preferences \\
+\leavevmode{}PUT & \leavevmode{}\allowbreak{}\path|/api/settings|\allowbreak{}\allowbreak{} & \leavevmode{}Administrator & \leavevmode{}Store name and display currency \\
 \end{longtable}\endgroup
-
-Paginated responses contain items, page, size, totalElements and totalPages. Product queries accept q, categoryId, status, archived, page, size, sort and direction. Supported stock-health values are healthy, low and out. Warning queries accept type, state, page, size and cache. Unsupported warning values are rejected by the controller. Timestamps are emitted as UTC ISO-8601 values; the browser formats local display times.
-
-
-A transaction payload includes productId, type, quantity, reason and idempotencyKey. STOCK\_IN and STOCK\_OUT quantities are positive. ADJUSTMENT is signed and non-zero. STOCKTAKE is an absolute non-negative count. An example intention to receive twelve units does not carry an actor ID, quantityBefore or quantityAfter: the server supplies those fields from its authenticated and locked context.
-
 
 \begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
-\caption{Response status interpretation}\label{tab:status-codes}\\
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.108\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.207\textwidth}>{\raggedright\arraybackslash}p{0.315\textwidth}}
+\caption{Batch, warning, purchasing and review route catalog}\label{tab:extension-api}\\
 \toprule
-\textbf{Status} & \textbf{Meaning in the application} & \textbf{Client interpretation} \\
+\textbf{Method} & \textbf{Actual path} & \textbf{Allowed caller} & \textbf{Implemented meaning / boundary} \\
 \midrule\endfirsthead
 \toprule
-\textbf{Status} & \textbf{Meaning in the application} & \textbf{Client interpretation} \\
+\textbf{Method} & \textbf{Actual path} & \textbf{Allowed caller} & \textbf{Implemented meaning / boundary} \\
 \midrule\endhead
 \bottomrule\endfoot
-200 & Successful query update or acknowledgement & Inspect returned representation \\
-201 & Transaction or creation endpoint success & Use returned identifier; replay can return an existing movement \\
-204 & Successful archive or logout response & No JSON representation expected \\
-400 & Validation or supported-boundary error & Correct the submitted intention \\
-401 & Authentication missing or invalid & Establish a valid session \\
-403 & CSRF or role restriction & Check credentials token and authority \\
-404 & Requested record absent & Refresh selection or correct identifier \\
-409 & Identity reference or replay conflict & Resolve the conflicting intention or record \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/batches|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Paginated batch balances; optional productId filter \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/batches/{id}/control|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Set quarantine flag with reason and actor; refresh product warning interpretation in the enclosing transaction \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/batches/{id}/history|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Movement allocations for the selected batch \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/batches/{id}/controls|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Batch quarantine-control history \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/transactions/{id}/allocations|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Batch allocations belonging to one inventory movement \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/warnings/assignees|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Enabled staff available for warning assignment \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/warnings/{id}/history|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Chronological warning-action history \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/warnings/{id}/actions|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}ASSIGN, PROCESS or NOTE; ASSIGN/\allowbreak{}PROCESS require OPEN, while NOTE may be added after recovery \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/warnings/policy|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Near-expiry days, business timezone, slow-stock window/\allowbreak{}minimum and policy version \\
+\leavevmode{}PUT & \leavevmode{}\allowbreak{}\path|/api/warnings/policy|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Validate and update warning policy, then trigger a refresh sweep \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/warnings/refresh|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Trigger product warning refresh; return sweep status \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/warnings/refresh-status|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Interval, retry interval, last completion, failed-product count and running flag \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/replenishment|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Positive suggestions from sellable quantity plus outstanding APPROVED/\allowbreak{}PARTIAL purchase quantity \\
+\leavevmode{}PATCH & \leavevmode{}\allowbreak{}\path|/api/products/{id}/target|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}Set target stock, strictly above reorder threshold \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/purchases|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Paginated purchase documents \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/purchases/{id}|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Purchase details and lines \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/purchases|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Create draft with supplier, unique product lines, reason and optional linked warning \\
+\leavevmode{}PUT & \leavevmode{}\allowbreak{}\path|/api/purchases/{id}|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Edit DRAFT/\allowbreak{}REJECTED document and return it to DRAFT \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/purchases/{id}/actions|\allowbreak{}\allowbreak{} & \leavevmode{}SUBMIT: signed in; APPROVE/\allowbreak{}REJECT/\allowbreak{}CANCEL: ADMIN or MANAGER & \leavevmode{}Controller adds the action-dependent role check; service validates state and rechecks current suggestion before approval \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/purchases/{id}/receipts|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or CLERK & \leavevmode{}Actor-key replay-aware receipt against APPROVED/\allowbreak{}PARTIAL document; creates audited \path|STOCK_IN|\allowbreak{} and batch metadata \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/purchases/{id}/receipts|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Purchase receipt history \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/purchases/{id}/history|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Purchase action history \\
+\leavevmode{}GET & \leavevmode{}\allowbreak{}\path|/api/stock-reviews|\allowbreak{}\allowbreak{} & \leavevmode{}Signed in & \leavevmode{}Paginated count/\allowbreak{}adjustment/\allowbreak{}disposal reviews \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/stock-reviews|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or CLERK & \leavevmode{}Submit COUNT, ADJUSTMENT or DISPOSAL with actor-scoped review request key; captures physical product quantity/\allowbreak{}version, and selected batch for disposal \\
+\leavevmode{}POST & \leavevmode{}\allowbreak{}\path|/api/stock-reviews/{id}/actions|\allowbreak{}\allowbreak{} & \leavevmode{}ADMIN or MANAGER & \leavevmode{}APPROVE or REJECT; approval creates linked movement. COUNT validates quantity/\allowbreak{}version snapshot; DISPOSAL checks current batch remainder \\
 \end{longtable}\endgroup
+
+Every unsafe browser method requires a CSRF token in addition to the role checks listed. For purchase actions, the security filter only requires a signed-in user; the controller then applies the role check, because the permitted role depends on the action. Similarly, direct ADJUSTMENT and STOCKTAKE movements pass the filter for clerks but are refused by the transaction controller unless the caller is an administrator.
+
+
+Paginated responses contain items, page, size, totalElements and totalPages. Product queries accept q, categoryId, status, archived, page, size, sort and direction, where status is one of healthy, low or out. Warning queries accept type, state, page, size and cache, and the controller rejects unsupported values. Timestamps are emitted in UTC as ISO-8601 strings and formatted in local time by the browser. Table~\ref{tab:status-codes} summarizes how clients should interpret each response status.
+
+
+A transaction payload contains productId, type, quantity, reason and idempotencyKey, plus, where applicable, a batch number, production and expiry dates or a selected batch. Quantities for STOCK\_IN, STOCK\_OUT and SALE are positive, with STOCK\_OUT and SALE reducing stock; ADJUSTMENT is signed and non-zero; STOCKTAKE is an absolute, non-negative count. A request to receive twelve units therefore carries no actor ID, quantityBefore or quantityAfter: the server derives these from the authenticated session and the locked product.
+
+
+\begin{table}[htbp]\centering\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\caption{Response status interpretation}\label{tab:status-codes}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
+\toprule
+\textbf{Status} & \textbf{Meaning in the application} & \textbf{Client interpretation} \\
+\midrule
+\leavevmode{}200 & \leavevmode{}Successful query, update or acknowledgement & \leavevmode{}Inspect returned representation \\
+\leavevmode{}201 & \leavevmode{}Transaction or creation endpoint success & \leavevmode{}Use returned identifier; replay can return an existing movement \\
+\leavevmode{}204 & \leavevmode{}Successful archive or logout response & \leavevmode{}No JSON representation expected \\
+\leavevmode{}400 & \leavevmode{}Validation or supported-boundary error & \leavevmode{}Correct the submitted intention \\
+\leavevmode{}401 & \leavevmode{}Authentication missing or invalid & \leavevmode{}Establish a valid session \\
+\leavevmode{}403 & \leavevmode{}CSRF or role restriction & \leavevmode{}Check credentials, token and authority \\
+\leavevmode{}404 & \leavevmode{}Requested record absent & \leavevmode{}Refresh selection or correct identifier \\
+\leavevmode{}409 & \leavevmode{}Identity, reference or replay conflict & \leavevmode{}Resolve the conflicting intention or record \\
+\bottomrule\end{tabular}\end{table}
 
 \FloatBarrier
 
@@ -76,7 +112,7 @@ A transaction payload includes productId, type, quantity, reason and idempotency
 
 \addcontentsline{toc}{section}{Appendix B Backend acceptance catalog}
 
-This catalog names the 27 executable backend cases and states the behavior their assertions address. It is provided to make a passed count interpretable. The wording of a test name is not itself an assertion; the renewed-shortage case is consequently described according to its executed operations rather than as a complete time-expiry experiment.
+Table~\ref{tab:acceptance-catalog} lists the 45 backend integration cases and the behavior each one asserts; counts and results correspond to the execution of 7 October 2026 described in Chapter 5. The renewed-shortage case checks that a new episode opens after replenishment, whereas expiry of the recovery TTL would require a separate clock-controlled test.
 
 
 \begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
@@ -89,54 +125,54 @@ This catalog names the 27 executable backend cases and states the behavior their
 \textbf{Case} & \textbf{Executed assertion focus} & \textbf{Result} \\
 \midrule\endhead
 \bottomrule\endfoot
-Approved disposal clears batch warning and replay does not repeat & Executable regression assertion for the implemented workflow. & Passed \\
-Stale stock count cannot overwrite concurrent receipt & Executable regression assertion for the implemented workflow. & Passed \\
-Repeated review submission retains one snapshot & Executable regression assertion for the implemented workflow. & Passed \\
-Scheduled no op does not invalidate cache & Executable regression assertion for the implemented workflow. & Passed \\
-Multi line purchase rejection edit and completion & Executable regression assertion for the implemented workflow. & Passed \\
-Concurrent receipt replay creates one batch & Executable regression assertion for the implemented workflow. & Passed \\
-Disposal approval rechecks batch remainder & Executable regression assertion for the implemented workflow. & Passed \\
-Count approval and long reason retain bounded movement & Executable regression assertion for the implemented workflow. & Passed \\
-Clerk cannot bypass adjustment approval & Executable regression assertion for the implemented workflow. & Passed \\
-Purchase partial receipt replay and cancellation preserve inventory & Executable regression assertion for the implemented workflow. & Passed \\
-Concurrent approvals prevent duplicate replenishment & Executable regression assertion for the implemented workflow. & Passed \\
-Clerk cannot approve purchase and manager cannot receive & Executable regression assertion for the implemented workflow. & Passed \\
-Expiry day is sellable and following business day expires & Executable regression assertion for the implemented workflow. & Passed \\
-Invalid timezone does not change policy & Executable regression assertion for the implemented workflow. & Passed \\
-Slow stock uses sales only and preserves one continuous event & Executable regression assertion for the implemented workflow. & Passed \\
-Batch dispatch uses fefo and excludes expired or quarantined & Executable regression assertion for the implemented workflow. & Passed \\
-Receipt replay checks batch metadata and rolls back invalid dates & Executable regression assertion for the implemented workflow. & Passed \\
-Warning handling keeps condition and audit & Executable regression assertion for the implemented workflow. & Passed \\
-Empty search and stable pagination & No-match query reports zero and oversized page request is capped. & Passed \\
-Unauthorized user cannot read inventory & Anonymous inventory request receives 401. & Passed \\
-Csrf required for unsafe methods & Unsafe stock request without CSRF receives 403. & Passed \\
-Clerk cannot acknowledge or manage users & Clerk review and staff administration are denied. & Passed \\
-Manager cannot post stock & Manager cannot submit an inventory movement. & Passed \\
-Bad catalog input rejected & Empty identity and invalid price input are rejected. & Passed \\
-Receipt and dispatch have audit history & Receipt and dispatch produce correct quantity and two ledger rows. & Passed \\
-Negative stock rejected without history & Rejected dispatch changes neither quantity nor accepted history. & Passed \\
-Exact replay returns same id & Equivalent retry returns one identifier and one stock effect. & Passed \\
-Changed payload replay conflicts & Changed intention with the same actor key conflicts. & Passed \\
-Threshold equality is low and zero is out & Zero is OUT and positive equality is LOW. & Passed \\
-Healthy replenishment resolves shortage & Healthy stock resolves shortage and creates RESTOCKED. & Passed \\
-Acknowledgement is visible through cache & Review attribution is visible and stock remains unchanged. & Passed \\
-Signed adjustment and absolute count & Signed correction and absolute count have distinct arithmetic. & Passed \\
-Count to zero is auditable & Counting zero retains its negative-delta audit record. & Passed \\
-Archived product cannot move & Archived product rejects a new stock operation. & Passed \\
-Unique sku and threshold hierarchy & Duplicate SKU and inconsistent thresholds are rejected. & Passed \\
-Concurrent dispatch cannot oversell & Seven units permit exactly seven successful unit dispatches. & Passed \\
-Concurrent identical submission does not duplicate & Concurrent same-product retry yields one accepted identifier. & Passed \\
-Same count still records audit & Unchanged absolute count creates a zero-delta observation. & Passed \\
-Manager threshold endpoint and clerk denial & Manager can update thresholds and clerk cannot. & Passed \\
-Last admin cannot be disabled or demoted & Last enabled administrator is protected from access removal. & Passed \\
-Archived warnings are resolved & Archival removes open warning attention. & Passed \\
-Restocked expires and new shortage starts new episode & Renewed shortage closes recovery and opens OUT; no clock expiry is tested. & Passed \\
-Warning filters have accurate totals & Selected warning type agrees with returned content and total. & Passed \\
-Concurrent acknowledgements preserve first reviewer & Concurrent review returns the same first attribution. & Passed \\
-Invalid credentials and null login fields return client errors & Invalid credentials and absent required login values are rejected. & Passed \\
+\leavevmode{}Approved disposal clears batch warning and replay does not repeat & \leavevmode{}Approved disposal removes four expired physical units; repeated approval returns the same movement ID and leaves no open EXPIRED episode. & \leavevmode{}Passed \\
+\leavevmode{}Stale stock count cannot overwrite concurrent receipt & \leavevmode{}Receipt after submitted count makes approval conflict; received quantity three remains unchanged. & \leavevmode{}Passed \\
+\leavevmode{}Repeated review submission retains one snapshot & \leavevmode{}Identical review key returns the same review ID; changed counted quantity with that key is rejected. & \leavevmode{}Passed \\
+\leavevmode{}Scheduled no-op does not invalidate cache & \leavevmode{}Repeated explicit refresh with unchanged warning facts leaves the durable cache revision unchanged. & \leavevmode{}Passed \\
+\leavevmode{}Multi-line purchase rejection edit and completion & \leavevmode{}Rejected two-line purchase can be edited and resubmitted; receipts produce COMPLETED and ten units per product; completed purchase cannot be cancelled. & \leavevmode{}Passed \\
+\leavevmode{}Concurrent receipt replay creates one batch & \leavevmode{}Three concurrent identical purchase receipts return one receipt ID, quantity three and exactly one batch. & \leavevmode{}Passed \\
+\leavevmode{}Disposal approval rechecks batch remainder & \leavevmode{}Dispatch reduces a submitted disposal batch; approval exceeding current remainder conflicts and physical quantity remains five. & \leavevmode{}Passed \\
+\leavevmode{}Count approval and long reason retain bounded movement & \leavevmode{}Approved absolute count sets quantity two and preserves a movement reason bounded to 300 characters. & \leavevmode{}Passed \\
+\leavevmode{}Clerk cannot bypass adjustment approval & \leavevmode{}Clerk receives 403 for direct adjustment and stock-review approval endpoints. & \leavevmode{}Passed \\
+\leavevmode{}Purchase partial receipt replay and cancellation preserve inventory & \leavevmode{}Receipt replay returns one ID; four units yield PARTIAL; excess receipt rejects; cancellation retains four received units, clears pending remainder and restores suggestion six. & \leavevmode{}Passed \\
+\leavevmode{}Concurrent approvals prevent duplicate replenishment & \leavevmode{}Two competing ten-unit purchase approvals for one product yield exactly one successful approval. & \leavevmode{}Passed \\
+\leavevmode{}Clerk cannot approve purchase and manager cannot receive & \leavevmode{}Clerk purchase approval and manager receipt requests both receive 403. & \leavevmode{}Passed \\
+\leavevmode{}Expiry day is sellable and following business day expires & \leavevmode{}Clock advance across Shanghai midnight changes eight units from sellable to expired without changing physical quantity; one near-expiry episode closes and expired disposal clears EXPIRED. & \leavevmode{}Passed \\
+\leavevmode{}Invalid timezone does not change policy & \leavevmode{}Invalid business timezone rejects and leaves policy unchanged. & \leavevmode{}Passed \\
+\leavevmode{}Slow stock uses sales only and preserves one continuous event & \leavevmode{}Thirty-one-day aged stock opens SLOW; ordinary dispatch preserves its ID; SALE clears the warning. & \leavevmode{}Passed \\
+\leavevmode{}Batch dispatch uses FEFO and excludes expired or quarantined & \leavevmode{}Five-unit dispatch allocates -4 to earlier expiry and -1 to later expiry; expired/\allowbreak{}quarantined remainder is excluded and another dispatch rejects. & \leavevmode{}Passed \\
+\leavevmode{}Receipt replay checks batch metadata and rolls back invalid dates & \leavevmode{}Equal receipt returns one ID/\allowbreak{}batch; changed batch metadata conflicts; expiry before production rejects while quantity remains three. & \leavevmode{}Passed \\
+\leavevmode{}Warning handling keeps condition and audit & \leavevmode{}Assignment/\allowbreak{}processing leave shortage quantity unchanged; recovery retains CONFIRM/\allowbreak{}ASSIGN/\allowbreak{}PROCESS/\allowbreak{}RECOVER history; renewed shortage links previous ID and starts PENDING. & \leavevmode{}Passed \\
+\leavevmode{}Empty search and stable pagination & \leavevmode{}No-match query reports zero and oversized page request is capped. & \leavevmode{}Passed \\
+\leavevmode{}Unauthorized user cannot read inventory & \leavevmode{}Anonymous inventory request receives 401. & \leavevmode{}Passed \\
+\leavevmode{}CSRF required for unsafe methods & \leavevmode{}Unsafe stock request without CSRF receives 403. & \leavevmode{}Passed \\
+\leavevmode{}Clerk cannot acknowledge or manage users & \leavevmode{}Clerk review and staff administration are denied. & \leavevmode{}Passed \\
+\leavevmode{}Manager cannot post stock & \leavevmode{}Manager cannot submit an inventory movement. & \leavevmode{}Passed \\
+\leavevmode{}Bad catalog input rejected & \leavevmode{}Empty identity and invalid price input are rejected. & \leavevmode{}Passed \\
+\leavevmode{}Receipt and dispatch have audit history & \leavevmode{}Receipt and dispatch produce correct quantity and two ledger rows. & \leavevmode{}Passed \\
+\leavevmode{}Negative stock rejected without history & \leavevmode{}Rejected dispatch changes neither quantity nor accepted history. & \leavevmode{}Passed \\
+\leavevmode{}Exact replay returns same ID & \leavevmode{}Equivalent retry returns one identifier and one stock effect. & \leavevmode{}Passed \\
+\leavevmode{}Changed payload replay conflicts & \leavevmode{}Changed intention with the same actor key conflicts. & \leavevmode{}Passed \\
+\leavevmode{}Threshold equality is low and zero is out & \leavevmode{}Zero is OUT and positive equality is LOW. & \leavevmode{}Passed \\
+\leavevmode{}Healthy replenishment resolves shortage & \leavevmode{}Healthy stock resolves shortage and creates RESTOCKED. & \leavevmode{}Passed \\
+\leavevmode{}Acknowledgement is visible through cache & \leavevmode{}Review attribution is visible and stock remains unchanged. & \leavevmode{}Passed \\
+\leavevmode{}Signed adjustment and absolute count & \leavevmode{}Signed correction and absolute count have distinct arithmetic. & \leavevmode{}Passed \\
+\leavevmode{}Count to zero is auditable & \leavevmode{}Counting zero retains its negative-delta audit record. & \leavevmode{}Passed \\
+\leavevmode{}Archived product cannot move & \leavevmode{}Archived product rejects a new stock operation. & \leavevmode{}Passed \\
+\leavevmode{}Unique SKU and threshold hierarchy & \leavevmode{}Duplicate SKU and inconsistent thresholds are rejected. & \leavevmode{}Passed \\
+\leavevmode{}Concurrent dispatch cannot oversell & \leavevmode{}Seven units permit exactly seven successful unit dispatches. & \leavevmode{}Passed \\
+\leavevmode{}Concurrent identical submission does not duplicate & \leavevmode{}Concurrent same-product retry yields one accepted identifier. & \leavevmode{}Passed \\
+\leavevmode{}Same count still records audit & \leavevmode{}Unchanged absolute count creates a zero-delta observation. & \leavevmode{}Passed \\
+\leavevmode{}Manager threshold endpoint and clerk denial & \leavevmode{}Manager can update thresholds and clerk cannot. & \leavevmode{}Passed \\
+\leavevmode{}Last admin cannot be disabled or demoted & \leavevmode{}Last enabled administrator is protected from access removal. & \leavevmode{}Passed \\
+\leavevmode{}Archived warnings are resolved & \leavevmode{}Archival removes open warning attention. & \leavevmode{}Passed \\
+\leavevmode{}Restocked expires and new shortage starts new episode & \leavevmode{}Renewed shortage closes recovery and opens OUT; no clock expiry is tested. & \leavevmode{}Passed \\
+\leavevmode{}Warning filters have accurate totals & \leavevmode{}Selected warning type agrees with returned content and total. & \leavevmode{}Passed \\
+\leavevmode{}Concurrent acknowledgements preserve first reviewer & \leavevmode{}Concurrent review returns the same first attribution. & \leavevmode{}Passed \\
+\leavevmode{}Invalid credentials and null login fields return client errors & \leavevmode{}Invalid credentials and absent required login values are rejected. & \leavevmode{}Passed \\
 \end{longtable}\endgroup
 
-The cases use disposable service instances and synthetic records. They validate isolated boundaries and selected concurrent requests, not a production mix of transactions over a working day. Batch allocation, expiry, slow-moving, purchasing and review cases are included in the current suite; fractional units, multi-store isolation and external point-of-sale reconciliation would require additional scenarios.
+The cases run against disposable service instances with synthetic records. They validate isolated boundaries and selected concurrent requests rather than a realistic mix of transactions over a working day. Batch allocation, expiry, slow-moving, purchasing and review cases are part of the current suite, while fractional units, multi-store isolation and point-of-sale reconciliation would need additional scenarios.
 
 
 \FloatBarrier
@@ -145,33 +181,29 @@ The cases use disposable service instances and synthetic records. They validate 
 
 \addcontentsline{toc}{section}{Appendix C Reproduction and evidence locations}
 
-The application can be reproduced either from source or from prebuilt images. Source development uses the pinned Java, Maven and Node baselines; release deployment uses Docker Desktop, `.env.release`, `docker-compose.release.yml` and the Windows helper script. Secrets remain in local environment files and are not included in this document.
+The application can be reproduced from source or from prebuilt images. Development from source uses the pinned Java, Maven and Node versions; the release deployment uses Docker Desktop, .env.release, docker-compose.release.yml and the Windows helper script. Secrets stay in local environment files and are not reproduced here.
 
 
-Backend integration tests use the current Docker socket for Testcontainers. On the recorded Colima host, DOCKER\_HOST points to its Unix socket. This is an execution-environment setting, not a business parameter. Frontend unit tests run through the pinned package scripts. The earlier operational browser script posts a demonstration receipt and review, whereas the expanded capture script opens draft forms without submitting business changes.
+Testcontainers uses the current Docker socket; on the recorded Colima host, DOCKER\_HOST points to the Colima Unix socket, an execution-environment setting rather than a business parameter. Frontend unit tests run through the pinned package scripts. The earlier browser script posts a demonstration receipt and review, whereas the capture script opens draft forms without submitting any business change. Table~\ref{tab:reproduce} maps each action to its entry point and output.
 
 
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
-\caption{Reproduction actions and their artifacts}\label{tab:reproduce}\\
+\begin{table}[htbp]\centering\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\caption{Reproduction actions and their artifacts}\label{tab:reproduce}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
 \toprule
 \textbf{Action} & \textbf{Repository entry point} & \textbf{Inspectable result} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Action} & \textbf{Repository entry point} & \textbf{Inspectable result} \\
-\midrule\endhead
-\bottomrule\endfoot
-Start full container stack & docker-compose.yml or docker-compose.release.yml & Four healthy services and frontend on port 5173 \\
-Run release deployment & scripts/start-release.ps1 & GHCR pull with Docker Hub fallback and healthy frontend \\
-Run browser client in source mode & scripts/frontend.sh run dev & Responsive application on development port \\
-Backend integration suite & scripts/backend.sh test & Surefire result and test log \\
-Frontend unit suite & scripts/frontend.sh test & Three boundary-test results \\
-Operational browser journey & scripts/browser-smoke.mjs & Earlier write review and navigation evidence \\
-Expanded interface capture & scripts/capture-paper-ui.mjs & Screens and capture verification \\
-Cache benchmark & scripts/benchmark.py & Workload environment and raw latency samples \\
-Failure and persistence checks & scripts/fault-recovery.py and persistence-snapshot.py & Recovery and selected-row equality records \\
-Figure drawing & scripts/prepare-paper-diagrams.py & Editable diagrams and image exports \\
-Thesis assembly & scripts/build-expanded-thesis.py and thesis/reference-aligned/build.sh & Editable LaTeX manuscript and compiled PDF \\
-\end{longtable}\endgroup
+\midrule
+\leavevmode{}Start full container stack & \leavevmode{}docker-compose.yml or docker-compose.release.yml & \leavevmode{}Four healthy services and frontend on port 5173 \\
+\leavevmode{}Run release deployment & \leavevmode{}scripts/\allowbreak{}start-release.ps1 & \leavevmode{}GHCR pull with Docker Hub fallback and healthy frontend \\
+\leavevmode{}Run browser client in source mode & \leavevmode{}scripts/\allowbreak{}frontend.sh run dev & \leavevmode{}Responsive application on development port \\
+\leavevmode{}Backend integration suite & \leavevmode{}scripts/\allowbreak{}backend.sh test & \leavevmode{}Surefire result and test log \\
+\leavevmode{}Frontend unit suite & \leavevmode{}scripts/\allowbreak{}frontend.sh test & \leavevmode{}Three boundary-test results \\
+\leavevmode{}Operational browser journey & \leavevmode{}scripts/\allowbreak{}browser-smoke.mjs & \leavevmode{}Earlier write, review and navigation evidence \\
+\leavevmode{}Expanded interface capture & \leavevmode{}scripts/\allowbreak{}capture-paper-ui.mjs & \leavevmode{}Screens and capture verification \\
+\leavevmode{}Cache benchmark & \leavevmode{}scripts/\allowbreak{}benchmark.py & \leavevmode{}Workload, environment and raw latency samples \\
+\leavevmode{}Failure and persistence checks & \leavevmode{}scripts/\allowbreak{}fault-recovery.py and persistence-snapshot.py & \leavevmode{}Recovery and selected-row equality records \\
+\leavevmode{}Figure drawing & \leavevmode{}scripts/\allowbreak{}prepare-paper-diagrams.py & \leavevmode{}Editable diagrams and image exports \\
+\leavevmode{}Thesis assembly & \leavevmode{}scripts/\allowbreak{}build-expanded-thesis.py and thesis/\allowbreak{}reference-aligned/\allowbreak{}build.sh & \leavevmode{}Editable LaTeX manuscript and compiled PDF \\
+\bottomrule\end{tabular}\end{table}
 
-The figure collection includes a manifest of image dimensions, source paths, capture dates and content hashes. Code images preserve the original source line locations and exact excerpt text. The current result logs and historical raw measurements remain separate. These artifacts allow a reader to identify what was drawn, what was captured and what was measured, without treating every image as equivalent evidence.
+The figure collection includes a manifest of image dimensions, source paths, capture dates and content hashes, and every code image reproduces its excerpt token for token with the original line numbers. Because the source is written in a dense style, long lines are broken at statement boundaries and indented for display; only the first display row of each source line carries its number, and the unaltered excerpt is stored alongside the image. Current result logs are kept separate from historical raw measurements. A reader can therefore tell what was drawn, what was captured and what was measured, instead of treating every image as equivalent evidence.

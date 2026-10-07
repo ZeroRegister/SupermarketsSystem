@@ -5,4 +5,3 @@
   if(open.stream().noneMatch(w->w.type==next&&w.state==WarningState.OPEN)){WarningEpisode w=new WarningEpisode();w.product=p;w.type=next;w.observedQuantity=p.sellableQuantity;w.threshold=p.reorderThreshold;w.createdAt=Instant.now();w.expiresAt=w.createdAt.plus(Duration.ofDays(3650));w.previousId=warnings.findFirstByProductIdAndTypeOrderByCreatedAtDesc(p.id,next).map(x->x.id).orElse(null);warnings.save(w);workflow.created(w);}
   else open.stream().filter(w->w.type==next&&w.state==WarningState.OPEN).findFirst().ifPresent(w->{w.observedQuantity=p.sellableQuantity;w.threshold=p.reorderThreshold;});
  }
- private void invalidate(){revisions.increment();}

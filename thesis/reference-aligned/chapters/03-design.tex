@@ -4,453 +4,220 @@
 
 \section{Architecture and ownership of state}
 
-Shelfwise uses a responsive browser client, one Spring Boot application, MySQL and optional Redis. The browser presents stock information and submits operational intentions. The application authorizes and validates those intentions. MySQL owns durable product balances, movement history, warning episodes, user access and preferences. Redis stores a short-lived serialized warning-page response. This ownership distinction determines both the normal path and the failure path.
+Shelfwise comprises a responsive browser client, one Spring Boot application, MySQL and an optional Redis cache. The browser presents stock information and submits operational intentions; the application authorizes and validates them. MySQL owns durable product balances, movement history, warning episodes, user access and preferences, while Redis holds only short-lived serialized warning pages. This division of ownership determines both the normal request path and the behavior under failure.
 
 
-The runtime architecture in Figure~\ref{fig:architecture} is layered rather than distributed across business microservices. Controller, service and repository boundaries describe responsibility inside the same process. A stock change can therefore coordinate quantity, history, warning state and cache revision without a cross-service commit protocol. This choice fits the single-store implementation and keeps its acceptance conditions easier to inspect.
+The runtime architecture in Figure~\ref{fig:architecture} is layered rather than divided into business microservices. Controller, service and repository boundaries separate responsibilities inside one process, so a stock change can coordinate quantity, history, warning state and cache revision without a cross-service commit protocol. This choice suits the single-store scope and keeps each acceptance condition inspectable.
 
 
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/08-runtime-architecture.png}
+\includegraphics[width=\textwidth,height=0.70\textheight,keepaspectratio]{../figure-assets/diagrams/08-runtime-architecture.png}
 \caption{Runtime layers and the ownership of durable inventory state}\label{fig:architecture}
 \end{figure}
 
-The browser and database do not share the right to assign a balance. A request can identify an absolute observed count or a relative operation, but the server obtains the existing quantity and computes the accepted result. Similarly, the cached warning page is not allowed to resolve an episode or assign a reviewer. A cache contains a representation of database state; it is not a second business ledger.
-
-
-A modular monolith also has limits. One process contains a central service with several responsibilities, and the default servlet session store is local to that process. A wider deployment would need to reconsider service boundaries, session handling, database capacity and operational monitoring. No conclusion about distributed scalability follows merely from separating source files into layers.
+The server reads the existing quantity, computes the accepted balance from the requested operation or observed count, and updates warning episodes and reviewer attribution in the same request. All changes to durable inventory and review data pass through the application service; the warning cache only stores serialized views of the resulting database state. Because the process also keeps servlet sessions locally, a multi-node deployment would require a renewed assessment of service responsibilities, session handling, database capacity and monitoring. The present design targets the single-store deployment evaluated in Chapter 5.
 
 
 \FloatBarrier
 
 \section{Refinement of the browser and server architecture}
 
-\FloatBarrier
-
 \subsection{Browser modules and state}
 
-The browser architecture in Figure~\ref{fig:frontend} distinguishes the application shell, authenticated navigation, pages and API exchange. LoginView owns the sign-in form. WorkspaceView selects the operational view from a query parameter and contains inventory, catalogue, stock activity, warning, reporting and administration screens. Pinia retains current-user state, while local reactive state owns loaded pages and form drafts.
+The browser separates the application shell, authenticated navigation, pages and API exchange. LoginView owns sign-in, while WorkspaceView selects the operational task from a query parameter. Pinia retains the current user; local reactive state holds loaded pages and drafts.
 
 
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/09-frontend-structure.png}
-\caption{Frontend responsibilities and typed HTTP exchange}\label{fig:frontend}
-\end{figure}
-
-The API client centralizes the base path, credentials and CSRF header. TypeScript types describe response shapes used by components. These types improve development-time inspection but do not validate an arbitrary server response at runtime. The server's input validation and response construction remain separate responsibilities. A failed read is presented as an error; it should not be interpreted as a successful empty inventory selection.
+The API client centralizes the base path, credentials and CSRF header. TypeScript describes the response shapes that components expect, whereas the server validates input and constructs response records; runtime response validation would require additional checks. The client reports a failed read as an error and a successful zero-match query as an empty selection.
 
 
-The chosen page structure keeps the demonstrator compact. WorkspaceView is consequently a substantial component with multiple sections and modal forms. A maintenance extension could split it into view-level components and composables while preserving the API and domain semantics. This would address frontend code organization rather than alter stock correctness.
+This page structure keeps the demonstrator compact, but WorkspaceView consequently contains many sections and modal forms. Splitting it into view-level components and composables would improve frontend maintainability without altering the API or the stock semantics.
 
-
-\FloatBarrier
 
 \subsection{Server layers and transaction ownership}
 
-The server refinement in Figure~\ref{fig:backend} maps security filters, controllers, the inventory service, repositories and entities. Controllers translate validated HTTP requests into service calls and construct responses. InventoryService coordinates business changes. Repositories implement database selection, pagination and locking. Flyway creates the relational schema, while JPA validates entity mapping rather than silently replacing the migration.
+The server separates security filters, controllers, services, repositories and entities. Controllers translate validated requests into service calls, InventoryService coordinates business changes, and repositories provide selection, pagination and locking. Flyway creates the schema and JPA validates the mappings at startup.
 
 
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/10-backend-structure.png}
-\caption{Backend request layers and the inventory service boundary}\label{fig:backend}
-\end{figure}
-
-The service is intentionally central to the current implementation. It contains catalogue, stock, warning, report and access operations. This concentration makes the coordinated write path visible, although a growing codebase would benefit from separating query and command responsibilities. Any later refactoring must preserve the effective transaction boundary; extracting a warning method into another service is insufficient if the invocation no longer participates in the stock transaction.
+The service is intentionally central: it contains catalog, stock, warning, report and access operations, which makes the coordinated write path easy to follow. A growing codebase would benefit from separating query and command responsibilities, but any refactoring must preserve the effective transaction boundary. Moving warning evaluation into another service, for instance, would break correctness if the call no longer joined the stock transaction.
 
 
 \FloatBarrier
 
 \section{Relational database design}
 
-\FloatBarrier
+\subsection{Core schema and migrations}
 
-\subsection{Overall relationships}
-
-The relational model in Figure~\ref{fig:er-overall} is extended by eight migrations. Products may reference a category and supplier; batch balances attach to products; inventory transactions retain product and actor attribution; warnings can reference a reviewer; stock reviews and purchasing records retain their own request keys and action histories. Settings and cache revision remain supporting tables. The schema still excludes sales orders, accounting documents, stores and permission-association tables.
+Figure~\ref{fig:er-overall} shows the initial V1 core schema. Products optionally reference categories and suppliers, movements require a product and an actor, and warnings optionally record a reviewer. Store settings and the cache revision are independent support tables. Seven later migrations extend this core, as summarized in Table~\ref{tab:migration-layers}; the current schema of eighteen tables is the combined V1–V8 result. Field-level definitions remain in the migration sources and the supplementary schema catalog. In this and the following ER figures, each relationship label names the foreign key and gives the parent's participation followed by the child's multiplicity: actor\_id with 1 : 0..*, for instance, means that every movement has exactly one actor while a user may have any number of movements.
 
 
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.6\textheight,keepaspectratio]{../figure-assets/diagrams/11-er-overall.png}
-\caption{Overall schema derived from the initial Flyway migration}\label{fig:er-overall}
+\includegraphics[width=\textwidth,height=0.86\textheight,keepaspectratio]{../figure-assets/diagrams/11-er-overall.png}
+\caption{Initial V1 core relational schema excerpt}\label{fig:er-overall}
 \end{figure}
 
-The reference-data relationships are nullable on the product side. A product can be unclassified or have no supplier; one category or supplier can be associated with many products. Actor relationships for movements are mandatory. Review attribution is nullable because an episode may not yet have been acknowledged. These distinctions are reflected by foreign keys and by the relationship notation in the figures.
-
-
-\FloatBarrier
-
-\subsection{Users and access data}
-
-The users table stores identity and a fixed role name. Username is unique. The password field contains a hash and is excluded from user response records. The enabled flag supports account suspension without deleting historical actor relationships. Creation time provides administrative context rather than an authentication event log.
-
-
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented users table fields and constraints}\label{tab:schema-users}\\
+\begin{table}[htbp]\centering\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\caption{Schema extensions introduced by migrations V2–V8}\label{tab:migration-layers}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.171\textwidth}>{\raggedright\arraybackslash}p{0.378\textwidth}>{\raggedright\arraybackslash}p{0.351\textwidth}}
 \toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-username & VARCHAR(80) & No & Unique & Sign-in identity \\
-\path|display_name| & VARCHAR(100) & No & Column mapping & Human-readable staff name \\
-\path|password_hash| & VARCHAR(100) & No & Column mapping & Stored password hash \\
-role & VARCHAR(20) & No & Column mapping & Fixed ADMIN MANAGER or CLERK value \\
-enabled & BOOLEAN & No & Column mapping & Current access flag \\
-\path|created_at| & TIMESTAMP(6) & No & Column mapping & Server creation timestamp \\
-\end{longtable}\endgroup
+\textbf{Migration} & \textbf{Principal additions} & \textbf{Design purpose} \\
+\midrule
+\leavevmode{}V2 Warning workflow & \leavevmode{}Review stage, assignee, recovery time and predecessor on warnings; \path|warning_actions|\allowbreak{}\allowbreak{} & \leavevmode{}Separate review handling from the warning lifecycle and retain action history \\
+\leavevmode{}V3 Batch inventory & \leavevmode{}Sellable quantity; \path|inventory_batches|\allowbreak{}, \path|batch_allocations|\allowbreak{} and \path|batch_actions|\allowbreak{}; receipt metadata & \leavevmode{}Distinguish physical from sellable stock and record per-batch allocation \\
+\leavevmode{}V4 Expiry rules & \leavevmode{}Batch link and active-rule key on warnings; \path|warning_policy|\allowbreak{}\allowbreak{} & \leavevmode{}Keep one open episode per rule identity under an explicit business timezone \\
+\leavevmode{}V5 Slow-moving rules & \leavevmode{}Slow-stock window and minimum; product creation time; sales-time index & \leavevmode{}Support product-age and SALE-only inactivity queries \\
+\leavevmode{}V6 Purchasing & \leavevmode{}Target stock and supplier lead time; \path|purchase_orders|\allowbreak{}, \path|purchase_lines|\allowbreak{}, \path|purchase_receipts|\allowbreak{} and \path|purchase_actions|\allowbreak{}\allowbreak{} & \leavevmode{}Reviewable purchasing with bounded, replay-aware partial receipts \\
+\leavevmode{}V7 Stock review & \leavevmode{}\allowbreak{}\path|stock_reviews|\allowbreak{} with snapshot quantity and version, creator, reviewer and movement link & \leavevmode{}Approve counts, adjustments and disposal against a recorded snapshot \\
+\leavevmode{}V8 Review request keys & \leavevmode{}Actor-scoped request key on \path|stock_reviews|\allowbreak{}\allowbreak{} & \leavevmode{}Replay identity for review submission, backfilled for earlier records \\
+\bottomrule\end{tabular}\end{table}
 
-The fixed-role design avoids introducing a configurable permission editor that the application does not implement. It also reduces the number of authorization combinations that need to be tested. Its limitation is flexibility: a store cannot define a fourth role or assign one isolated capability without changing and validating the program's permission rules.
+Optionality in the schema mirrors the domain. A product can be unclassified or have no supplier, and one category or supplier can serve many products. A movement always has a product and an actor, whereas review attribution is nullable because an episode may not yet have been acknowledged. Batch allocations, warning actions, purchase receipts and stock reviews keep explicit links to the records that caused them.
 
 
-\FloatBarrier
+\subsection{Identity, catalog and support data}
 
-\subsection{Catalogue and reference tables}
+The users table stores a unique username, display name, password hash, fixed role and enabled flag. The hash is never included in user responses, and disabling an account preserves the historical actor relationships that a deletion would break. The fixed-role design avoids a configurable permission editor and limits the number of authorization combinations to test; the cost is that a store cannot define a fourth role without changing and revalidating the permission rules.
 
-The local catalogue relationship in Figure~\ref{fig:er-catalogue} connects products to categories and suppliers. Category name is unique, whereas supplier name is descriptive and not constrained as a unique identifier. Deleting a referenced record is rejected by the relationship constraint. The program converts integrity conflicts into an application error that the interface can display.
+
+Product identity is protected by a unique SKU and an optional unique barcode. Database checks bound quantity and price and require a non-negative safety stock no greater than the reorder threshold. Category names are unique, supplier names are descriptive, and foreign keys reject deletion of referenced records. The version column supports the JPA entity mapping, while stock operations additionally take an explicit pessimistic lock. Because catalog input does not expose quantity, product editing cannot bypass the movement ledger. Archival clears the active flag instead of deleting the row, so earlier movements and warnings remain explainable after a product is discontinued.
+
+
+Store settings are key–value pairs for the business name and display currency. The cache revision table holds a singleton counter that advances whenever stock, thresholds or other warning-relevant state changes; keeping it in MySQL lets cache namespaces survive an application restart consistently with the data. The counter is, however, a shared write target: updates to different products can contend on it even though their product locks differ. The evaluated workload does not quantify this contention, and a high-write deployment could consider partitioned revisions while preserving the same post-write query contract.
+
+
+\subsection{Movement ledger and warning episodes}
+
+The movement relationships in Figure~\ref{fig:er-detail}(a) connect each accepted change to a product and an actor. A row stores type, signed delta, before and after quantities, a mandatory reason, the request key and a server timestamp. The composite unique constraint on actor and idempotency key is independent of the product, so one actor's key can identify only one accepted intention. The application offers no edit or delete endpoint for accepted movements; privileged SQL access and backups fall under a separate authority, and stronger audit requirements would call for restricted administration and append-only or signed storage.
 
 
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/12-er-catalogue.png}
-\caption{Product relationships with category and supplier data}\label{fig:er-catalogue}
+\begin{minipage}[b]{0.485\textwidth}\centering\includegraphics[width=\linewidth]{../figure-assets/diagrams/13-er-movements.png}\\[2pt]{\small (a)}\end{minipage}\hfill\begin{minipage}[b]{0.485\textwidth}\centering\includegraphics[width=\linewidth]{../figure-assets/diagrams/14-er-warnings.png}\\[2pt]{\small (b)}\end{minipage}
+\caption{Detailed V1 relationships: (a) mandatory product and actor references in movement history; (b) warning episodes with optional reviewer attribution}\label{fig:er-detail}
 \end{figure}
 
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented categories table fields and constraints}\label{tab:schema-categories}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-name & VARCHAR(100) & No & Unique & Descriptive name \\
-description & VARCHAR(500) & Yes & Column mapping & Optional descriptive text \\
-active & BOOLEAN & No & Column mapping & Available catalogue or reference record \\
-\end{longtable}\endgroup
-
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented suppliers table fields and constraints}\label{tab:schema-suppliers}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-name & VARCHAR(120) & No & Column mapping & Descriptive name \\
-\path|contact_name| & VARCHAR(120) & Yes & Column mapping & Supplier contact person \\
-email & VARCHAR(120) & Yes & Column mapping & Supplier contact address \\
-phone & VARCHAR(40) & Yes & Column mapping & Supplier telephone text \\
-active & BOOLEAN & No & Column mapping & Available catalogue or reference record \\
-\end{longtable}\endgroup
-
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented products table fields and constraints}\label{tab:schema-products}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-sku & VARCHAR(64) & No & Unique & Unique required product identity \\
-barcode & VARCHAR(64) & Yes & Unique & Optional unique scanned identity \\
-name & VARCHAR(180) & No & Column mapping & Descriptive name \\
-unit & VARCHAR(40) & No & Column mapping & Label for integer quantity \\
-price & DECIMAL(12,2) & No & Check constraint & Current unit price not historical cost \\
-quantity & BIGINT & No & Check constraint & Bounded current product balance \\
-\path|safety_stock| & BIGINT & No & Check constraint & Urgency policy within the reorder level \\
-\path|reorder_threshold| & BIGINT & No & Check constraint & Positive low-stock boundary including equality \\
-\path|category_id| & BIGINT & Yes & Foreign key & Optional category reference \\
-\path|supplier_id| & BIGINT & Yes & Foreign key & Optional supplier reference \\
-active & BOOLEAN & No & Column mapping & Available catalogue or reference record \\
-version & BIGINT & No & Column mapping & JPA entity version \\
-\path|updated_at| & TIMESTAMP(6) & No & Column mapping & Latest product update time \\
-\end{longtable}\endgroup
-
-Product quantity and price have database bounds, and the threshold check requires a non-negative safety stock no greater than the reorder threshold. SKU and barcode uniqueness protect inventory identity. The version column participates in the JPA entity mapping; the stock operation additionally uses an explicit pessimistic lock. Catalogue input does not expose quantity, so normal product editing cannot bypass the movement ledger.
-
-
-Archival changes the active flag rather than deleting a product. Historical movements and warnings can still refer to the same identifier. This is useful when a product is discontinued: explanation of earlier stock must remain available even though the catalogue no longer accepts new operations for it.
+The warning model in Figure~\ref{fig:er-detail}(b) stores type, lifecycle state, observed quantity, threshold and timestamps, later extended with rule-policy data for expiry and slow-moving evaluation. An open episode therefore has two independent dimensions: its shortage or recovery lifecycle and whether a person has acknowledged it. Acknowledgement is not encoded by replacing OPEN with a reviewed state. Observed quantity and threshold describe the current interpretation and are updated while a shortage stays at the same severity; the movement table, not the warning row, holds the full history.
 
 
 \FloatBarrier
 
-\subsection{Inventory movement ledger}
+\section{Transactional stock consistency}
 
-The movement relationships in Figure~\ref{fig:er-movements} connect the operational change to both product and actor. Each accepted row stores type, signed delta, before and after quantities, a mandatory reason, request key and server timestamp. The composite unique constraint on actor and idempotency key is independent of the product. Its purpose is to prevent one authenticated actor's key from identifying multiple accepted intentions.
-
-
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/13-er-movements.png}
-\caption{Mandatory product and actor relationships in movement history}\label{fig:er-movements}
-\end{figure}
-
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented inventory\_transactions table fields and constraints}\label{tab:schema-inventory_transactions}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-\path|product_id| & BIGINT & No & Foreign key & Stock-bearing product reference \\
-\path|actor_id| & BIGINT & No & Foreign key, Composite unique & Authenticated movement actor \\
-type & VARCHAR(20) & No & Column mapping & Movement or warning enum name \\
-delta & BIGINT & No & Column mapping & Accepted signed stock effect \\
-\path|quantity_before| & BIGINT & No & Column mapping & Locked balance before the operation \\
-\path|quantity_after| & BIGINT & No & Column mapping & Accepted balance after the operation \\
-reason & VARCHAR(300) & No & Column mapping & Required explanation of the stock intention \\
-\path|idempotency_key| & VARCHAR(80) & No & Composite unique & Actor-scoped request intention key \\
-\path|created_at| & TIMESTAMP(6) & No & Column mapping & Server creation timestamp \\
-\end{longtable}\endgroup
-
-The ledger is retained by application behavior: there is no edit or delete endpoint for accepted movements. This is not a cryptographic tamper-evidence mechanism. Database administrators, backup tools and direct SQL have a different authority boundary. A production audit requirement would need to specify retention, access controls and possibly append-only or signed storage beyond this application-level history.
+Product, UserAccount, InventoryTransaction and WarningEpisode objects map the core relationships above, and batch, review and purchase entities extend them as listed in Table~\ref{tab:migration-layers}. Repository methods perform individual reads and writes, but the service owns the enclosing transaction. Saving a movement row alone is insufficient: quantity, batch effects, warning state and cache revision must agree when the operation commits.
 
 
-\FloatBarrier
+\subsection{Batch allocation and rule policy}
 
-\subsection{Warning episodes and review attribution}
-
-The warning model in Figure~\ref{fig:er-warnings} stores type, lifecycle state, observed quantity, threshold and timestamps. Later migrations add rule-policy data for expiry and slow-moving evaluation. Review attribution is optional. An open episode therefore has two independent dimensions: the shortage or recovery lifecycle and whether a person has acknowledged it. The design does not encode acknowledgement by replacing OPEN with a reviewed state.
+Batch receipts create dated inventory identities. Dispatch selects sellable batches by FEFO when expiry dates exist and falls back to FIFO for deterministic ordering. Expired or quarantined batches remain physically present but are excluded from sellable quantity. The batch remainder is rechecked when a disposal or review is approved, so an approval cannot remove stock that another transaction has already consumed.
 
 
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/14-er-warnings.png}
-\caption{Warning episodes with optional reviewer attribution}\label{fig:er-warnings}
-\end{figure}
+Expiry uses the configured business timezone and an inclusive boundary: a batch is sellable on its expiry date and expires on the following business date. Slow-moving detection considers only SALE movements, excluding receipts, adjustments and stocktakes. These policies are explicit because a single quantity threshold cannot express product age or sales inactivity.
 
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented warnings table fields and constraints}\label{tab:schema-warnings}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-\path|product_id| & BIGINT & No & Foreign key & Stock-bearing product reference \\
-type & VARCHAR(20) & No & Column mapping & Movement or warning enum name \\
-state & VARCHAR(20) & No & Column mapping & OPEN or RESOLVED episode lifecycle \\
-\path|observed_quantity| & BIGINT & No & Column mapping & Quantity context of the warning episode \\
-threshold & BIGINT & No & Column mapping & Policy context of the warning episode \\
-\path|created_at| & TIMESTAMP(6) & No & Column mapping & Server creation timestamp \\
-\path|expires_at| & TIMESTAMP(6) & No & Column mapping & Stored recovery visibility boundary \\
-\path|acknowledged_by| & BIGINT & Yes & Foreign key & Optional first reviewer reference \\
-\path|acknowledged_at| & TIMESTAMP(6) & Yes & Column mapping & Optional first review timestamp \\
-\end{longtable}\endgroup
-
-Observed quantity and threshold describe the current episode interpretation. They are updated while a shortage remains within the same severity. They are not a snapshot of every stock movement; the movement table supplies that history. A new severity closes the old episode, while a healthy replenishment creates a recovery record that can remain visible temporarily.
-
-
-\FloatBarrier
-
-\subsection{Supporting settings and revision data}
-
-Store settings are key-value pairs for the business name and display currency. The cache revision table contains a singleton counter that advances when stock, thresholds or other warning-relevant state changes. It is not a timestamp, demand estimate or session store. Keeping the counter durable makes cache namespaces survive an application restart consistently with database state.
-
-
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/15-er-support.png}
-\caption{Independent settings and cache revision tables}\label{fig:er-support}
-\end{figure}
-
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented app\_settings table fields and constraints}\label{tab:schema-app_settings}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-\path|setting_key| & VARCHAR(80) & No & Primary key & Preference identity \\
-\path|setting_value| & VARCHAR(240) & No & Column mapping & Display preference value \\
-\end{longtable}\endgroup
-
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.198\textwidth}>{\raggedright\arraybackslash}p{0.189\textwidth}>{\raggedright\arraybackslash}p{0.09\textwidth}>{\raggedright\arraybackslash}p{0.153\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}}
-\caption{Implemented cache\_revision table fields and constraints}\label{tab:schema-cache_revision}\\
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Field} & \textbf{SQL type} & \textbf{Nullable} & \textbf{Constraint} & \textbf{Purpose} \\
-\midrule\endhead
-\bottomrule\endfoot
-id & BIGINT & No & Primary key & Record identifier \\
-revision & BIGINT & No & Column mapping & Durable cache namespace counter \\
-\end{longtable}\endgroup
-
-The global counter is simple, but it is also a shared write target. Updates to different products can contend on that row even when product locks differ. The current workload does not quantify this contention. A future high-write deployment could consider partitioned revisions or another invalidation design after preserving the same post-write query contract.
-
-
-\FloatBarrier
-
-\section{UML classes and repository dependencies}
-
-The domain class diagram in Figure~\ref{fig:domain-classes} shows the implemented Product, UserAccount, InventoryTransaction and WarningEpisode relationships. Its attributes use the source-level visibility of the current entity classes. The diagram focuses on the core associations and selected fields; the schema tables provide the complete persistence fields. A class diagram and an ER diagram answer different questions: one explains program objects, while the other explains stored relationships and constraints.
-
-
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/16-uml-domain.png}
-\caption{Core domain classes and their implemented associations}\label{fig:domain-classes}
-\end{figure}
-
-The dependency diagram in Figure~\ref{fig:service-classes} identifies InventoryService methods and the repository interfaces used by the stock and warning paths. A repository dependency does not transfer responsibility for an operation's overall consistency. For example, saving a transaction row is only one step: the service must also assign the quantity, evaluate warning state and advance revision before the encompassing transaction completes.
-
-
-\begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/17-uml-service.png}
-\caption{Inventory service dependencies on repository interfaces}\label{fig:service-classes}
-\end{figure}
-
-\FloatBarrier
-
-\section{Batch allocation, warning policy and transactional stock consistency}
-
-Batch receipts create dated inventory identities. Dispatch selects sellable batches by FEFO when expiry dates exist and uses FIFO as the deterministic fallback. Expired or quarantined batches remain physically present but are excluded from sellable quantity. The batch remainder is rechecked when disposal or review is approved, so an approval cannot remove stock that another transaction has already consumed.
-
-
-Expiry is evaluated using the configured business timezone and the documented inclusive boundary: a batch is sellable on its expiry date and expires on the following business date. Slow-moving detection uses sales-only movements, excluding receipts, adjustments and stocktakes from the sales signal. These policies are deliberately explicit because a generic quantity threshold cannot express product age or movement inactivity.
-
-
-\FloatBarrier
 
 \subsection{Product locking and bounded arithmetic}
 
-The server first loads the authenticated actor and acquires a product-row locking read. MySQL documents locking reads as a mechanism for reserving a row for coordinated updates until commit or rollback \citep{mysql-locks}. Spring Data JPA exposes repository-level lock modes through its locking facilities \citep{spring-locks}. Shelfwise uses these mechanisms at the product boundary instead of calculating a new quantity from a previously displayed value.
+The server first loads the authenticated actor and then acquires a locking read on the product row. MySQL documents locking reads as a way to reserve a row for coordinated updates until commit or rollback \citep{mysql-locks}, and Spring Data JPA exposes such lock modes at repository level \citep{spring-locks}. Shelfwise applies them at the product boundary instead of calculating a new quantity from a previously displayed value.
 
 
-The movement method uses READ\_COMMITTED isolation and derives its delta from the locked product. Addition is checked for arithmetic overflow and for the supported quantity bounds. An absolute stocktake computes observed quantity minus the current locked quantity. A count equal to the current balance creates a zero-delta observation, while zero-delta relative adjustments are rejected. This distinction is a business rule, not an optimization of the write path.
+The movement method runs at READ\_COMMITTED isolation and derives its delta from the locked product. Addition is checked for arithmetic overflow and against the supported quantity bounds. An absolute stocktake computes the observed quantity minus the locked quantity; a count equal to the current balance creates a zero-delta observation, whereas a zero-delta relative adjustment is rejected. The distinction is a business rule, not an optimization.
 
 
-The locked write coordinates product quantity, audit record, warning evaluation and revision advancement. If a domain or persistence exception aborts the transaction, the accepted database effects are rolled back together. The source uses a flush when saving the audit record so that certain integrity errors surface during the operation. Flushing is not a separate transaction commit.
+The locked write coordinates product quantity, audit record, warning evaluation and revision advancement. If a domain or persistence exception aborts the transaction, all of these effects roll back together. Saving the audit record flushes the persistence context so that certain integrity errors surface during the operation; the flush is not a separate commit.
 
-
-\FloatBarrier
 
 \subsection{Idempotency and retry scope}
 
-After acquiring the product lock, the service checks the actor-key relationship for a prior movement. If the product, type, normalized reason and quantity meaning match, the original view is returned. For a count, the earlier after quantity is compared with the requested observed amount. For other types, the earlier signed delta is compared with the requested effect. A mismatched replay produces HTTP 409.
+After acquiring the product lock, the service looks up any prior movement for the same actor and key. The original view is returned only if product, type, normalized reason, quantity meaning and batch metadata all match. STOCKTAKE compares the earlier after quantity with the requested count, other types compare signed deltas, and receipt batch numbers and dates or the batch selected for a negative adjustment form part of the comparison. A mismatched replay produces HTTP 409.
 
 
-This ordering serializes the ordinary same-product retry path. The composite unique constraint adds a durable backstop. Simultaneously reusing a key across different products is a different contention pattern: separate product locks do not serialize it, and a uniqueness conflict may be the outcome rather than an exact-replay response. The current concurrent-identical test concerns one product. The thesis does not generalize it to every cross-product reuse race.
+This ordering serializes the ordinary same-product retry, and the unique constraint adds a durable backstop. Reusing one key concurrently for different products is a different pattern: separate product locks do not serialize it, and the outcome may be a uniqueness conflict rather than an exact replay. The concurrent test of identical submissions covers a single product, so its result is not generalized to cross-product races. Table~\ref{tab:stock-consistency} summarizes the controls and their limits.
 
 
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
-\caption{Consistency controls and the problems they address}\label{tab:stock-consistency}\\
+\begin{table}[htbp]\centering\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\caption{Consistency controls and the problems they address}\label{tab:stock-consistency}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}>{\raggedright\arraybackslash}p{0.3\textwidth}}
 \toprule
 \textbf{Control} & \textbf{Protected fact} & \textbf{Important boundary} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Control} & \textbf{Protected fact} & \textbf{Important boundary} \\
-\midrule\endhead
-\bottomrule\endfoot
-Product row lock & Current balance used to derive the new result & Lock scope is one product \\
-Transaction boundary & Quantity ledger warning and revision agree & Persistence exceptions must abort the whole operation \\
-Actor-key uniqueness & One accepted movement per key namespace & Different actors may use the same textual key \\
-Normalized replay comparison & Retry returns the prior intention's result & Reused key with changed content conflicts \\
-Quantity bounds & Accepted balance is non-negative and bounded & Does not define decimal unit conversion \\
-Mandatory actor and reason & Accepted movement remains explainable & Does not prevent privileged direct database modification \\
-\end{longtable}\endgroup
+\midrule
+\leavevmode{}Product row lock & \leavevmode{}Current balance used to derive the new result & \leavevmode{}Lock scope is one product \\
+\leavevmode{}Transaction boundary & \leavevmode{}Quantity, ledger, warning and revision agree & \leavevmode{}Persistence exceptions must abort the whole operation \\
+\leavevmode{}Actor-key uniqueness & \leavevmode{}One accepted movement per key namespace & \leavevmode{}Different actors may use the same textual key \\
+\leavevmode{}Normalized replay comparison & \leavevmode{}A retry returns the original intention's result & \leavevmode{}A reused key with changed content conflicts \\
+\leavevmode{}Quantity bounds & \leavevmode{}Accepted balance is non-negative and bounded & \leavevmode{}Does not define decimal unit conversion \\
+\leavevmode{}Mandatory actor and reason & \leavevmode{}Every accepted movement remains explainable & \leavevmode{}Does not prevent privileged direct database modification \\
+\bottomrule\end{tabular}\end{table}
 
 \FloatBarrier
 
 \section{Warning lifecycle design}
 
-The lifecycle in Figure~\ref{fig:warning-state} separates shortage severity from recovery. Quantity zero selects OUT. Positive quantity at or below threshold selects LOW. Healthy quantity closes an open shortage and may create RESTOCKED. A transition between LOW and OUT closes the former severity and opens the latter. Remaining in one severity updates its quantity context without resetting review attribution.
+The lifecycle in Figure~\ref{fig:warning-state} separates shortage severity from recovery. A sellable quantity of zero selects OUT; a positive quantity at or below the threshold selects LOW. A healthy quantity closes an open shortage and may create RESTOCKED. A transition between LOW and OUT closes the former severity and opens the latter, whereas remaining at one severity updates its quantity context without resetting review attribution.
 
 
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/22-warning-state.png}
+\includegraphics[width=\textwidth,height=0.70\textheight,keepaspectratio]{../figure-assets/diagrams/22-warning-state.png}
 \caption{Shortage and recovery episode lifecycle with independent acknowledgement}\label{fig:warning-state}
 \end{figure}
 
-RESTOCKED has a stored expiry twenty-four hours after creation. Warning queries exclude expired recovery rows, and a scheduled cleanup marks expired recovery episodes resolved. The cache can retain a previously serialized page until revision or TTL changes; cleanup is periodic rather than instantaneous. The design therefore does not promise a zero-delay screen change at the expiry boundary. Dedicated clock-controlled expiry and cache-boundary tests would strengthen this part of the evaluation.
+A RESTOCKED episode expires twenty-four hours after creation, and a renewed shortage closes it earlier; archiving a product closes all of its open episodes. Warning queries exclude expired recovery rows, and a scheduled cleanup marks them resolved. Because a cached page can persist until the revision or TTL changes and cleanup is periodic, the design does not promise a zero-delay change at the expiry boundary; clock-controlled expiry and cache tests would strengthen this part of the evaluation.
 
 
-Acknowledgement locks the warning row and preserves the first recorded reviewer. Repeating acknowledgement returns the existing attribution. The interface offers the action for open unreviewed episodes. The service method itself checks whether a reviewer already exists but does not require an OPEN state, so an authorized API caller can first-review a resolved record by identifier. This is an explicit current behavior to review before defining a stricter production review policy.
+Acknowledgement locks the warning row and preserves the first recorded reviewer. Repeating an existing acknowledgement returns that attribution, even after the episode has resolved. A new acknowledgement requires an OPEN episode, so a resolved episode without a reviewer rejects a first acknowledgement with HTTP 409. The interface offers the action only for open, unreviewed episodes.
 
 
 \FloatBarrier
 
 \section{Revision-based cache design}
 
-The warning query first reads the durable revision and constructs a key containing revision, type, lifecycle state, page and size. A valid cache hit returns a decoded page. A miss or cache exception causes a database query and a best-effort fill with a thirty-second TTL. The sequence in Figure~\ref{fig:cache-sequence} makes this alternate path visible. The database-backed revision is part of the read cost even when Redis has the response.
+The warning query first reads the durable revision and builds a key from revision, type, lifecycle state, page and size. A valid cache hit returns the decoded page. A miss or cache exception triggers a database query and a best-effort fill with a thirty-second TTL, as shown in Figure~\ref{fig:cache-sequence}. Reading the revision from the database is part of the cost even when Redis holds the response.
 
 
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/20-seq-warning.png}
+\includegraphics[width=\textwidth,height=0.70\textheight,keepaspectratio]{../figure-assets/diagrams/20-seq-warning.png}
 \caption{Warning retrieval through a revision namespace and cache-aside fallback}\label{fig:cache-sequence}
 \end{figure}
 
-A cache fill that began before a write can complete under the old revision. A later query reading the new revision will not address that old key. This addresses a stale-fill race that simple deletion alone would not describe. It does not cancel in-flight reads or establish a globally synchronized view across all open browser screens. A user may need a new read to observe the committed change.
+A fill that started before a write may complete under the old revision, but later queries read the new revision and never address that key. This closes a stale-fill race that simple key deletion would leave open. It does not cancel in-flight reads or synchronize every open browser screen; a user may need a new read to see the committed change.
 
 
-The SQL filtering precedes pagination so totals correspond to the requested warning type and lifecycle selection. Page content, total elements and total pages are serialized together. Cache equivalence is therefore defined over the response contract, not merely over the first displayed row. Malformed cached JSON and broader database outages remain useful fault cases beyond the recorded Redis interruption.
+SQL filtering precedes pagination, and page content, total elements and total pages are serialized together, so cache equivalence covers the whole response contract rather than the first displayed row.
 
 
 \FloatBarrier
 
 \section{Permissions and request security}
 
-The authorization matrix in Table~\ref{tab:role-matrix} is implemented by HTTP method and route patterns. Threshold and replenishment-target changes have narrower routes so managers can alter policy without editing identity fields. Posting ordinary stock is allowed for administrators and clerks; adjustment, stocktake, count approval and disposal approval use the review workflow. Warnings, reports, purchase approval and warning policies are manager operations. Staff accounts and settings changes remain administrator operations.
+The authorization matrix in Table~\ref{tab:role-matrix} combines HTTP method and route rules with controller checks. Administrators and clerks post receipts, dispatches and SALE movements; clerks submit corrections and counts for review, which administrators and managers approve together with purchases. Administrators also retain direct ADJUSTMENT and STOCKTAKE access. Managers update thresholds and targets, review warnings and control batch quarantine, while staff accounts, catalog identity and store preferences remain administrator operations.
 
 
-\begingroup\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.225\textwidth}>{\raggedright\arraybackslash}p{0.225\textwidth}>{\raggedright\arraybackslash}p{0.225\textwidth}>{\raggedright\arraybackslash}p{0.225\textwidth}}
-\caption{Server authorization matrix}\label{tab:role-matrix}\\
+\begin{table}[htbp]\centering\small\setstretch{1.05}\setlength{\tabcolsep}{3pt}\renewcommand{\arraystretch}{1.25}
+\caption{Server authorization matrix}\label{tab:role-matrix}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.441\textwidth}>{\raggedright\arraybackslash}p{0.171\textwidth}>{\raggedright\arraybackslash}p{0.144\textwidth}>{\raggedright\arraybackslash}p{0.144\textwidth}}
 \toprule
 \textbf{Operation} & \textbf{Administrator} & \textbf{Manager} & \textbf{Clerk} \\
-\midrule\endfirsthead
-\toprule
-\textbf{Operation} & \textbf{Administrator} & \textbf{Manager} & \textbf{Clerk} \\
-\midrule\endhead
-\bottomrule\endfoot
-Read inventory and movement history & Yes & Yes & Yes \\
-Post receipt and dispatch & Yes & No & Yes \\
-Submit count or disposal review & Yes & No & Yes \\
-Approve review or purchase & Yes & Yes & No \\
-Create edit or archive product & Yes & No & No \\
-Update stock thresholds and target & Yes & Yes & No \\
-Read warning board and reports & Yes & Yes & No \\
-Acknowledge a warning & Yes & Yes & No \\
-Manage users and access & Yes & No & No \\
-Change store preferences & Yes & No & No \\
-Read stock summary and preferences & Yes & Yes & Yes \\
-\end{longtable}\endgroup
+\midrule
+\leavevmode{}Read inventory, movement history, stock summary and preferences & \leavevmode{}Yes & \leavevmode{}Yes & \leavevmode{}Yes \\
+\leavevmode{}Post receipt, dispatch or SALE & \leavevmode{}Yes & \leavevmode{}No & \leavevmode{}Yes \\
+\leavevmode{}Post direct adjustment or stocktake & \leavevmode{}Yes & \leavevmode{}No & \leavevmode{}No \\
+\leavevmode{}Submit count or disposal review & \leavevmode{}Yes & \leavevmode{}No & \leavevmode{}Yes \\
+\leavevmode{}Approve stock review or purchase & \leavevmode{}Yes & \leavevmode{}Yes & \leavevmode{}No \\
+\leavevmode{}Update stock thresholds and target & \leavevmode{}Yes & \leavevmode{}Yes & \leavevmode{}No \\
+\leavevmode{}Read warning board and reports; acknowledge warnings & \leavevmode{}Yes & \leavevmode{}Yes & \leavevmode{}No \\
+\leavevmode{}Create, edit or archive products & \leavevmode{}Yes & \leavevmode{}No & \leavevmode{}No \\
+\leavevmode{}Manage users, access and store preferences & \leavevmode{}Yes & \leavevmode{}No & \leavevmode{}No \\
+\bottomrule\end{tabular}\end{table}
 
-The request-security path in Figure~\ref{fig:security} combines session identity, CSRF protection, account refresh and endpoint authorization. Spring Security's CSRF documentation identifies unsafe browser methods as requiring protection when credentials can be supplied automatically \citep{spring-csrf}. Shelfwise issues a token and sends the matching header for unsafe requests. The readable CSRF token has a different purpose from the HttpOnly session cookie.
+The request path in Figure~\ref{fig:security} combines session identity, CSRF protection, account refresh and endpoint authorization. Because browsers send session credentials automatically, unsafe methods require CSRF protection \citep{spring-csrf}; Shelfwise issues a readable token, separate from the HttpOnly session cookie, and sends it as a header on unsafe requests.
 
 
 \begin{figure}[htbp]\centering
-\includegraphics[width=\textwidth,height=0.40\textheight,keepaspectratio]{../figure-assets/diagrams/23-security-flow.png}
+\includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{../figure-assets/diagrams/23-security-flow.png}
 \caption{Security checks preceding controller execution}\label{fig:security}
 \end{figure}
 
-Password hashes use BCrypt, and session ID rotation occurs after authentication. Account access is reloaded from MySQL during later requests. These implemented measures do not supply rate limiting, MFA, password recovery or a completed penetration assessment. Production deployment would also require TLS and secure cookie configuration. The design chapter distinguishes those deployment obligations from the controls that are present in the source.
+Passwords are hashed with BCrypt, the session identifier is rotated after authentication, and account access is reloaded from MySQL on later requests. Rate limiting, MFA, password recovery, TLS and secure cookie settings are deployment obligations outside the implemented controls.
 
 
 \FloatBarrier
 
 \section{Chapter summary}
 
-The design now connects product quantity to dated batches, rule-specific warnings, review snapshots and purchase documents. The same principles remain: MySQL owns accepted facts, Redis accelerates reads, and server-side authorization protects every state transition. The design assigns authoritative state to MySQL, preserves accepted stock intentions and keeps shortage review separate from quantity. Its architecture supports one coordinated movement transaction and a disposable cache. The diagrams and schema describe the implementation as it exists, including the shared revision counter, fixed roles and session boundary. Chapter 4 explains how these choices appear in executable code and in the user interface.
+The design keeps product balances, batches, movement history, warning episodes, review snapshots and purchase documents within one transactional service boundary. MySQL holds durable state, a revision namespace governs cached warning pages, and server permissions restrict every state transition; the shared revision row, fixed roles and local sessions are the main deployment constraints. Chapter 4 presents the implementation.

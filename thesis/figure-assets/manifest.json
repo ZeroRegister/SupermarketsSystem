@@ -1,8 +1,8 @@
 {
   "language": "English",
   "reference": "docs/_MasterThesiseExample.docx",
-  "scope": "Figure collection only; no thesis manuscript edited",
-  "gitRevision": "3a418739e48b758b451b2d033479ad1f71cf0c00",
+  "scope": "Revised thesis figures; see thesis/reference-aligned/review for review history",
+  "gitRevision": "75aa68b30b8c745b3e6f83c84904339c5f2a1169",
   "figures": [
     {
       "id": "01-functional-model",
@@ -20,11 +20,11 @@
       ],
       "assetNumber": 1,
       "pixels": [
-        2750,
-        1076
+        2286,
+        2110
       ],
-      "layoutHint": "Full width or landscape",
-      "pngSha256": "ddce1deb74bf3134d098903259432b349cf161770e9a7ff751a8d7401e6deed7"
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "15600878f9cede1ad85dd9df397dccb4d3fec6ef07609efd8054feb8007534f5"
     },
     {
       "id": "02-uc-catalogue",
@@ -42,11 +42,11 @@
       ],
       "assetNumber": 2,
       "pixels": [
-        2146,
-        1666
+        2246,
+        1536
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "e06a5e367e926c011482152a4ff7cac746b26022a277bc663560f68f6208a836"
+      "pngSha256": "792f8801d46e971576336202621de331fc8257657087ca7da510c8906fe37b3f"
     },
     {
       "id": "03-uc-stock",
@@ -64,11 +64,11 @@
       ],
       "assetNumber": 3,
       "pixels": [
-        2146,
-        1666
+        2246,
+        1786
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "e8ddd46492ceffafe26b5ba1552bdbc913ad9b8ab80a4c70c4db51e2da10edee"
+      "pngSha256": "fde5c80960cb3243a5eb489c58c8d11d39bac255520d28226861be3645e6831e"
     },
     {
       "id": "04-uc-warning",
@@ -86,11 +86,11 @@
       ],
       "assetNumber": 4,
       "pixels": [
-        2146,
-        826
+        2246,
+        786
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "dc6be12503ce12359b7833f53716f79ef0d5c90a1e4c9562fc16f5899430849b"
+      "pngSha256": "10ba75f4060940bcccc83ee465f736732d92e13033e8b7a7f2bbce6f39307216"
     },
     {
       "id": "05-uc-report",
@@ -108,11 +108,11 @@
       ],
       "assetNumber": 5,
       "pixels": [
-        2146,
-        1106
+        2246,
+        1036
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "6db24eef9cd2ea153d83aa2e5c0d87de99ddb83e29c8b99f7a3599edcc9f9029"
+      "pngSha256": "edaddf4cbaca434a1973238201def67a00bc9e964bab8c4fd94a993d4e83328c"
     },
     {
       "id": "06-uc-access",
@@ -130,11 +130,11 @@
       ],
       "assetNumber": 6,
       "pixels": [
-        2146,
-        1106
+        2246,
+        1036
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "cc0276adaecc4fa9e23b53132477bd952b1695dbacd4dbc6b7ec58cb544ab394"
+      "pngSha256": "3f4649b002310c95c105dc35c16d4c115c46d7a095761496d0ece5d6ac03c07f"
     },
     {
       "id": "07-permission-model",
@@ -151,21 +151,22 @@
       ],
       "assetNumber": 7,
       "pixels": [
-        2166,
-        1005
+        2406,
+        646
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "0fad54152457cc516363b3d1342155127a1ae8c30a9756380dd3b213833511a0"
+      "pngSha256": "1a2acbd44efe47320d908779b36903fa70bc570793b7be2bfd6bb9f9a4b5f7fd"
     },
     {
       "id": "08-runtime-architecture",
-      "title": "Layered runtime architecture",
+      "title": "Containerized runtime architecture",
       "chapter": 3,
       "type": "diagram",
       "source": [
-        "docs/architecture.md",
-        "frontend/package.json",
-        "backend/pom.xml"
+        "docker-compose.yml",
+        "backend/Dockerfile",
+        "frontend/Dockerfile",
+        "docker-compose.release.yml"
       ],
       "files": [
         "diagrams/08-runtime-architecture.drawio",
@@ -174,11 +175,11 @@
       ],
       "assetNumber": 8,
       "pixels": [
-        1186,
-        1346
+        2026,
+        1946
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "4121c775576b78fbae865633daa66f036aa33142f6b1ff56798a5e3848dba7b6"
+      "pngSha256": "af2aaffa275637a7686f9ef1aedb7c3ac1285464ee803f3f411acafe84aabb70"
     },
     {
       "id": "09-frontend-structure",
@@ -201,7 +202,7 @@
         1346
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "efb6ec9c9c414284ff474b1f7dfbef3efa77b421b2d57e6785b22eef09b393c5"
+      "pngSha256": "aa222abd8902abc8d32f720ce6509392a5c7e517929f1791b82a16eefb3dee9f"
     },
     {
       "id": "10-backend-structure",
@@ -224,7 +225,7 @@
         1346
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "584c10e2a7cfd35e5716e2cd94a4d9b3a88f25c44de686ef1024018358e26369"
+      "pngSha256": "e70e20e8a8cdaeb5b0a544aa6591ef82fece6024441da6eec52b8493d7f12ce3"
     },
     {
       "id": "11-er-overall",
@@ -241,11 +242,11 @@
       ],
       "assetNumber": 11,
       "pixels": [
-        2586,
-        2825
+        3145,
+        3495
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "2b479e12549d5282ef013bf292652b6a528e182165f0321df69d5f3a15bf9c23"
+      "pngSha256": "38a470f49abea316e914f94955b3271a4d49bc202e95a18b7b4098385ef0095b"
     },
     {
       "id": "12-er-catalogue",
@@ -262,11 +263,11 @@
       ],
       "assetNumber": 12,
       "pixels": [
-        2506,
-        1483
+        2306,
+        2147
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "ce0318c692597fa12eeeef6a4736328f7c0bf6d2176e47f352cea61030696a1c"
+      "pngSha256": "fec4d7796836ed192cd2d01cd08586c5bb6043f8c31dbcdac32b381f8591c72e"
     },
     {
       "id": "13-er-movements",
@@ -283,11 +284,11 @@
       ],
       "assetNumber": 13,
       "pixels": [
-        2546,
-        1735
+        2306,
+        2403
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "3c10f83b4f2ab917be8461da27c1bfd3b770178328548f5c083ba0fcb0512ff9"
+      "pngSha256": "af6bc29e17927f6c41306d862b0c3c0553c1e7d3e921e309197694fa11736721"
     },
     {
       "id": "14-er-warnings",
@@ -304,11 +305,11 @@
       ],
       "assetNumber": 14,
       "pixels": [
-        2546,
-        1735
+        2306,
+        2403
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "390ee0d6430e06b2eb7fad4ec1d5b53480b379976708b72ec9bd2eb7850365a1"
+      "pngSha256": "90438fa4bb11fd819385c2510251334ca343b09eee06faa3b5959fd987b8ac32"
     },
     {
       "id": "15-er-support",
@@ -325,11 +326,11 @@
       ],
       "assetNumber": 15,
       "pixels": [
-        1746,
-        259
+        2306,
+        295
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "991b32b41ea8288f32088df54f3cb646adf1c61af7eae427e025abf6da65a0f8"
+      "pngSha256": "49c7b18a9fdb5623a49a30548fd75506dda645b77e037aa6fa2cc31a02d517f2"
     },
     {
       "id": "16-uml-domain",
@@ -346,11 +347,11 @@
       ],
       "assetNumber": 16,
       "pixels": [
-        2006,
-        1286
+        2166,
+        2106
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "533dcd454da3aa9c978b26d12cc94c0845dc67a7827b0868f66e54905c50f335"
+      "pngSha256": "984c93b5e99d41818da32d783c5e0c29f5e20439eb1f78c1165a4eda5610d05d"
     },
     {
       "id": "17-uml-service",
@@ -368,11 +369,11 @@
       ],
       "assetNumber": 17,
       "pixels": [
-        2706,
-        1086
+        2386,
+        1496
       ],
-      "layoutHint": "Full width or landscape",
-      "pngSha256": "decad4f0fa87e877c81c88383d70b2a0d8dd99e6904a4c1dc8f429db3c610015"
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "fe3039931d323771ac442da240274a831dfee2b8745637da917a485951356429"
     },
     {
       "id": "18-seq-login",
@@ -390,11 +391,11 @@
       ],
       "assetNumber": 18,
       "pixels": [
-        2926,
-        1858
+        3346,
+        2328
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "f9bf201253762d5ead556ffcb77804c6738337a21b2787912b71e970b2c6a333"
+      "pngSha256": "45541b2dcbb140fe2f8674b62e19be2a5951a45833689551f101de0dd714fc84"
     },
     {
       "id": "19-seq-stock",
@@ -412,11 +413,11 @@
       ],
       "assetNumber": 19,
       "pixels": [
-        2326,
-        2198
+        2666,
+        2768
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "223c9fb54cae828e8c32b1ca6e4e8c924f535c5edc34dde58d830818388e2337"
+      "pngSha256": "34f3399ceec32a6664e9306a8edfcba196546b15b27bdb0f246065326ce296e6"
     },
     {
       "id": "20-seq-warning",
@@ -434,11 +435,11 @@
       ],
       "assetNumber": 20,
       "pixels": [
-        2326,
-        1858
+        2666,
+        2328
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "cb1abe5d6e90851eb585b2c55b0a7754eaa7e09cb22e730d8b99ded095607149"
+      "pngSha256": "933b387b8421e44e2a4f65d8ca12dd6f40a9c6cbb39330e8da5f0ce39e5d354e"
     },
     {
       "id": "21-stock-flow",
@@ -459,7 +460,7 @@
         1626
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "b66807181186d8df98e45a8adb7d0361a64162c6ecae77e1338c137863571ff2"
+      "pngSha256": "acc940afb6f61cb21c6b4893e44370769d885d9710ef04715afd207b638948fe"
     },
     {
       "id": "22-warning-state",
@@ -476,11 +477,11 @@
       ],
       "assetNumber": 22,
       "pixels": [
-        2436,
-        1785
+        2632,
+        1686
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "3a75d3e100ce136bbd4e415f2b6a322ba2126e43c55baf292c88afa6c715e034"
+      "pngSha256": "05abec5c300e5ba18ff907ff37a579c1a3002ae838f4a00343b2473c18462915"
     },
     {
       "id": "23-security-flow",
@@ -501,17 +502,17 @@
         1346
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "bd509d6582ea24c6b0ff9b4c27b43a79332cf1bcdebb70e8ef73a9ddfc378cc9"
+      "pngSha256": "4ea1bbc2897642498ed9476dadfe39cc7f8f5997927f3038b1ad8ca1a869d4fa"
     },
     {
       "id": "24-deployment",
-      "title": "Implemented local deployment topology",
+      "title": "Windows release deployment topology",
       "chapter": 4,
       "type": "diagram",
       "source": [
-        "docker-compose.yml",
-        "frontend/vite.config.ts",
-        "backend/src/main/resources/application.yml"
+        "docker-compose.release.yml",
+        "scripts/start-release.ps1",
+        ".env.release.example"
       ],
       "files": [
         "diagrams/24-deployment.drawio",
@@ -520,11 +521,77 @@
       ],
       "assetNumber": 24,
       "pixels": [
-        1886,
-        1466
+        2026,
+        1946
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "8b2411305b08efa782bb460510590651be1c79ab7a93db6dfaed76df5d57812f"
+      "pngSha256": "f8677303ec6caae0e3213e39f45cdebe5bb7116b9078ae921fd0e0a91e55b729"
+    },
+    {
+      "id": "25-warning-rules",
+      "title": "Warning rule evaluation model",
+      "chapter": 2,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/WarningRules.java",
+        "backend/src/main/java/com/shelfwise/InventoryService.java"
+      ],
+      "files": [
+        "diagrams/25-warning-rules.drawio",
+        "diagrams/25-warning-rules.png",
+        "diagrams/25-warning-rules.svg"
+      ],
+      "assetNumber": 25,
+      "pixels": [
+        2266,
+        1406
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "edc51638f433c514584d6f9f3e38de761ec2247d5d6b221f50e368ba0585ad35"
+    },
+    {
+      "id": "26-purchasing-workflow",
+      "title": "Replenishment and purchase workflow",
+      "chapter": 2,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/Purchasing.java",
+        "frontend/src/components/PurchasingView.vue"
+      ],
+      "files": [
+        "diagrams/26-purchasing-workflow.drawio",
+        "diagrams/26-purchasing-workflow.png",
+        "diagrams/26-purchasing-workflow.svg"
+      ],
+      "assetNumber": 26,
+      "pixels": [
+        2269,
+        1586
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "7ba03da19c39d418418d6d4e8fb66ccc8f42b9b4b2d9867482c085ff03bea050"
+    },
+    {
+      "id": "27-batch-fefo",
+      "title": "Batch receipt and FEFO/FIFO allocation",
+      "chapter": 3,
+      "type": "diagram",
+      "source": [
+        "backend/src/main/java/com/shelfwise/BatchInventory.java",
+        "backend/src/main/java/com/shelfwise/Purchasing.java"
+      ],
+      "files": [
+        "diagrams/27-batch-fefo.drawio",
+        "diagrams/27-batch-fefo.png",
+        "diagrams/27-batch-fefo.svg"
+      ],
+      "assetNumber": 27,
+      "pixels": [
+        2162,
+        2146
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "ced7f6b58be21bd4f7eb11125ae887ff91c498453d06d48f74b5038276b4d53f"
     },
     {
       "id": "01-login-desktop",
@@ -537,14 +604,14 @@
       "source": "frontend/src/views/LoginView.vue",
       "url": "http://localhost:5173/login",
       "note": "Left-hand preview is illustrative UI, not measured inventory.",
-      "capturedAt": "2026-10-05T12:26:29.172Z",
-      "assetNumber": 25,
+      "capturedAt": "2026-10-06T15:59:28.833Z",
+      "assetNumber": 28,
       "pixels": [
         2880,
         2000
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "7eb3ce007d935a9ef852f12e305a6fc83e6aa5de72dfb0d78b8e4d9b07b4e863"
+      "pngSha256": "af79336cc279a16444a3baf1672c3b4ef1dc7425f79e1467f8b171dde4934b06"
     },
     {
       "id": "02-dashboard",
@@ -557,14 +624,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=overview",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:31.310Z",
-      "assetNumber": 26,
+      "capturedAt": "2026-10-06T15:59:30.754Z",
+      "assetNumber": 29,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "da339dd461941e9d28bacbcd1b48e3ce89c180eec0eb8c1c1fc85247ea05157f"
+      "pngSha256": "531efadb2adb2718d10c2082440531163b36aad8ea1adcd481cd6c578cda756b"
     },
     {
       "id": "03-inventory",
@@ -577,14 +644,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=inventory",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:32.174Z",
-      "assetNumber": 27,
+      "capturedAt": "2026-10-06T15:59:31.560Z",
+      "assetNumber": 30,
       "pixels": [
         2880,
-        2476
+        2408
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "f875f318cae5989a5a38e58577ec1310982bca681d56eb82d4b4f41780482169"
+      "pngSha256": "4cb891359a78038664db7884c907e1b1020b48fd2899e28e2a8dcb0cb2ed9bf3"
     },
     {
       "id": "04-catalogue",
@@ -597,14 +664,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=products",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:33.032Z",
-      "assetNumber": 28,
+      "capturedAt": "2026-10-06T15:59:32.335Z",
+      "assetNumber": 31,
       "pixels": [
         2880,
-        2476
+        2408
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "aea168f1840eb57e7e20abce6b43f81ee6b703c2cf13ec90b579b81727ecff01"
+      "pngSha256": "df82bc897cf7aa99f9b72954682144f77f1cf6db8373342e8be0d0c308cdfd86"
     },
     {
       "id": "05-categories",
@@ -617,14 +684,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=categories",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:33.737Z",
-      "assetNumber": 29,
+      "capturedAt": "2026-10-06T15:59:33.011Z",
+      "assetNumber": 32,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "21efe2ce01d8f74568e9ee459775f5b95ff5c7d8defb80f3ac24e3712fe03cb4"
+      "pngSha256": "3b228bb0d475833a315aae25eb90561b96a8e90b8f4631d0b086a944db9e2821"
     },
     {
       "id": "06-suppliers",
@@ -637,14 +704,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=suppliers",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:34.442Z",
-      "assetNumber": 30,
+      "capturedAt": "2026-10-06T15:59:33.698Z",
+      "assetNumber": 33,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "e0bcdf203b7abea54ba3b983d215b76fb26cccdddc0c762a46ec8fffc8ee1d8a"
+      "pngSha256": "115e15bb5ff1344464da0564dcab39e9dc7b956b2d117e8d383fa4661b99a6b5"
     },
     {
       "id": "07-history",
@@ -657,14 +724,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=transactions",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:35.253Z",
-      "assetNumber": 31,
+      "capturedAt": "2026-10-06T15:59:34.463Z",
+      "assetNumber": 34,
       "pixels": [
         2880,
-        2828
+        2760
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "14aabac8a5f71ce468ecc354eb2d74653e48d0e645826999f0ac36309baf9e55"
+      "pngSha256": "cd10a93e1b51b474eb3bc3c24f4ebe0f0ff034c21b58754940065e5e36601a7f"
     },
     {
       "id": "08-warnings",
@@ -677,14 +744,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=warnings",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:36.052Z",
-      "assetNumber": 32,
+      "capturedAt": "2026-10-06T15:59:35.215Z",
+      "assetNumber": 35,
       "pixels": [
         2880,
-        2340
+        2434
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "dab3536abfe3b7c00d1f5a48b76892f0087719f7dd919d81dde5df11f47ed7b2"
+      "pngSha256": "56c076db21af1d0bc4978755c6c2e3fb66f58253c93300b2283d3f6cb4815c1a"
     },
     {
       "id": "09-reports",
@@ -697,14 +764,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=reports",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:36.781Z",
-      "assetNumber": 33,
+      "capturedAt": "2026-10-06T15:59:36.008Z",
+      "assetNumber": 36,
       "pixels": [
         2880,
-        2062
+        2552
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "070dc9c5d9510e1354509aba74b6b359ff1f494990c5faf046b2e4a8a2094bf3"
+      "pngSha256": "5944d70601e79d784e88118a8bd633af8797a61702b43a8f2487864f806e4890"
     },
     {
       "id": "10-team",
@@ -717,14 +784,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=team",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:37.488Z",
-      "assetNumber": 34,
+      "capturedAt": "2026-10-06T15:59:36.697Z",
+      "assetNumber": 37,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "2fe58c86f9281196d506d7ad1cfd1f18760bc9e7d1e6f54aa8a4dbeb35d2195f"
+      "pngSha256": "09734b46b25975ef145514b0aa3100b00cae84a7e794c3776c8e757cd2bdd858"
     },
     {
       "id": "11-settings",
@@ -737,14 +804,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=settings",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:38.306Z",
-      "assetNumber": 35,
+      "capturedAt": "2026-10-06T15:59:37.379Z",
+      "assetNumber": 38,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "adb83d0c0ada141297da0528d8f2c385f6f298e9b799893dfe967e7b9d359e0d"
+      "pngSha256": "03e99d9ca996c70dea4c8fd91438a27e965656f320b88cf6e693dd81f5ae1f7c"
     },
     {
       "id": "12-inventory-search",
@@ -757,14 +824,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=inventory",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:39.305Z",
-      "assetNumber": 36,
+      "capturedAt": "2026-10-06T15:59:38.311Z",
+      "assetNumber": 39,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "285ec7551a3721f777d0d911b4253424a8d91b65d7529d5bcea580563cd1b8af"
+      "pngSha256": "8ed8846da75306d189dc1de2da4fa3e74a5a9c8723772c4a1032dcc073554d2c"
     },
     {
       "id": "13-empty-search",
@@ -777,14 +844,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=inventory",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:39.636Z",
-      "assetNumber": 37,
+      "capturedAt": "2026-10-06T15:59:38.660Z",
+      "assetNumber": 40,
       "pixels": [
         2880,
         2062
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "db6bb1d636cc2bda223fb23963721db65781df7120b6eb6203e1de82a30f39d3"
+      "pngSha256": "f62d1a2da3569fcafa993f0b6abd5c614ad809e36eeb062da1cb262c56ef12f2"
     },
     {
       "id": "14-add-product",
@@ -797,14 +864,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=products",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:40.500Z",
-      "assetNumber": 38,
+      "capturedAt": "2026-10-06T15:59:39.434Z",
+      "assetNumber": 41,
       "pixels": [
         1200,
         1188
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "795e13d98efdf1bd8a26befb8d39e74d22bb24c4dc2b6c7c14dd0228f4100f63"
+      "pngSha256": "3bf427be11ea22ef1162db192370f38f91bd30a15cde4b11103da05e4d3c97f9"
     },
     {
       "id": "15-edit-product",
@@ -817,14 +884,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=products",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:41.900Z",
-      "assetNumber": 39,
+      "capturedAt": "2026-10-06T15:59:40.819Z",
+      "assetNumber": 42,
       "pixels": [
         1200,
         1188
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "019843b11063f375b25c783ee3d97ff4f5ff21ddef0f7f04aca58274a1fea709"
+      "pngSha256": "625f35ed86e29c6ad8bf0bde6d1aa0c2ddaa18976298f8d5477da36dbd20d5cb"
     },
     {
       "id": "16-stock-receipt",
@@ -837,14 +904,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=transactions",
       "note": "Draft form only; no stock movement was submitted.",
-      "capturedAt": "2026-10-05T12:26:44.899Z",
-      "assetNumber": 40,
+      "capturedAt": "2026-10-06T15:59:43.717Z",
+      "assetNumber": 43,
       "pixels": [
         1080,
-        1036
+        1356
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "c2cd4d6b409d4de68836a155e1024ed194e0a259ba6ee48907b92a87282da7ff"
+      "pngSha256": "2ad0b36fab0b69b4b10ac04db8e01241fdef973bf83c9b2ce2d9ddf85c110299"
     },
     {
       "id": "17-stock-dispatch",
@@ -857,14 +924,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=transactions",
       "note": "Draft form only; no stock movement was submitted.",
-      "capturedAt": "2026-10-05T12:26:45.413Z",
-      "assetNumber": 41,
+      "capturedAt": "2026-10-06T15:59:44.214Z",
+      "assetNumber": 44,
       "pixels": [
         1080,
         1036
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "cddd62d05b98945149c5106b1051e0a04ab2a2783c47e0909e1540f965ca57e0"
+      "pngSha256": "8e0b842c19c71d93b297287090ad841e47be2cc977d4d702c21abf0da6cf105b"
     },
     {
       "id": "18-stock-adjustment",
@@ -877,14 +944,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=transactions",
       "note": "Draft form only; no stock movement was submitted.",
-      "capturedAt": "2026-10-05T12:26:45.948Z",
-      "assetNumber": 42,
+      "capturedAt": "2026-10-06T15:59:44.713Z",
+      "assetNumber": 45,
       "pixels": [
         1080,
         1036
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "6e4b53a2fac2b88b9acd22da1adc961608d4511ce646940dcbf77a8e25a90583"
+      "pngSha256": "681a27c15224b613304ffa071dfe52e5fa3d49b51f4eb35640313a1008577448"
     },
     {
       "id": "19-stocktake",
@@ -897,14 +964,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=transactions",
       "note": "Draft form only; no stock movement was submitted.",
-      "capturedAt": "2026-10-05T12:26:46.466Z",
-      "assetNumber": 43,
+      "capturedAt": "2026-10-06T15:59:45.212Z",
+      "assetNumber": 46,
       "pixels": [
         1080,
         1036
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "7f84618c7f3cbe20179f4903debb271eef056f43702f07781b9af3820886630c"
+      "pngSha256": "5a5fa6f23b28be54dfc7d7fd15505cc2d3b4e96f12bad409e455084772b9a60a"
     },
     {
       "id": "20-category-form",
@@ -917,14 +984,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=categories",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:47.992Z",
-      "assetNumber": 44,
+      "capturedAt": "2026-10-06T15:59:46.724Z",
+      "assetNumber": 47,
       "pixels": [
         940,
         742
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "17be4096d423e36bc611594da8444b1db3a1792f8f500b1002c1f04690f6ec17"
+      "pngSha256": "2a3ac5eb691f007024388d85628dd6df0c43dc4b4104e910ad8c33e87db1ffd5"
     },
     {
       "id": "21-supplier-form",
@@ -937,14 +1004,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=suppliers",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:49.543Z",
-      "assetNumber": 45,
+      "capturedAt": "2026-10-06T15:59:48.261Z",
+      "assetNumber": 48,
       "pixels": [
         1000,
         902
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "596ed59c83bd9a15962ff18a977f6e176d23b3408f15152932c03ff7f28f286b"
+      "pngSha256": "3cde3f92b986c43ecb408d7b019070ff037a196e35570c1389348ae89f77e6c3"
     },
     {
       "id": "22-account-form",
@@ -957,14 +1024,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=team",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:51.094Z",
-      "assetNumber": 46,
+      "capturedAt": "2026-10-06T15:59:49.830Z",
+      "assetNumber": 49,
       "pixels": [
         1000,
         1028
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "2e2645e5c27afcc5eddc3ffe572a6cd63f8a1ebf910cf20a823de45c9ff7818d"
+      "pngSha256": "37f042f2d9f4aaf2db2a217c0bbf45affaa6bc785d3a78fd087408bd41b2579f"
     },
     {
       "id": "23-manager-thresholds",
@@ -977,14 +1044,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=inventory",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:54.566Z",
-      "assetNumber": 47,
+      "capturedAt": "2026-10-06T15:59:53.002Z",
+      "assetNumber": 50,
       "pixels": [
         1200,
         1188
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "98450db7da6c8bce8ea82d8f88620713ab7556a61e4ec9f088ffdbabba772453"
+      "pngSha256": "fe3ed93885b6badeb89e9f8fdd20d18333c2dbb93b559b627f469354f6a23dc0"
     },
     {
       "id": "24-manager-workspace",
@@ -997,14 +1064,74 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=warnings",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:56.195Z",
-      "assetNumber": 48,
+      "capturedAt": "2026-10-06T15:59:54.556Z",
+      "assetNumber": 51,
       "pixels": [
         2880,
-        2340
+        2434
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "673aa12eac1da58408c8a08034a7c5b900be04db557be408d78a300f93ad13f6"
+      "pngSha256": "b920eaa33bfd1fdfe4c49ab94a4c87ecef89fa9655c384b56b6d9f51d64230df"
+    },
+    {
+      "id": "28-batches",
+      "title": "Batch inventory with sellable balances and expiry state",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/28-batches.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=batches",
+      "note": "",
+      "capturedAt": "2026-10-06T15:59:55.994Z",
+      "assetNumber": 52,
+      "pixels": [
+        2880,
+        3976
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "e812d5dfc88fa5c8396fdbe098c5a0aae213994e1a97fe72a38b2778fee212b3"
+    },
+    {
+      "id": "29-purchasing",
+      "title": "Replenishment suggestions and purchasing workflow",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/29-purchasing.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=purchases",
+      "note": "",
+      "capturedAt": "2026-10-06T15:59:56.721Z",
+      "assetNumber": 53,
+      "pixels": [
+        2880,
+        2550
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "011d68e5f167889ab57571cdd88bca5a717cf7332e87f916a0fe9dd3181d4d04"
+    },
+    {
+      "id": "30-stock-reviews",
+      "title": "Snapshot-based stock review queue",
+      "chapter": 4,
+      "type": "ui",
+      "files": [
+        "ui/30-stock-reviews.png"
+      ],
+      "source": "frontend/src/views/WorkspaceView.vue",
+      "url": "http://localhost:5173/?view=reviews",
+      "note": "",
+      "capturedAt": "2026-10-06T15:59:57.422Z",
+      "assetNumber": 54,
+      "pixels": [
+        2880,
+        2062
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "d68d8531ed2f8b5093810e311e3befe740ea02252c786c75eaebe6abe0c236e2"
     },
     {
       "id": "25-clerk-workspace",
@@ -1017,14 +1144,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=transactions",
       "note": "",
-      "capturedAt": "2026-10-05T12:26:58.741Z",
-      "assetNumber": 49,
+      "capturedAt": "2026-10-06T15:59:59.247Z",
+      "assetNumber": 55,
       "pixels": [
         2880,
-        2828
+        2760
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "689d4afbfc520b3b39fb69e3bd12cb66ff49c341837cc2309a478de33024f5d1"
+      "pngSha256": "71b506a42dc1bec5e7f4a7bf516b47b062c8b6d6a47ef804936c11e60ade21c7"
     },
     {
       "id": "26-mobile-login",
@@ -1037,14 +1164,14 @@
       "source": "frontend/src/views/LoginView.vue",
       "url": "http://localhost:5173/login",
       "note": "Responsive Web interface, not a native mobile application.",
-      "capturedAt": "2026-10-05T12:26:59.964Z",
-      "assetNumber": 50,
+      "capturedAt": "2026-10-06T16:00:00.413Z",
+      "assetNumber": 56,
       "pixels": [
         780,
         1688
       ],
       "layoutHint": "Narrow figure / side-by-side",
-      "pngSha256": "b6103f008a5489adef3db408580bcb4d319f6130c04107b286790137b0ce990f"
+      "pngSha256": "d61a8c7ae16f740d53e413c44ec7fc86e01f94a1316d023e3b3c1f019f7af816"
     },
     {
       "id": "27-mobile-inventory",
@@ -1057,14 +1184,14 @@
       "source": "frontend/src/views/WorkspaceView.vue",
       "url": "http://localhost:5173/?view=inventory",
       "note": "Responsive Web interface, not a native mobile application.",
-      "capturedAt": "2026-10-05T12:27:01.936Z",
-      "assetNumber": 51,
+      "capturedAt": "2026-10-06T16:00:02.157Z",
+      "assetNumber": 57,
       "pixels": [
         780,
-        2888
+        2906
       ],
       "layoutHint": "Narrow figure / side-by-side",
-      "pngSha256": "78fd8622403192fb59772e836546db9f24690e10d3ba3ddccd83532691eebf34"
+      "pngSha256": "27ff4765a2f57010bf2cd369c2125c4d0a043e959ea6fe5606997106661fde3c"
     },
     {
       "id": "01-code-product-lock",
@@ -1074,21 +1201,21 @@
       "source": "backend/src/main/java/com/shelfwise/Repositories.java",
       "startLine": 1,
       "endLine": 19,
-      "sourceSha256": "a08deb517d61b51fc7ddc8df19808de2c16dedd3ad5b0916e435e8095759431f",
-      "excerptSha256": "b2de288cf76e764be5693c352c3a99aec84b31b706320d7dbe025e7f674d44f4",
+      "sourceSha256": "d01aea43bbfc16000307e750ff25d0aa21d148962c46a510db3c62d6ccc53e86",
+      "excerptSha256": "402e99fa392c84df06793572f39cfcefbb6eaef23c1d6ecbae5a2d968de7b526",
       "files": [
         "code/01-code-product-lock.png",
         "code/01-code-product-lock.html",
         "sources/01-code-product-lock.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 52,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 58,
       "pixels": [
         2000,
-        1930
+        1610
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "e8234902039edb46122222d99a31aebf2d37b27741ef5544d7e1cd11499b6cf2"
+      "pngSha256": "0f81adb49c29901d463e5f8889f7a63df48160d1cfcf399b6ab484b0e9be0d95"
     },
     {
       "id": "02-code-stock-transaction",
@@ -1096,23 +1223,23 @@
       "chapter": 4,
       "type": "code",
       "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
-      "startLine": 56,
-      "endLine": 66,
-      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
-      "excerptSha256": "5024e70630b56ae0d42074458450b601bbef3bfd00e25363297f0030d620aa6a",
+      "startLine": 60,
+      "endLine": 70,
+      "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
+      "excerptSha256": "c23f175428b0328efda81935b516bdaca2e536b0d6ff44a893caf4b1f58fbf39",
       "files": [
         "code/02-code-stock-transaction.png",
         "code/02-code-stock-transaction.html",
         "sources/02-code-stock-transaction.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 53,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 59,
       "pixels": [
         2000,
-        2634
+        2954
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "ea1b7e633bbd3f14297bcf5eac3bbadcb7e7bbaa375c69eb9daf05521db2bfc5"
+      "pngSha256": "1357bb9f3db72c9c4958a91c17bc4c89fbfd993b965cb025d07aef7d37d08de5"
     },
     {
       "id": "03-code-product-filter",
@@ -1122,21 +1249,21 @@
       "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
       "startLine": 26,
       "endLine": 41,
-      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
-      "excerptSha256": "82a054cb0586f0071d4cc446bab407e05ce3400b403f3e824de0f56cfcf7ec4a",
+      "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
+      "excerptSha256": "c9ffcca08a81d5309f6c40137f581e6e0f0aee7fefd052857a79d9e62471a473",
       "files": [
         "code/03-code-product-filter.png",
         "code/03-code-product-filter.html",
         "sources/03-code-product-filter.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 54,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 60,
       "pixels": [
         2000,
-        2762
+        2714
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "10e9feb4568455793f1446f08076f5a60d9f766ff72f5d5dc4c92fbd3822c949"
+      "pngSha256": "71a94db2f2a5fe266d94dc6261f7ed768990d47af39b8e8d430eb8bb8276ffb7"
     },
     {
       "id": "04-code-warning-cache",
@@ -1144,23 +1271,23 @@
       "chapter": 4,
       "type": "code",
       "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
-      "startLine": 70,
-      "endLine": 83,
-      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
+      "startLine": 74,
+      "endLine": 87,
+      "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
       "excerptSha256": "56618b9a823f4da24384cf688eb4b3eb9b43b7537ef2b36e0d9b32da9b8a3281",
       "files": [
         "code/04-code-warning-cache.png",
         "code/04-code-warning-cache.html",
         "sources/04-code-warning-cache.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 55,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 61,
       "pixels": [
         2000,
-        2762
+        2426
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "c3bffc785e4ad5f2d90cc595bb037ba1175c140c0fe9a9d34c1bd260815fe7e8"
+      "pngSha256": "1e9d22579db12a886ab39b206c7177a48ece6e3fd0633251c2dba5d1e467efd0"
     },
     {
       "id": "05-code-warning-lifecycle",
@@ -1168,23 +1295,23 @@
       "chapter": 4,
       "type": "code",
       "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
-      "startLine": 122,
-      "endLine": 129,
-      "sourceSha256": "7842e021d12651ccddd9e0698480036ce8316c41836e8888a2aefaf14023c14f",
-      "excerptSha256": "9ecfb27896d007d2033fdbbeda11711bbe6c47397f4aea9027db88b5d00cfbfc",
+      "startLine": 133,
+      "endLine": 139,
+      "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
+      "excerptSha256": "259180b108ebc05b260c74e301e073886ea32490cb2f55eb5eb1d6b8b1f38603",
       "files": [
         "code/05-code-warning-lifecycle.png",
         "code/05-code-warning-lifecycle.html",
         "sources/05-code-warning-lifecycle.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 56,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 62,
       "pixels": [
         2000,
-        2058
+        2954
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "be9991b6afe197dc2f660f1ad77afc084c31b7652e1f384848263d2d80fa6248"
+      "pngSha256": "8bfd7fc22321c9f978fce05bf56201ce0335000a8792c972db81df68cc5e45b6"
     },
     {
       "id": "06-code-security",
@@ -1194,21 +1321,21 @@
       "source": "backend/src/main/java/com/shelfwise/SecurityConfig.java",
       "startLine": 26,
       "endLine": 40,
-      "sourceSha256": "2c9f80e52ba339df9956583f7fa958163b4f1318d10fd638fbfa9e7c6e221307",
-      "excerptSha256": "57473a3e153d9a1444ad8ffa7768644c3257f7c1dac45383553271bd07a3690b",
+      "sourceSha256": "acc9d59e69fe1013f8555ed893e7852a656890dda82c9731098cca497ef25f57",
+      "excerptSha256": "6b6b5f3b3d8d4abb04bbc9403eb4869425336c742adafdbbe0f50109b8ebf4c5",
       "files": [
         "code/06-code-security.png",
         "code/06-code-security.html",
         "sources/06-code-security.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 57,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 63,
       "pixels": [
         2000,
-        2442
+        1658
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "28c1288b2fbd0e782f3f64bdf4935c85339d14bceec888665472d3924289e394"
+      "pngSha256": "37a122891e42cc22a6df5de2afbc0e021ecd1c8ef5b73ece9a0d886370747af6"
     },
     {
       "id": "07-code-session-login",
@@ -1216,23 +1343,23 @@
       "chapter": 4,
       "type": "code",
       "source": "backend/src/main/java/com/shelfwise/SecurityConfig.java",
-      "startLine": 69,
-      "endLine": 77,
-      "sourceSha256": "2c9f80e52ba339df9956583f7fa958163b4f1318d10fd638fbfa9e7c6e221307",
+      "startLine": 74,
+      "endLine": 82,
+      "sourceSha256": "acc9d59e69fe1013f8555ed893e7852a656890dda82c9731098cca497ef25f57",
       "excerptSha256": "02c521a1299b94b271c99debfb8712d638858d817362cf66d5899ff78fe3dcdd",
       "files": [
         "code/07-code-session-login.png",
         "code/07-code-session-login.html",
         "sources/07-code-session-login.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 58,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 64,
       "pixels": [
         2000,
-        1930
+        1466
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "9dd89fc6bfcd4368cb02be93cb410f667cfd0680697261fad0501432d2e162dc"
+      "pngSha256": "6e4a695d0bd6ad7781db79563af3c5f57a0c31704059237c99b60d7079d3c97e"
     },
     {
       "id": "08-code-api-client",
@@ -1249,14 +1376,14 @@
         "code/08-code-api-client.html",
         "sources/08-code-api-client.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 59,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 65,
       "pixels": [
         2000,
         2378
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "fc24a350b02996eb351eb790172cc00f1c07c53341a744e22243503288471694"
+      "pngSha256": "2ecb86c2a95d7ba574324ca03ca62178159b93816901e045a7f58ee686324fcd"
     },
     {
       "id": "09-code-navigation",
@@ -1273,14 +1400,14 @@
         "code/09-code-navigation.html",
         "sources/09-code-navigation.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 60,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 66,
       "pixels": [
         2000,
-        2058
+        2330
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "326a1b79c0acdfcb26c33da6e1af00686b90583d757ca87b31963674e2bed5aa"
+      "pngSha256": "6d6942f2eeefba16197c7b82062a74889a3809f84348e6132a2f0948619a3dce"
     },
     {
       "id": "10-code-schema",
@@ -1297,14 +1424,14 @@
         "code/10-code-schema.html",
         "sources/10-code-schema.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 61,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 67,
       "pixels": [
         2000,
-        2314
+        1658
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "e6b7440e7b4b1a123e72cb82f79379850e3d93039ffc89a10906b9cb24611ec6"
+      "pngSha256": "c33719752c634d04671a6c2aabc332d1495a24c8432d42273e4fbaecc1d23609"
     },
     {
       "id": "11-code-deployment",
@@ -1313,22 +1440,22 @@
       "type": "code",
       "source": "docker-compose.yml",
       "startLine": 1,
-      "endLine": 27,
-      "sourceSha256": "c29ad03eb1887115efa7ed6cc36dea458c07182dcdb9b4c13290a200dab180fd",
-      "excerptSha256": "c29ad03eb1887115efa7ed6cc36dea458c07182dcdb9b4c13290a200dab180fd",
+      "endLine": 32,
+      "sourceSha256": "2c64b0bb79581331b9472765dd9584ad6a7fdb67a625f78a6f49cff5cfa257bc",
+      "excerptSha256": "14a983f8dff0ae10693efda342fd2ebc405bbf86dd0b2a83266353437496a54c",
       "files": [
         "code/11-code-deployment.png",
         "code/11-code-deployment.html",
         "sources/11-code-deployment.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 62,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 68,
       "pixels": [
         2000,
-        2122
+        1898
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "aabbc35d575db960ca9a96a81dc3344b7cb4743677a699c8f2f5b8a04a19df66"
+      "pngSha256": "82a00bae27e442d085cf4ed3285efe0f5b1f91fff5874c8876a03718367bbd5c"
     },
     {
       "id": "12-code-concurrency-tests",
@@ -1336,23 +1463,23 @@
       "chapter": 5,
       "type": "code",
       "source": "backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java",
-      "startLine": 51,
-      "endLine": 52,
-      "sourceSha256": "8d233081327d56d0f79763085f3e2b0c810039a0d97332326d42ebeca6f50d84",
+      "startLine": 170,
+      "endLine": 171,
+      "sourceSha256": "c4124218420a996e7fb2ff73607b04333ec5709cb659369ac632bf3a57d86dba",
       "excerptSha256": "2bd949858586b22f2aec8b98cd53fe8392fd434a4af7c6349bcadb613aab3c8a",
       "files": [
         "code/12-code-concurrency-tests.png",
         "code/12-code-concurrency-tests.html",
         "sources/12-code-concurrency-tests.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 63,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 69,
       "pixels": [
         2000,
-        1674
+        1898
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "88caf03efc85d015f7fdd8e25d089ff4d6e5c8dec7cb78a4b84f51bea0a9f357"
+      "pngSha256": "a40b16c442651249e150d6da370f70ac521489db351bca035329d0b8951006f8"
     },
     {
       "id": "13-code-boundary-tests",
@@ -1369,14 +1496,14 @@
         "code/13-code-boundary-tests.html",
         "sources/13-code-boundary-tests.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 64,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 70,
       "pixels": [
         2000,
-        1546
+        1226
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "db701b3b625dfb6c60367499c4d269781ccd9bdb397c22c4f28bfbbff3831df4"
+      "pngSha256": "c9a70a8d8d7aba909998a3a7398f4bb392d3aaeeedaaefbf6968859b0078bebb"
     },
     {
       "id": "14-code-stock-form",
@@ -1384,23 +1511,47 @@
       "chapter": 4,
       "type": "code",
       "source": "frontend/src/views/WorkspaceView.vue",
-      "startLine": 65,
-      "endLine": 67,
-      "sourceSha256": "3cb849ca8a7016e951ba50a7bb07577815fbab3c9b573f91c52cfae158d59e85",
-      "excerptSha256": "deaa3b8a984dda2ed7d349948eb5b544bc52cdd9ff991c7e0404fc12a4d3a1a5",
+      "startLine": 80,
+      "endLine": 81,
+      "sourceSha256": "1dd7f71d4fbbf7e3ae0e3d69a0f6fc29c804b3ec8b33b08ba7c5c0e57a3c0e5d",
+      "excerptSha256": "d063a067f4550c3f7662738cb33bbfa44a08a83689d2cb2b7da844b9bf64bff8",
       "files": [
         "code/14-code-stock-form.png",
         "code/14-code-stock-form.html",
         "sources/14-code-stock-form.txt"
       ],
-      "note": "Exact source text with display wrapping; original line numbers retained.",
-      "assetNumber": 65,
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 71,
       "pixels": [
         2000,
-        1546
+        1850
       ],
       "layoutHint": "Portrait page, full text width",
-      "pngSha256": "ba695e54765171b879bde6b7ac8996e90bc31289e27998c151bc7b5fae17e4d8"
+      "pngSha256": "776a5ffd4502d8e706b85cfc4f8358f02d53dcf5aaa2ad700f4a532b56a0228a"
+    },
+    {
+      "id": "15-code-purchasing",
+      "title": "Purchase approval and state guards",
+      "chapter": 4,
+      "type": "code",
+      "source": "backend/src/main/java/com/shelfwise/Purchasing.java",
+      "startLine": 100,
+      "endLine": 105,
+      "sourceSha256": "1c5b54275d70755741e6ea696d1a9eb59267ac04b8829d63eb55a801af4e1965",
+      "excerptSha256": "2df9ff58b97a1edd076076d9ac16e85b4d4e0ef2f5c13c6e9fdbbf4205e95fe5",
+      "files": [
+        "code/15-code-purchasing.png",
+        "code/15-code-purchasing.html",
+        "sources/15-code-purchasing.txt"
+      ],
+      "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines.",
+      "assetNumber": 72,
+      "pixels": [
+        2000,
+        2090
+      ],
+      "layoutHint": "Portrait page, full text width",
+      "pngSha256": "5d7abb02d5a036430112e7e938ae76cb7f5d748f468bc63ff8a44b057e072b74"
     },
     {
       "id": "01-backend-tests",
@@ -1413,13 +1564,13 @@
         "evidence/01-backend-tests.html",
         "sources/01-backend-tests.txt"
       ],
-      "assetNumber": 66,
+      "assetNumber": 73,
       "pixels": [
         2160,
         790
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "13342e784474b2ac409482e572f88950a64b83ab86ebeb66152c16b4088bb58a"
+      "pngSha256": "c390f13677feb055ed6f0115ae81de37b704413e7c0a804faadc00fd201f370c"
     },
     {
       "id": "02-frontend-tests",
@@ -1432,13 +1583,13 @@
         "evidence/02-frontend-tests.html",
         "sources/02-frontend-tests.txt"
       ],
-      "assetNumber": 67,
+      "assetNumber": 74,
       "pixels": [
         2160,
         622
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "24af84f7c10ee7ed40c468403d0fcaa002a9e17b7ebcc4051372c2eb0a0c6beb"
+      "pngSha256": "8e6eb6b47bbb536e66aea3cfb5496e7ecf8f485d4af0700a44e0ac6cfec91779"
     },
     {
       "id": "03-browser-verification",
@@ -1451,13 +1602,13 @@
         "evidence/03-browser-verification.html",
         "sources/03-browser-verification.txt"
       ],
-      "assetNumber": 68,
+      "assetNumber": 75,
       "pixels": [
         2160,
         958
       ],
       "layoutHint": "Full width or landscape",
-      "pngSha256": "87042571a545705c9a76616fe6db68aa78b1d314a766b3b69a2b68063433d19f"
+      "pngSha256": "ba0693acf956f897a612b3aa8c0ae98a9a73258a457ebaa074ab453f9a19f108"
     },
     {
       "id": "04-latency-summary",
@@ -1471,7 +1622,7 @@
         "evidence/04-latency-summary.pdf"
       ],
       "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode",
-      "assetNumber": 69,
+      "assetNumber": 76,
       "pixels": [
         2509,
         1378
@@ -1491,7 +1642,7 @@
         "evidence/05-latency-ecdf.pdf"
       ],
       "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode",
-      "assetNumber": 70,
+      "assetNumber": 77,
       "pixels": [
         2506,
         1378
@@ -1511,7 +1662,7 @@
         "evidence/06-latency-boxplot.pdf"
       ],
       "note": "Historical local measurements, not a newly executed benchmark. Recorded 2026-10-03 UTC \u00b7 16 products \u00b7 concurrency 1 \u00b7 600 samples per mode",
-      "assetNumber": 71,
+      "assetNumber": 78,
       "pixels": [
         2509,
         1378

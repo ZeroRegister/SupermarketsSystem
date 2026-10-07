@@ -14,7 +14,7 @@
       "code/01-code-product-lock.html",
       "sources/01-code-product-lock.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "02-code-stock-transaction",
@@ -22,16 +22,16 @@
     "chapter": 4,
     "type": "code",
     "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
-    "startLine": 56,
-    "endLine": 66,
+    "startLine": 60,
+    "endLine": 70,
     "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
-    "excerptSha256": "2ced22ea4dd7481591702088bc108887cca99cdb197c8b5f5938068c88bdef42",
+    "excerptSha256": "c23f175428b0328efda81935b516bdaca2e536b0d6ff44a893caf4b1f58fbf39",
     "files": [
       "code/02-code-stock-transaction.png",
       "code/02-code-stock-transaction.html",
       "sources/02-code-stock-transaction.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "03-code-product-filter",
@@ -48,7 +48,7 @@
       "code/03-code-product-filter.html",
       "sources/03-code-product-filter.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "04-code-warning-cache",
@@ -56,16 +56,16 @@
     "chapter": 4,
     "type": "code",
     "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
-    "startLine": 70,
-    "endLine": 83,
+    "startLine": 74,
+    "endLine": 87,
     "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
-    "excerptSha256": "e5229caa51e63c533c28cfe450c3b354e896ebf3601b13a2f7dc093f4f6e3c52",
+    "excerptSha256": "56618b9a823f4da24384cf688eb4b3eb9b43b7537ef2b36e0d9b32da9b8a3281",
     "files": [
       "code/04-code-warning-cache.png",
       "code/04-code-warning-cache.html",
       "sources/04-code-warning-cache.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "05-code-warning-lifecycle",
@@ -74,15 +74,15 @@
     "type": "code",
     "source": "backend/src/main/java/com/shelfwise/InventoryService.java",
     "startLine": 133,
-    "endLine": 140,
+    "endLine": 139,
     "sourceSha256": "5dc94273e0b2882bbebf894800272a303386a35ba18b8ba8bed7c86ead60e1ff",
-    "excerptSha256": "060842f6f6e7ed26cfc5fa3a8cbb46756a51b0bf277290413f9ff0b17af93469",
+    "excerptSha256": "259180b108ebc05b260c74e301e073886ea32490cb2f55eb5eb1d6b8b1f38603",
     "files": [
       "code/05-code-warning-lifecycle.png",
       "code/05-code-warning-lifecycle.html",
       "sources/05-code-warning-lifecycle.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "06-code-security",
@@ -99,7 +99,7 @@
       "code/06-code-security.html",
       "sources/06-code-security.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "07-code-session-login",
@@ -116,7 +116,7 @@
       "code/07-code-session-login.html",
       "sources/07-code-session-login.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "08-code-api-client",
@@ -133,7 +133,7 @@
       "code/08-code-api-client.html",
       "sources/08-code-api-client.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "09-code-navigation",
@@ -150,7 +150,7 @@
       "code/09-code-navigation.html",
       "sources/09-code-navigation.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "10-code-schema",
@@ -167,7 +167,7 @@
       "code/10-code-schema.html",
       "sources/10-code-schema.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "11-code-deployment",
@@ -184,7 +184,7 @@
       "code/11-code-deployment.html",
       "sources/11-code-deployment.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "12-code-concurrency-tests",
@@ -201,7 +201,7 @@
       "code/12-code-concurrency-tests.html",
       "sources/12-code-concurrency-tests.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "13-code-boundary-tests",
@@ -218,7 +218,7 @@
       "code/13-code-boundary-tests.html",
       "sources/13-code-boundary-tests.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "14-code-stock-form",
@@ -226,33 +226,33 @@
     "chapter": 4,
     "type": "code",
     "source": "frontend/src/views/WorkspaceView.vue",
-    "startLine": 65,
-    "endLine": 67,
+    "startLine": 80,
+    "endLine": 81,
     "sourceSha256": "1dd7f71d4fbbf7e3ae0e3d69a0f6fc29c804b3ec8b33b08ba7c5c0e57a3c0e5d",
-    "excerptSha256": "e3dd449242397241199d00148992accf953073dfd0bec5c47a6b2bb62d04646f",
+    "excerptSha256": "d063a067f4550c3f7662738cb33bbfa44a08a83689d2cb2b7da844b9bf64bff8",
     "files": [
       "code/14-code-stock-form.png",
       "code/14-code-stock-form.html",
       "sources/14-code-stock-form.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "15-code-purchasing",
-    "title": "Purchase approval and partial receipt service path",
+    "title": "Purchase approval and state guards",
     "chapter": 4,
     "type": "code",
     "source": "backend/src/main/java/com/shelfwise/Purchasing.java",
-    "startLine": 96,
-    "endLine": 128,
+    "startLine": 100,
+    "endLine": 105,
     "sourceSha256": "1c5b54275d70755741e6ea696d1a9eb59267ac04b8829d63eb55a801af4e1965",
-    "excerptSha256": "f52f150ad7ab85b5dc731c73d034624ba9f4c54fbf67339211d6d127e3b5bfee",
+    "excerptSha256": "2df9ff58b97a1edd076076d9ac16e85b4d4e0ef2f5c13c6e9fdbbf4205e95fe5",
     "files": [
       "code/15-code-purchasing.png",
       "code/15-code-purchasing.html",
       "sources/15-code-purchasing.txt"
     ],
-    "note": "Exact source text with display wrapping; original line numbers retained."
+    "note": "Exact source tokens; dense lines are broken at statement boundaries for display, and numbers mark original lines."
   },
   {
     "id": "01-backend-tests",

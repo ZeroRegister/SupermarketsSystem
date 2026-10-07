@@ -18,8 +18,10 @@ def schema(name):
   if field in ('category_id','supplier_id','product_id','actor_id','acknowledged_by'):rules.append('Foreign key')
   if name=='inventory_transactions' and field in ('actor_id','idempotency_key'):rules.append('Composite unique')
   if name=='products' and field in ('quantity','safety_stock','reorder_threshold','price'):rules.append('Check constraint')
-  rows.append([field,typ,'No' if 'NOT NULL' in tail or 'PRIMARY KEY' in tail else 'Yes',', '.join(rules) or 'Column mapping',meanings.get(field,'Domain field')])
- return table_block('schema-'+name,'Implemented '+name+' table fields and constraints',rows)
+  purpose=meanings.get(field,'Domain field')
+  if field=='type':purpose='Stock movement type' if name=='inventory_transactions' else 'Warning type'
+  rows.append([field,typ,'No' if 'NOT NULL' in tail or 'PRIMARY KEY' in tail else 'Yes',', '.join(rules) or 'Column mapping',purpose])
+ return table_block('schema-'+name,'Initial V1 '+name+' fields and constraints',rows)
 test_explanations={
 'emptySearchAndStablePagination':'No-match query reports zero and oversized page request is capped.',
 'unauthorizedUserCannotReadInventory':'Anonymous inventory request receives 401.',
@@ -48,6 +50,12 @@ test_explanations={
 'warningFiltersHaveAccurateTotals':'Selected warning type agrees with returned content and total.',
 'concurrentAcknowledgementsPreserveFirstReviewer':'Concurrent review returns the same first attribution.',
 'invalidCredentialsAndNullLoginFieldsReturnClientErrors':'Invalid credentials and absent required login values are rejected.'}
+test_explanations.update({'approvedDisposalClearsBatchWarningAndReplayDoesNotRepeat': 'Approved disposal removes four expired physical units; repeated approval returns the same movement ID and leaves no open EXPIRED episode.', 'staleStockCountCannotOverwriteConcurrentReceipt': 'Receipt after submitted count makes approval conflict; received quantity three remains unchanged.', 'repeatedReviewSubmissionRetainsOneSnapshot': 'Identical review key returns the same review ID; changed counted quantity with that key is rejected.', 'scheduledNoOpDoesNotInvalidateCache': 'Repeated explicit refresh with unchanged warning facts leaves the durable cache revision unchanged.', 'multiLinePurchaseRejectionEditAndCompletion': 'Rejected two-line purchase can be edited and resubmitted; receipts produce COMPLETED and ten units per product; completed purchase cannot be cancelled.', 'concurrentReceiptReplayCreatesOneBatch': 'Three concurrent identical purchase receipts return one receipt ID, quantity three and exactly one batch.', 'disposalApprovalRechecksBatchRemainder': 'Dispatch reduces a submitted disposal batch; approval exceeding current remainder conflicts and physical quantity remains five.', 'countApprovalAndLongReasonRetainBoundedMovement': 'Approved absolute count sets quantity two and preserves a movement reason bounded to 300 characters.', 'clerkCannotBypassAdjustmentApproval': 'Clerk receives 403 for direct adjustment and stock-review approval endpoints.', 'purchasePartialReceiptReplayAndCancellationPreserveInventory': 'Receipt replay returns one ID; four units yield PARTIAL; excess receipt rejects; cancellation retains four received units, clears pending remainder and restores suggestion six.', 'concurrentApprovalsPreventDuplicateReplenishment': 'Two competing ten-unit purchase approvals for one product yield exactly one successful approval.', 'clerkCannotApprovePurchaseAndManagerCannotReceive': 'Clerk purchase approval and manager receipt requests both receive 403.', 'expiryDayIsSellableAndFollowingBusinessDayExpires': 'Clock advance across Shanghai midnight changes eight units from sellable to expired without changing physical quantity; one near-expiry episode closes and expired disposal clears EXPIRED.', 'invalidTimezoneDoesNotChangePolicy': 'Invalid business timezone rejects and leaves policy unchanged.', 'slowStockUsesSalesOnlyAndPreservesOneContinuousEvent': 'Thirty-one-day aged stock opens SLOW; ordinary dispatch preserves its ID; SALE clears the warning.', 'batchDispatchUsesFefoAndExcludesExpiredOrQuarantined': 'Five-unit dispatch allocates −4 to earlier expiry and −1 to later expiry; expired/quarantined remainder is excluded and another dispatch rejects.', 'receiptReplayChecksBatchMetadataAndRollsBackInvalidDates': 'Equal receipt returns one ID/batch; changed batch metadata conflicts; expiry before production rejects while quantity remains three.', 'warningHandlingKeepsConditionAndAudit': 'Assignment/processing leave shortage quantity unchanged; recovery retains CONFIRM/ASSIGN/PROCESS/RECOVER history; renewed shortage links previous ID and starts PENDING.'})
+def case_title(name):
+ # Split a camelCase test name into words and restore acronyms and compounds.
+ text=re.sub(r'(?<=[a-z])(?=[A-Z])',' ',name).capitalize()
+ for word,fixed in {'csrf':'CSRF','Csrf':'CSRF','fefo':'FEFO','sku':'SKU','id':'ID','no op':'no-op','Multi line':'Multi-line'}.items():text=re.sub(r'\b'+word+r'\b',fixed,text)
+ return text
 for file in sorted((BASE/'content').glob('*.md')):
  text=file.read_text();lines=text.splitlines();paragraph=[]
  def flush():
@@ -59,7 +67,7 @@ for file in sorted((BASE/'content').glob('*.md')):
   if line.startswith('#'):
    flush();level=len(line)-len(line.lstrip('#'));blocks.append({'kind':'heading','level':level,'text':line[level:].strip(),'group':file.stem})
   elif line.startswith('@fig '):
-   flush();key,asset,caption=line[5:].split('|',2);assert (ASSETS/asset).is_file();blocks.append({'kind':'fig','key':key,'asset':asset,'caption':caption,'group':file.stem})
+   flush();key,asset,caption=line[5:].split('|',2);assert all((ASSETS/x).is_file() for x in asset.split('+'));blocks.append({'kind':'fig','key':key,'asset':asset,'caption':caption,'group':file.stem})
   elif line.startswith('@table '):
    flush();key,caption=line[7:].split('|',1);rows=[];i+=1
    while i<len(lines) and ' | ' in lines[i]:rows.append([x.strip() for x in lines[i].split(' | ')]);i+=1
@@ -69,7 +77,7 @@ for file in sorted((BASE/'content').glob('*.md')):
    flush();key,text=line[10:].split('|',1);blocks.append({'kind':'equation','key':key,'text':text,'group':file.stem})
   elif line=='@tests':
    flush();tests=re.findall(r'@Test void (\w+)\(', (ROOT/'backend/src/test/java/com/shelfwise/InventoryIntegrationTest.java').read_text())
-   rows=[['Case','Executed assertion focus','Result']]+[[re.sub(r'(?<=[a-z])(?=[A-Z])',' ',t).capitalize(),test_explanations.get(t,'Executable regression assertion for the implemented workflow.'),'Passed'] for t in tests];b=table_block('acceptance-catalog',f'The {len(tests)} backend acceptance cases',rows);b['group']=file.stem;blocks.append(b)
+   rows=[['Case','Executed assertion focus','Result']]+[[case_title(t),test_explanations.get(t,'Executable regression assertion for the implemented workflow.'),'Passed'] for t in tests];b=table_block('acceptance-catalog',f'The {len(tests)} backend acceptance cases',rows);b['group']=file.stem;blocks.append(b)
   else:paragraph.append(line)
   i+=1
  flush()
@@ -115,20 +123,28 @@ def inline(s,tex=False):
    key=piece[5:-1];assert key in tabs,key;out.append('Table~\\ref{tab:'+key+'}' if tex else 'Table '+tabs[key])
   else:
    if tex:
-    piece=''.join({'\\':r'\textbackslash{}','&':r'\&','%':r'\%','$':r'\$','#':r'\#','_':r'\_','{':r'\{','}':r'\}','~':r'\textasciitilde{}','^':r'\textasciicircum{}'}.get(c,c) for c in piece)
+    piece=''.join({'\\':r'\textbackslash{}','&':r'\&','%':r'\%','$':r'\$','#':r'\#','_':r'\_','{':r'\{','}':r'\}','~':r'\textasciitilde{}','^':r'\textasciicircum{}','−':'-','→':r'\ensuremath{\rightarrow}'}.get(c,c) for c in piece)
    out.append(piece)
  return ''.join(out)
+LONG_TABLES={'api-catalog','extension-api','acceptance-catalog'}
 def tex_table(b):
- n=len(b['rows'][0]);weights=([.22,.21,.10,.17,.30] if b['key'].startswith('schema-') else ([.36,.49,.15] if b['key']=='acceptance-catalog' else ([.15,.33,.24,.28] if b['key']=='api-catalog' else [1/n]*n)))
+ n=len(b['rows'][0]);weights=([.22,.21,.10,.17,.30] if b['key'].startswith('schema-') else ([.36,.49,.15] if b['key']=='acceptance-catalog' else ([.12,.30,.23,.35] if b['key'] in ('api-catalog','extension-api') else ({'migration-layers':[.19,.42,.39],'role-matrix':[.49,.19,.16,.16]}.get(b['key'],[1/n]*n)))))
  col=''.join('>{\\raggedright\\arraybackslash}p{'+str(round(.90*w,3))+'\\textwidth}' for w in weights)
- out=['\\begingroup\\small\\setstretch{1.05}\\setlength{\\tabcolsep}{3pt}\\renewcommand{\\arraystretch}{1.25}','\\begin{longtable}{'+col+'}','\\caption{'+inline(b['caption'],True)+'}\\label{tab:'+b['key']+'}\\\\','\\toprule', ' & '.join('\\textbf{'+inline(x,True)+'}' for x in b['rows'][0])+r' \\',r'\midrule\endfirsthead',r'\toprule',' & '.join('\\textbf{'+inline(x,True)+'}' for x in b['rows'][0])+r' \\',r'\midrule\endhead',r'\bottomrule\endfoot']
- out+=[' & '.join(('\\path|'+x+'|' if ('_' in x or x.startswith('/api/')) else inline(x,True)) for x in row)+r' \\' for row in b['rows'][1:]];out+=['\\end{longtable}\\endgroup'];return '\n'.join(out)
+ head=' & '.join('\\textbf{'+inline(x,True)+'}' for x in b['rows'][0])+r' \\'
+ # Short tables float as one unit so a page break cannot strand a single row.
+ floating=len(b['rows'])<=15 and b['key'] not in LONG_TABLES
+ if floating:out=['\\begin{table}[htbp]\\centering\\small\\setstretch{1.05}\\setlength{\\tabcolsep}{3pt}\\renewcommand{\\arraystretch}{1.25}','\\caption{'+inline(b['caption'],True)+'}\\label{tab:'+b['key']+'}','\\begin{tabular}{'+col+'}','\\toprule',head,r'\midrule']
+ else:out=['\\begingroup\\small\\setstretch{1.05}\\setlength{\\tabcolsep}{3pt}\\renewcommand{\\arraystretch}{1.25}','\\begin{longtable}{'+col+'}','\\caption{'+inline(b['caption'],True)+'}\\label{tab:'+b['key']+'}\\\\','\\toprule',head,r'\midrule\endfirsthead',r'\toprule',head,r'\midrule\endhead',r'\bottomrule\endfoot']
+ def cell(value):
+  parts=re.split(r'(/api/[^\s,;]+|[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+|[/+→])',value)
+  return r'\leavevmode{}'+''.join('\\path|'+p+'|\\allowbreak{}' if p.startswith('/api/') or re.fullmatch(r'[A-Za-z][A-Za-z0-9]*_[A-Za-z0-9_]+',p) else inline(p,True)+(r'\allowbreak{}' if p in '/+→' else '') for p in parts)
+ out+=[' & '.join(cell(x) for x in row)+r' \\' for row in b['rows'][1:]];out+=[r'\bottomrule\end{tabular}\end{table}'] if floating else ['\\end{longtable}\\endgroup'];return '\n'.join(out)
 def tex_blocks(items):
  out=[]
  for b in items:
   kind=b['kind'];group=int(b['group'][:2])
   if kind=='heading':
-   if b['level']>1:out.append('\\FloatBarrier')
+   if b['level']==2:out.append('\\FloatBarrier')
    cmd={1:'chapter',2:'section',3:'subsection'}[min(b['level'],3)];star='*' if group in (0,6,7) else '';out.append('\\'+cmd+star+'{'+inline(b['text'],True)+'}')
    if star and b['level']==1:out.append('\\addcontentsline{toc}{chapter}{'+inline(b['text'],True)+'}')
    if star and b['level']==2:out.append('\\addcontentsline{toc}{section}{'+inline(b['text'],True)+'}')
@@ -136,7 +152,20 @@ def tex_blocks(items):
   elif kind=='table':out.append(tex_table(b))
   elif kind=='equation':out.append(r'\begin{equation}q_{\mathrm{after}}=q_{\mathrm{before}}+\Delta,\qquad 0\leq q_{\mathrm{after}}\leq 10^9.\end{equation}')
   elif kind=='fig':
-   maxh='0.84' if b['asset'].startswith('code/') else ('0.6' if b['key']=='er-overall' else '0.40')
+   if b['asset'].startswith('code/'):
+    maxh='0.90'
+   elif b['asset'].startswith('diagrams/'):
+    maxh={'er-overall':'0.86','security':'0.42'}.get(b['key'],'0.70')
+   elif b['asset'].startswith('ui/'):
+    import struct
+    width,height=struct.unpack('>II',(ASSETS/b['asset'].split('+')[0]).read_bytes()[16:24])
+    maxh={'clerk-ui':'0.42'}.get(b['key'],'0.60' if height/width>0.9 else '0.46')
+   else:
+    maxh='0.40'
+   if '+' in b['asset']:
+    # Paired panels share one float so two related views do not each claim a page.
+    panels=[r'\begin{minipage}[b]{0.485\textwidth}\centering\includegraphics[width=\linewidth]{../figure-assets/'+x+r'}\\[2pt]{\small ('+'ab'[i]+r')}\end{minipage}' for i,x in enumerate(b['asset'].split('+'))]
+    out.append('\\begin{figure}[htbp]\\centering\n'+r'\hfill'.join(panels)+'\n\\caption{'+inline(b['caption'],True)+'}\\label{fig:'+b['key']+'}\n\\end{figure}');continue
    out.append('\\begin{figure}[htbp]\\centering\n\\includegraphics[width=\\textwidth,height='+maxh+'\\textheight,keepaspectratio]{../figure-assets/'+b['asset']+'}\n\\caption{'+inline(b['caption'],True)+'}\\label{fig:'+b['key']+'}\n\\end{figure}')
  return '\n\n'.join(out)
 def build_tex():
@@ -158,7 +187,7 @@ def build_tex():
 \renewcommand{\topfraction}{0.95}
 \renewcommand{\bottomfraction}{0.9}
 \renewcommand{\textfraction}{0.04}
-\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\floatpagefraction}{0.88}
 \setcounter{topnumber}{3}
 \setcounter{bottomnumber}{2}
 \setcounter{totalnumber}{4}
@@ -171,11 +200,12 @@ def build_tex():
 \setlength{\emergencystretch}{3em}
 \setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{2}
-\pagestyle{fancy}\fancyhf{}\fancyhead[C]{\small Shelfwise Inventory and stock warning system}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}
+\pagestyle{fancy}\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}
 \fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
 \captionsetup{font=small,labelfont=bf,skip=7pt}
 \hypersetup{pdftitle={Development of an Inventory and Stock Warning System for Small Supermarkets},pdfauthor={}}
 \begin{document}
+\hypersetup{pageanchor=false}
 \begin{titlepage}\centering
 {\large UNIVERSITY AND DEPARTMENT\par}\vspace{2cm}
 {\Large\bfseries MASTER'S THESIS\par}\vspace{1.7cm}
@@ -186,11 +216,12 @@ Degree and specialty\quad\rule{5.5cm}{0.4pt}\par\vspace{0.7cm}
 City\quad\rule{7.5cm}{0.4pt}\par\vfill 2026
 \end{titlepage}
 \pagenumbering{roman}
-{\setstretch{1.0}\small\setlength{\parskip}{0pt}\tableofcontents\listoffigures\listoftables}
+\hypersetup{pageanchor=true}
+{\setstretch{1.0}\small\setlength{\parskip}{0pt}\tableofcontents}
 '''
  main=pre+tex_blocks([b for b in blocks if int(b['group'][:2])==0])+ '\n\\clearpage\\pagenumbering{arabic}\n'
  main+='\n'.join('\\include{chapters/'+mapping[i]+'}' for i in range(1,7))
- main+='\n\\bibliographystyle{unsrtnat}\\bibliography{references}\n\\setcounter{table}{0}\\renewcommand{\\thetable}{A.\\arabic{table}}\n\\include{chapters/07-appendices}\n\\end{document}\n';(BASE/'main.tex').write_text(main)
+ main+='\n\\bibliographystyle{unsrtnat}\\bibliography{references}\n\\setcounter{table}{0}\\renewcommand{\\thetable}{A.\\arabic{table}}\\renewcommand{\\theHtable}{A.\\arabic{table}}\n\\include{chapters/07-appendices}\n\\end{document}\n';(BASE/'main.tex').write_text(main)
 manifest={'title':TITLE,'language':'English','author_fields':'Blank institutional identity fields for completion','word_count':sum(len(b.get('text','').split()) for b in blocks if b['kind']=='p'),'figures':len(figs),'tables':len(tabs),'references':len(citations),'citation_order':citations,'source_files':[str(p.relative_to(ROOT)) for p in sorted((BASE/'content').glob('*.md'))],'figure_labels':figs,'table_labels':tabs}
 (BASE/'manuscript-manifest.json').write_text(json.dumps(manifest,indent=2));(BASE/'manuscript-blocks.json').write_text(json.dumps(blocks,indent=2))
 build_tex()
